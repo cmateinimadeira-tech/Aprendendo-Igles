@@ -183,7 +183,7 @@ LESSONS.push(
     vocab: [
       ["run", "tentativa (de volta rápida)", "This is your last run in Q2."],
       ["at the moment", "no momento", "You are P12 at the moment."],
-      ["or better", "ou melhor", "You need P10 or better."],
+      ["or better", "ou uma posição melhor (ou acima)", "You need P10 or better."],
       ["lost", "perdeu", "You lost time in sector 2."],
       ["locked up", "travou as rodas (na freada)", "I locked up at turn 6."],
       ["traffic", "tráfego (carros no caminho)", "What about traffic?"],

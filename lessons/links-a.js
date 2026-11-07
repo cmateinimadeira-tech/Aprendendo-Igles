@@ -51,7 +51,7 @@ LINK_ITEMS.push(
   { id: "but-2", w: "but", level: 2, kind: "sentido", s: "The driver was fast in practice, but he crashed early in the race.", q: "O que a frase diz sobre a corrida?", opts: ["Ele bateu, apesar de ter sido rápido no treino", "Ele bateu porque foi rápido demais no treino", "Ele também foi rápido na corrida", "Ele não largou na corrida"], a: 0, why: "“but” opõe as duas partes: foi bem no treino, mas bateu na corrida. Não diz que uma coisa causou a outra." },
 
   // so
-  { id: "so-1", w: "so", level: 2, kind: "lacuna", s: "Our train was cancelled, ___ we took a taxi to the airport.", opts: ["because", "although", "so", "unless"], a: 2, why: "Pegar um táxi é o resultado de o trem ter sido cancelado: consequência → so. “because” inverteria a ordem causa → efeito." },
+  { id: "so-1", w: "so", level: 2, kind: "lacuna", s: "Our train was cancelled, ___ we took a taxi to the airport.", opts: ["so", "because", "although", "unless"], a: 0, why: "Pegar um táxi é o resultado de o trem ter sido cancelado: consequência → so. “because” inverteria a ordem causa → efeito." },
   { id: "so-2", w: "so", level: 2, kind: "relacao", s: "Interest rates went up, so many families stopped buying new cars.", opts: ["contraste", "consequência", "causa", "exemplo"], a: 1, why: "A causa (juros subiram) vem antes; “so” introduz o efeito (famílias pararam de comprar)." },
 
   // because
@@ -91,7 +91,7 @@ LINK_ITEMS.push(
   { id: "while-2", w: "while", level: 2, kind: "sentido", s: "While the mechanics changed the tyres, the driver drank some water.", q: "Quando o piloto bebeu água?", opts: ["Depois que os mecânicos terminaram", "Em vez de trocar os pneus", "Porque os pneus foram trocados", "Ao mesmo tempo em que os pneus eram trocados"], a: 3, why: "“While” = enquanto: as duas ações acontecem ao mesmo tempo." },
 
   // until
-  { id: "until-1", w: "until", level: 2, kind: "lacuna", s: "Please wait here ___ the doctor calls your name.", opts: ["although", "because", "until", "so"], a: 2, why: "A espera termina quando o médico chamar: tempo (ponto final) → until." },
+  { id: "until-1", w: "until", level: 2, kind: "lacuna", s: "Please wait here ___ the doctor calls your name.", opts: ["until", "although", "because", "so"], a: 0, why: "A espera termina quando o médico chamar: tempo (ponto final) → until." },
   { id: "until-2", w: "until", level: 2, kind: "sentido", s: "He worked at the same bank until he was 40.", q: "O que a frase diz sobre o trabalho dele no banco?", opts: ["Começou a trabalhar lá aos 40 anos", "Trabalhou lá até os 40 e depois saiu", "Trabalhou lá porque tinha 40 anos", "Ainda trabalha lá hoje"], a: 1, why: "“until” marca o fim: o trabalho no banco durou até os 40 anos, não começou nessa idade." },
 
   // before
@@ -103,7 +103,7 @@ LINK_ITEMS.push(
   { id: "after-2", w: "after", level: 2, kind: "relacao", s: "After the strike ended, the factory went back to normal production.", opts: ["concessão", "exemplo", "finalidade", "tempo"], a: 3, why: "“After” situa os fatos no tempo: a fábrica voltou ao normal depois do fim da greve." },
 
   // if
-  { id: "if-1", w: "if", level: 2, kind: "lacuna", s: "___ it rains on Sunday, the race will start behind the safety car.", opts: ["Although", "Until", "If", "Because"], a: 2, why: "“will start” mostra uma possibilidade futura que depende da chuva: condição → If." },
+  { id: "if-1", w: "if", level: 2, kind: "lacuna", s: "___ it rains on Sunday, the race will start behind the safety car.", opts: ["If", "Although", "Until", "Because"], a: 0, why: "“will start” mostra uma possibilidade futura que depende da chuva: condição → If." },
   { id: "if-2", w: "if", level: 2, kind: "sentido", s: "If you finish the course, the company will pay for it.", q: "Quando a empresa paga o curso?", opts: ["Mesmo que você não termine", "Para que você comece o curso", "Só se você terminar o curso", "Sempre, antes do início do curso"], a: 2, why: "“If” cria uma condição: o pagamento depende de você terminar o curso." },
 
   // unless
@@ -116,7 +116,7 @@ LINK_ITEMS.push(
 
   // even though
   { id: "even-though-1", w: "even though", level: 3, kind: "sentido", s: "Even though prices went up, people kept buying the new phone.", q: "O que aconteceu com as compras do celular?", opts: ["Pararam por causa da alta dos preços", "Continuaram, apesar da alta dos preços", "Continuaram por causa da alta dos preços", "Os preços subiram porque as pessoas pararam de comprar"], a: 1, why: "“Even though” = mesmo que: a alta dos preços não impediu as compras (kept buying)." },
-  { id: "even-though-2", w: "even though", level: 3, kind: "lacuna", s: "She went to work on Monday ___ she had a bad cold.", opts: ["because", "so that", "even though", "until"], a: 2, why: "Um resfriado forte seria motivo para ficar em casa, mas ela foi trabalhar mesmo assim: concessão → even though." },
+  { id: "even-though-2", w: "even though", level: 3, kind: "lacuna", s: "She went to work on Monday ___ she had a bad cold.", opts: ["even though", "because", "so that", "until"], a: 0, why: "Um resfriado forte seria motivo para ficar em casa, mas ela foi trabalhar mesmo assim: concessão → even though." },
 
   // however
   { id: "however-1", w: "however", level: 2, kind: "lacuna", s: "The new app is fast. ___, it uses a lot of battery.", opts: ["However", "Because", "For example", "So"], a: 0, why: "A segunda frase traz um ponto negativo depois de um positivo: contraste → However (porém)." },
@@ -172,7 +172,7 @@ LINK_ITEMS.push(
 
   // as a result
   { id: "as-a-result-1", w: "as a result", level: 3, kind: "relacao", s: "The factory closed for two weeks. As a result, car sales fell in June.", opts: ["causa", "consequência", "contraste", "exemplo"], a: 1, why: "A causa está na primeira frase (fábrica fechada); “As a result” abre o efeito (vendas caíram)." },
-  { id: "as-a-result-2", w: "as a result", level: 3, kind: "lacuna", s: "It rained heavily during qualifying. ___, most drivers chose wet tyres.", opts: ["However", "For example", "As a result", "Instead"], a: 2, why: "Escolher pneus de chuva é o efeito da chuva forte: consequência → As a result." },
+  { id: "as-a-result-2", w: "as a result", level: 3, kind: "lacuna", s: "It rained heavily during qualifying. ___, most drivers chose wet tyres.", opts: ["As a result", "However", "For example", "Instead"], a: 0, why: "Escolher pneus de chuva é o efeito da chuva forte: consequência → As a result." },
 
   // still
   { id: "still-1", w: "still", level: 3, kind: "sentido", s: "The phone is very expensive. Still, millions of people buy it every year.", q: "Qual é a ideia da frase?", opts: ["As pessoas compram o celular porque ele é caro", "As pessoas ainda não compraram o celular", "As pessoas compram o celular, mesmo ele sendo caro", "O celular ficou mais barato"], a: 2, why: "No início, com vírgula, “Still” = ainda assim: o preço alto não impede as compras." },
@@ -180,7 +180,7 @@ LINK_ITEMS.push(
 
   // yet
   { id: "yet-1", w: "yet", level: 3, kind: "lacuna", s: "The new office isn't ready ___, so we're working from home this month.", opts: ["too", "instead", "yet", "for example"], a: 2, why: "Frase negativa (isn't) + algo que deve acontecer depois: no fim, “ainda não” → yet." },
-  { id: "yet-2", w: "yet", level: 3, kind: "sentido", s: "I haven't read the new contract yet.", q: "O que a pessoa diz sobre o contrato?", opts: ["Já leu o contrato", "Nunca vai ler o contrato", "Leu o contrato duas vezes", "Ainda não leu, mas pretende ler"], a: 3, why: "“haven't… yet” = ainda não: não leu até agora, mas a leitura é esperada." },
+  { id: "yet-2", w: "yet", level: 3, kind: "sentido", s: "I haven't read the new contract from the bank yet.", q: "O que a pessoa diz sobre o contrato?", opts: ["Já leu o contrato", "Nunca vai ler o contrato", "Leu o contrato duas vezes", "Ainda não leu, mas pretende ler"], a: 3, why: "“haven't… yet” = ainda não: não leu até agora, mas a leitura é esperada." },
 
   // already
   { id: "already-1", w: "already", level: 2, kind: "lacuna", s: "Don't buy the tickets for Sunday. I've ___ bought them online.", opts: ["hardly", "already", "still", "instead"], a: 1, why: "“Don't buy” porque a compra já aconteceu: tempo (antes do esperado) → already." },
@@ -188,7 +188,7 @@ LINK_ITEMS.push(
 
   // almost
   { id: "almost-1", w: "almost", level: 2, kind: "sentido", s: "The young driver almost won his first race last Sunday.", q: "O piloto ganhou a corrida?", opts: ["Sim, ganhou com facilidade", "Não, mas chegou muito perto de ganhar", "Sim, ganhou por pouco", "Não, e ficou longe da vitória"], a: 1, why: "“almost won” = quase ganhou: chegou perto, mas não venceu." },
-  { id: "almost-2", w: "almost", level: 2, kind: "lacuna", s: "The battery is ___ empty, so charge your laptop now.", opts: ["also", "hardly", "almost", "instead"], a: 2, why: "“so charge your laptop now” mostra urgência: a bateria está quase acabando → almost." },
+  { id: "almost-2", w: "almost", level: 2, kind: "lacuna", s: "The battery is ___ empty, so charge your laptop now.", opts: ["almost", "also", "hardly", "instead"], a: 0, why: "“so charge your laptop now” mostra urgência: a bateria está quase acabando → almost." },
 
   // hardly
   { id: "hardly-1", w: "hardly", level: 3, kind: "sentido", s: "I could hardly hear the speaker because the room was so noisy.", q: "A pessoa conseguiu ouvir o palestrante?", opts: ["Ouviu tudo muito bem", "Ouviu bem, apesar do barulho", "Quase não conseguiu ouvir", "Não foi à palestra"], a: 2, why: "“hardly” = quase não; o barulho da sala (“so noisy”) confirma. Não tem a ver com “hard”." },

@@ -29,6 +29,7 @@ Copie a estrutura das lições existentes em `data.js` (`LESSONS`). Campos:
   - `a`: índice da correta. **Varie a posição** da correta entre as perguntas (não concentre em 1).
   - Distratores plausíveis: use palavras do texto em relação errada, exageros (sempre/nunca) e informações que o texto não diz. Nada de alternativa absurda.
   - A pergunta **não pode entregar a resposta** (não cite na pergunta o trecho que a responde).
+  - **Uma pergunta também não pode entregar a resposta de outra.** O erro mais comum: a pergunta de vocabulário (V) pede o sentido de uma palavra que outra pergunta ou alternativa já traduziu (ex.: a V pergunta “delayed” e outra pergunta diz “por que atrasou?”). Releia o conjunto inteiro antes de terminar.
   - `why` em português: cite o trecho do texto entre aspas e explique por que está certa; quando útil, diga por que o distrator principal está errado.
 - `grammar`: `{ title, body, examples: [...] }`, **um** ponto-chave tirado do próprio texto, curto, que muda o sentido (ex.: conectivo, tempo verbal, referência, modal, grupo nominal, negação, comparativo, voz passiva, phrasal verb). Evite repetir os pontos já usados nas lições existentes do mesmo nível.
 - `vocab`: 7 a 9 itens `[termo, significado em pt, exemplo]`. **O termo precisa aparecer literalmente no texto** (mesma forma, ex.: "rose", não "rise"), porque o app sublinha essas palavras no texto.

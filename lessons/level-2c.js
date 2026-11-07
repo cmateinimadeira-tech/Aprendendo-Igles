@@ -128,10 +128,10 @@ LESSONS.push(
     context: "Uma mensagem de texto enviada por uma clínica ao paciente.",
     predict: "Antes de um exame de sangue, que instruções uma clínica costuma dar?",
     cognates: ["clinic", "medicines", "minutes", "results"],
-    text: "Reminder from Vida Clinic: your blood test is tomorrow, Thursday, at 7:30 am. Please do not eat anything for 8 hours before coming to the clinic. You can drink water. Take your usual medicines after doing the test, not before. Bring your ID and your health insurance card, and please arrive 15 minutes early. If you need to change the time, call us at least 24 hours before. Your results will be ready in two days.",
+    text: "Reminder from Vida Clinic: your blood test is on Thursday at 7:30 am. Please do not eat anything for 8 hours before coming to the clinic. You can drink water. Take your usual medicines after doing the test, not before. Bring your ID and your health insurance card, and please arrive 15 minutes early. If you need to change the time, call us at least 24 hours before. Your results will be ready in two days.",
     questions: [
-      { t: "G", q: "Ideia geral da mensagem:", opts: ["O resultado de um exame de sangue", "Um convite para uma campanha de vacinação", "Um lembrete de exame com instruções para o paciente"], a: 2, why: "“Reminder from Vida Clinic: your blood test is tomorrow” e depois várias instruções. Os resultados ainda não saíram: “will be ready in two days”." },
-      { t: "E", q: "Quando é o exame?", opts: ["Quinta-feira, às 7h30", "Quinta-feira, às 15h", "Sexta-feira, às 7h30"], a: 0, why: "“tomorrow, Thursday, at 7:30 am”. am = manhã." },
+      { t: "G", q: "Ideia geral da mensagem:", opts: ["O resultado de um exame de sangue", "Um convite para uma campanha de vacinação", "Um lembrete de exame com instruções para o paciente"], a: 2, why: "“Reminder from Vida Clinic: your blood test is on Thursday” e depois várias instruções. Os resultados ainda não saíram: “will be ready in two days”." },
+      { t: "E", q: "Quando é o exame?", opts: ["Quinta-feira, às 7h30", "Quinta-feira, às 15h", "Sexta-feira, às 7h30"], a: 0, why: "“on Thursday at 7:30 am”. am = manhã." },
       { t: "D", q: "O que o paciente pode fazer nas horas antes do exame?", opts: ["Tomar um café da manhã leve", "Beber água", "Tomar os remédios de sempre"], a: 1, why: "“You can drink water.” Comer não pode (“do not eat anything”), e os remédios ficam para depois do exame." },
       { t: "D", q: "Quando tomar os remédios de sempre?", opts: ["Depois do exame", "Oito horas antes do exame", "Na noite anterior"], a: 0, why: "“Take your usual medicines after doing the test, not before.” after doing = depois de fazer." },
       { t: "V", q: "Pelo contexto, em “arrive 15 minutes early”, “early” quer dizer…", opts: ["atrasado", "no máximo", "antes da hora"], a: 2, why: "A clínica quer o paciente lá 15 minutos antes do horário marcado. early = cedo, adiantado; o contrário é late." },
@@ -145,7 +145,7 @@ LESSONS.push(
     },
     vocab: [
       ["reminder", "lembrete", "Reminder from Vida Clinic"],
-      ["blood test", "exame de sangue", "your blood test is tomorrow"],
+      ["blood test", "exame de sangue", "your blood test is on Thursday"],
       ["anything", "nada (em frase negativa) / qualquer coisa", "do not eat anything"],
       ["before coming", "antes de vir", "for 8 hours before coming to the clinic"],
       ["usual", "de sempre, habitual", "your usual medicines"],

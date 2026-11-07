@@ -30,7 +30,7 @@ LESSONS.push(
     ],
     grammar: {
       title: "Perguntas: o verbo vem antes",
-      body: "Em perguntas de sim/não, o verbo (can, is, are) passa para antes do sujeito. “There is rain” vira “Is there rain?”. Quando a frase começa com can, is ou are e termina com “?”, é uma pergunta.",
+      body: "Em perguntas, o verbo (can, is, are) passa para antes do sujeito. “There is rain” vira “Is there rain?”. Com palavra de pergunta (how, what), ela vem primeiro e o verbo logo depois: “How are the brakes?”. Quando a frase começa com can, is ou are e termina com “?”, é uma pergunta de sim/não.",
       examples: ["You can hear me. → Can you hear me? = Você me ouve?", "There is rain coming. → Is there any rain coming? = Vem chuva aí?", "The brakes are good. → How are the brakes? = Como estão os freios?"],
     },
     vocab: [

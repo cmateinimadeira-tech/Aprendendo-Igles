@@ -100,6 +100,8 @@ const BADGES = [
   { id: "n2", icon: "2️⃣", name: "Nível 2 concluído", desc: "Conclua 75% das lições do nível 2.", test: () => levelDone(2) },
   { id: "n3", icon: "3️⃣", name: "Nível 3 concluído", desc: "Conclua 75% das lições do nível 3.", test: () => levelDone(3) },
   { id: "n4", icon: "4️⃣", name: "Nível 4 concluído", desc: "Conclua 75% das lições do nível 4.", test: () => levelDone(4) },
+  { id: "lk20", icon: "🔗", name: "20 ligações dominadas", desc: "Domine 20 questões do treino de palavras de ligação.", test: () => linkMastered() >= 20 },
+  { id: "lk60", icon: "⛓️", name: "60 ligações dominadas", desc: "Domine 60 questões do treino de palavras de ligação.", test: () => linkMastered() >= 60 },
   { id: "anpad", icon: "🎓", name: "Primeira ANPAD", desc: "Conclua uma lição no formato ANPAD.", test: () => LESSONS.some((l) => l.exam && passed(l.id)) },
 ];
 function checkBadges(silent) {

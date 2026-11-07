@@ -66,7 +66,11 @@ function nextLesson() {
   const open = LESSONS.filter((l, i) => unlocked(i) && !passed(l.id));
   return open.find((l) => l.level >= startLevel()) || open[0];
 }
-function dueCards() { const now = Date.now(); return Object.entries(S.srs).filter(([, c]) => c.due <= now); }
+function dueCards() {
+  const now = Date.now();
+  return Object.entries(S.srs).filter(([, c]) => !c.skip && c.due <= now)
+    .sort((a, b) => tagOf(a[0]).pri - tagOf(b[0]).pri || a[1].due - b[1].due); // fundamentais primeiro
+}
 
 // ---------- Áudio opcional (voz do navegador) ----------
 function speak(lines) {
@@ -90,13 +94,16 @@ function showSheet(html) {
 }
 
 // ---------- Texto com palavras clicáveis ----------
-function markVocab(str, vocab) {
-  if (!vocab.length) return esc(str);
-  const terms = vocab.map((v) => v[0]).sort((a, b) => b.length - a.length);
+function markVocab(str, vocab, links = []) {
+  // Palavras de ligação que não estão no vocabulário da lição também ficam clicáveis (sublinhado próprio).
+  const all = [...vocab.map((v) => ({ t: v[0], pt: v[1], lk: tagOf(v[0]).cat === "ligacao" })),
+    ...links.filter((w) => !vocab.some((v) => v[0].toLowerCase() === w.w.toLowerCase())).map((w) => ({ t: w.w, pt: `${w.pt} (${w.rel})`, lk: true }))];
+  if (!all.length) return esc(str);
+  const terms = all.map((v) => v.t).sort((a, b) => b.length - a.length);
   const re = new RegExp("\\b(" + terms.map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|") + ")\\b", "gi");
   return esc(str).replace(re, (m) => {
-    const v = vocab.find((x) => x[0].toLowerCase() === m.toLowerCase());
-    return `<span class="w" data-pt="${esc(v[1])}" data-en="${esc(v[0])}">${m}</span>`;
+    const v = all.find((x) => x.t.toLowerCase() === m.toLowerCase());
+    return `<span class="w${v.lk ? " lk" : ""}" data-pt="${esc(v.pt)}" data-en="${esc(v.t)}">${m}</span>`;
   });
 }
 // Quebra os parágrafos em linhas fixas (como na prova) para poder citar "line N".
@@ -129,16 +136,17 @@ function resolveLines(str, item, word) {
 }
 
 function renderReading(item, vocab = []) {
+  const links = item.level && typeof linkTermsFor === "function" ? linkTermsFor(item.level) : [];
   if (item.paras) {
     return `<div class="lined">${examLines(item).map((l, i) =>
-      `<div class="ln ${l.ind ? "ind" : ""}"><i class="${(i + 1) % 5 === 0 ? "five" : ""}">${i + 1}</i><span>${markVocab(l.text, vocab)}</span></div>`).join("")}
+      `<div class="ln ${l.ind ? "ind" : ""}"><i class="${(i + 1) % 5 === 0 ? "five" : ""}">${i + 1}</i><span>${markVocab(l.text, vocab, links)}</span></div>`).join("")}
       ${item.source ? `<p class="src">${esc(item.source)}</p>` : ""}</div>`;
   }
   if (item.radio) {
     return `<div class="radio">${item.radio.map(([who, line]) =>
-      `<p class="${who === "Driver" ? "drv" : "eng"}"><b>${who === "Driver" ? "Piloto" : "Engenheiro"}</b>${markVocab(line, vocab)}</p>`).join("")}</div>`;
+      `<p class="${who === "Driver" ? "drv" : "eng"}"><b>${who === "Driver" ? "Piloto" : "Engenheiro"}</b>${markVocab(line, vocab, links)}</p>`).join("")}</div>`;
   }
-  return `<p class="prose">${markVocab(item.text, vocab)}</p>`;
+  return `<p class="prose">${markVocab(item.text, vocab, links)}</p>`;
 }
 function readingLines(item) { return item.radio ? item.radio.map((r) => r[1]) : item.paras ? item.paras : [item.text]; }
 
@@ -241,6 +249,7 @@ function home() {
       ${due ? `<a class="btn" href="#revisao">Revisar</a>` : ""}
     </section>
     ${!S.placement.results ? `<section class="card"><p class="eyebrow">Teste atualizado</p><p>O teste de nivelamento ficou mais preciso: mais perguntas, 4 alternativas, opção “Não sei” e perguntas em inglês nos textos mais difíceis. Refaça para confirmar seu nível. Suas lições continuam salvas.</p><a class="btn primary block" href="#teste">Refazer o teste</a></section>` : ""}
+    ${linksCardHTML()}
     ${adjustHTML()}
     ${fluencyPanelHTML()}
     ${skillsHTML()}
@@ -383,6 +392,8 @@ function lesson(id) {
       <p><i>${esc(l.predict)}</i></p>
       ${l.strategy ? `<div class="strat"><b>Estratégia desta lição: ${STRATEGIES[l.strategy].name}</b><br>${esc(STRATEGIES[l.strategy].how)}</div>` : ""}
       <details><summary>Ver cognatos (palavras parecidas com o português)</summary><p>${l.cognates.map(esc).join(" · ")}</p></details>
+      ${(() => { const txt = readingLines(l).join(" ").toLowerCase(); const found = linkTermsFor(l.level).filter((w) => new RegExp("\\b" + w.w.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\b").test(txt));
+        return found.length ? `<div class="strat"><b>Palavras de ligação neste texto</b><br>${found.map((w) => `<b>${esc(w.w)}</b> = ${esc(w.pt)} <span class="muted">(${esc(w.rel)})</span>`).join("<br>")}<br><span class="muted">Elas aparecem com sublinhado vermelho no texto. Repare na relação que cada uma cria.</span></div>` : ""; })()}
     </section>
 
     <section class="card" id="readCard">
@@ -410,8 +421,8 @@ function lesson(id) {
 
     <section class="card">
       <h3>5. Palavras da lição</h3>
-      <table>${l.vocab.map((v) => `<tr><td><b>${esc(v[0])}</b></td><td>${esc(v[1])}</td></tr>`).join("")}</table>
-      <p class="muted">Ao concluir a lição, estas palavras entram na sua revisão.</p>
+      <table>${l.vocab.map((v) => `<tr class="${tagOf(v[0]).tipo === "facil" ? "easy" : ""}"><td><b>${esc(v[0])}</b><br>${catChip(v[0])}</td><td>${esc(v[1])}</td></tr>`).join("")}</table>
+      <p class="muted">Ao concluir a lição, estas palavras entram na revisão. ★ = fundamental (vem primeiro). Palavras fáceis ficam fora; cognatos voltam com menos frequência.</p>
     </section>
 
     <section class="card">
@@ -455,7 +466,7 @@ function lesson(id) {
     const gain = awardLesson(l.id, ok, firstTry, sc >= PASS);
     let msg;
     if (sc >= PASS) {
-      l.vocab.forEach(([en, pt, ex]) => { if (!S.srs[en]) S.srs[en] = { pt, ex, box: 0, due: Date.now() }; });
+      l.vocab.forEach(([en, pt, ex]) => addToSrs(en, pt, ex));
       const n = nextLesson();
       msg = `<p class="ok">Muito bem: ${ok} de ${l.questions.length}. Lição concluída.</p>` + (n ? `<a class="btn primary block" href="#l-${n.id}">Próxima: ${esc(n.title)}</a>` : "");
     } else {
@@ -473,7 +484,7 @@ function review() {
   const due = dueCards();
   if (!due.length) {
     const total = Object.keys(S.srs).length;
-    view().innerHTML = `<section class="card"><h2>Revisão</h2><p>${total ? "Tudo revisado por hoje. Volte amanhã!" : "Conclua uma lição para começar a revisar palavras."}</p><a class="btn" href="#inicio">Início</a></section>`;
+    view().innerHTML = `<section class="card"><h2>Revisão</h2><p>${total ? "Palavras revisadas por hoje. Volte amanhã!" : "Conclua uma lição para começar a revisar palavras."}</p></section>${linksCardHTML()}`;
     return;
   }
   const [en, c] = due[0];
@@ -481,6 +492,7 @@ function review() {
     <section class="card center">
       <p class="muted">${due.length} para revisar</p>
       <p class="big">${esc(en)}</p>
+      <p>${catChip(en)}</p>
       ${c.ex ? `<p class="muted">“${esc(c.ex)}”</p>` : ""}
       <div id="back" class="hidden"><p class="big2">${esc(c.pt)}</p>
         <div class="duo"><button class="btn bad-b" id="no">Não lembrei</button><button class="btn primary" id="yes">Lembrei</button></div></div>
@@ -648,7 +660,7 @@ function openTextSheet(l) {
 // ---------- App instalável (PWA) ----------
 // Só vale fora do claude.ai (lá a página roda num quadro sem service worker).
 const PWA_URL = "https://cmateinimadeira-tech.github.io/Aprendendo-Igles/";
-const APP_VERSION = "9"; // mostrado no app para conferir se a atualização chegou
+const APP_VERSION = "10"; // mostrado no app para conferir se a atualização chegou
 const inFrame = (() => { try { return window.top !== window; } catch (e) { return true; } })();
 const isStandalone = matchMedia("(display-mode: standalone)").matches || matchMedia("(display-mode: fullscreen)").matches || navigator.standalone === true;
 const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
@@ -733,7 +745,7 @@ function bindHomeExtras() {
     if (!data || typeof data !== "object" || !("done" in data)) { $("#bkMsg").textContent = "Código inválido."; return; }
     if (!e.target.dataset.armed) { e.target.dataset.armed = 1; e.target.textContent = "Toque de novo para substituir o progresso"; return; }
     S = Object.assign({ placement: null, done: {}, srs: {}, notes: {} }, data);
-    gameInit(); save(); updateBadge(); home();
+    gameInit(); migrateSrs(); save(); updateBadge(); home();
     showSheet("Progresso importado.");
   };
 }
@@ -786,12 +798,12 @@ function route() {
   $("#textSheet").hidden = true;
   const h = location.hash.slice(1);
   const isLesson = h.startsWith("l-");
-  const page = isLesson ? "licoes" : ({ teste: "inicio", glossario: "guia" }[h] || h || "inicio");
+  const page = isLesson ? "licoes" : ({ teste: "inicio", glossario: "guia", treino: "revisao" }[h] || h || "inicio");
   document.querySelectorAll(".tabs a").forEach((a) => a.classList.toggle("on", a.dataset.tab === page));
   updateBadge();
   $("#sheet").hidden = true;
   if (isLesson) lesson(h.slice(2));
-  else ({ teste: test, licoes: lessonList, revisao: review, glossario: glossary, guia: guide, metas: goals }[h] || home)();
+  else ({ teste: test, licoes: lessonList, revisao: review, glossario: glossary, guia: guide, metas: goals, treino: linksTraining }[h] || home)();
   scrollTo(0, 0);
 }
 addEventListener("hashchange", route);
@@ -803,5 +815,6 @@ document.addEventListener("click", (e) => {
   if (e.target.closest("#sheet")) $("#sheet").hidden = true;
 });
 gameInit();
+migrateSrs();
 route();
 initCloud();

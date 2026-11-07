@@ -24,7 +24,7 @@ Copie a estrutura das lições existentes em `data.js` (`LESSONS`). Campos:
 - O texto: `text` (string) para textos corridos, **ou** `radio` (array de `["Engineer"|"Driver", "fala"]`) para rádio de F1.
 - `questions`: **6 ou 7** perguntas `{ t, q, opts, a, why }`:
   - `t`: tipo, uma chave de `QTYPES` (G ideia geral, E informação específica, D detalhe, I inferência, R referência, V vocabulário no contexto, O opinião/atitude, P propósito/organização, C conectivos).
-  - Cada lição deve ter pelo menos: 1 G (normalmente a primeira), 1 R, 1 V. Do nível 3 em diante, também 1 I ou O.
+  - Cada lição deve ter pelo menos: 1 G (normalmente a primeira), 1 R, 1 V. Do nível 2 em diante, também pelo menos 1 pergunta sobre uma palavra de ligação ou de função do texto (tipo C ou V), perguntando a relação que ela cria ou o que mudaria sem ela. Do nível 3 em diante, também 1 I ou O.
   - `q` e `opts` em português, com 3 alternativas (níveis 1–2) ou 4 alternativas (níveis 3–4).
   - `a`: índice da correta. **Varie a posição** da correta entre as perguntas (não concentre em 1).
   - Distratores plausíveis: use palavras do texto em relação errada, exageros (sempre/nunca) e informações que o texto não diz. Nada de alternativa absurda.
@@ -34,6 +34,7 @@ Copie a estrutura das lições existentes em `data.js` (`LESSONS`). Campos:
   - `why` em português: cite o trecho do texto entre aspas e explique por que está certa; quando útil, diga por que o distrator principal está errado.
 - `grammar`: `{ title, body, examples: [...] }`, **um** ponto-chave tirado do próprio texto, curto, que muda o sentido (ex.: conectivo, tempo verbal, referência, modal, grupo nominal, negação, comparativo, voz passiva, phrasal verb). Evite repetir os pontos já usados nas lições existentes do mesmo nível.
 - `vocab`: 7 a 9 itens `[termo, significado em pt, exemplo]`. **O termo precisa aparecer literalmente no texto** (mesma forma, ex.: "rose", não "rise"), porque o app sublinha essas palavras no texto.
+  - **Priorize as palavras fundamentais** (pesquisa: substantivos latinos são cognatos fáceis para brasileiros; conectivos, palavras de função, phrasal verbs e verbos/advérbios germânicos são o gargalo). Em cada lição: pelo menos 3 itens de prioridade 1 (conectivo, palavra de função como hardly/still/yet/rather/despite, phrasal verb, falso cognato, verbo ou advérbio frequente não cognato); no máximo 2 cognatos transparentes; nenhuma palavra fácil (today, buy, work, car, tickets, tonight, faster…). Use como referência de frequência a NGSL (~2.800 palavras mais úteis) e, nos níveis 4–5, a NAWL (vocabulário acadêmico).
 - `write`: uma pergunta curta e opcional para o aluno responder em uma frase.
 
 ## Formato das lições do nível 5 (ANPAD)

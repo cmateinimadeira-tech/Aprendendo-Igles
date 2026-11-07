@@ -415,7 +415,7 @@ function lesson(id) {
       </details>
     </section>
 
-    <section class="card">
+    <section class="card" id="vocabCard" ${S.attempted && S.attempted[l.id] ? "" : "hidden"}>
       <h3>5. Palavras da lição</h3>
       <table>${l.vocab.map((v) => `<tr class="${tagOf(v[0]).tipo === "facil" ? "easy" : ""}"><td><b>${esc(v[0])}</b><br>${catChip(v[0])}</td><td>${esc(v[1])}</td></tr>`).join("")}</table>
       <p class="muted">Ao concluir a lição, estas palavras entram na revisão. ★ = fundamental (vem primeiro). Palavras fáceis ficam fora; cognatos voltam com menos frequência.</p>
@@ -469,6 +469,7 @@ function lesson(id) {
       msg = `<p class="bad">${ok} de ${l.questions.length}. Releia o texto prestando atenção nas explicações acima e tente de novo. Sem pressa.</p><button class="btn block" id="retry">Tentar de novo</button>`;
     }
     save(); updateBadge();
+    const vc = $("#vocabCard"); if (vc) vc.hidden = false; // a lista só aparece depois de corrigir (não entrega as perguntas de vocabulário)
     $("#res").innerHTML = `<p class="xpgain">+${gain} XP${firstTry ? "" : " (refazendo vale menos)"}</p>` + msg + timeMsg + covMsg;
     afterEvent();
     $("#res").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" });

@@ -27,7 +27,8 @@ Cada nível (1 a 4) é liberado ao concluir 2 lições do nível anterior. O alu
 - `app.js`: lógica (teste, lições, revisão, progresso)
 - `data.js`: conteúdo (teste de nivelamento, lições dos níveis 1 a 4, glossário da F1, guia)
 - `anpad.js`: nível 5, com lições no formato da prova de Inglês da ANPAD
-- `lessons/level-N.js`: lições extras de cada nível (8 por nível do 1 ao 4, 6 no nível 5)
+- `lessons/level-N.js`, `level-Nb.js`…: lotes de lições (hoje 8 no nível 1, 16 nos níveis 2 e 3, 8 no nível 4 e 6 no nível 5)
+- `game.js`: gamificação (XP, meta diária, sequência, conquistas) e meta de aprendizagem com previsão
 - `lessons/BRIEF.md` e `lessons/validate.js`: regras para escrever lições e validador (`node lessons/validate.js -v`)
 
 ## Como usar
@@ -75,3 +76,15 @@ escolha a branch `ccr-3a3cdf2f-i5jonk` e a pasta `/ (root)`, e salve. Em 1 a 2 m
 Instalação: Android (Chrome) → menu ⋮ → **Instalar app**; iPhone (Safari) → **Compartilhar → Adicionar à Tela de Início**.
 O progresso do app instalado é separado do claude.ai: use **Início → Transferir progresso** para levar de um para o outro.
 Ao mudar arquivos do app, aumente a versão em `CACHE` no `sw.js`.
+
+## Produção de lições (banco de questões)
+Cada lote passa por: produção seguindo `lessons/BRIEF.md` → validador automático (`node lessons/validate.js -v`) →
+revisão independente às cegas (`node lessons/blind.js <arquivos>` gera a versão sem gabarito; o revisor responde,
+depois compara com `--key` e corrige ambiguidades) → teste de todas as lições no navegador → publicação.
+Lotes 2b, 2c, 3b e 3c: 56/56 e 56/56 de concordância às cegas, com 7 correções no total.
+
+## Gamificação e metas
+XP: +10 por acerto na 1ª tentativa, +2 ao refazer, +20 por lição dominada (★), +3/+1 por palavra revisada, +25 pela meta do dia.
+Meta diária: leve (1 lição + 10 revisões), regular (2 + 15) ou intensa (4 + 20); cumprir mantém a sequência de dias.
+Meta de aprendizagem: nível-alvo e data opcional; o caminho exige 75% das lições de cada nível, e o app prevê a data de
+chegada pelo ritmo das últimas 2 semanas.

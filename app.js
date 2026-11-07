@@ -249,6 +249,7 @@ function home() {
       ${due ? `<a class="btn" href="#revisao">Revisar</a>` : ""}
     </section>
     ${!S.placement.results ? `<section class="card"><p class="eyebrow">Teste atualizado</p><p>O teste de nivelamento ficou mais preciso: mais perguntas, 4 alternativas, opção “Não sei” e perguntas em inglês nos textos mais difíceis. Refaça para confirmar seu nível. Suas lições continuam salvas.</p><a class="btn primary block" href="#teste">Refazer o teste</a></section>` : ""}
+    ${(() => { const rec = typeof recommendReading === "function" && READINGS.length ? recommendReading() : null; return rec ? `<a class="card row" href="#ler-${rec.r.id}"><span><b>${rec.reread ? "Releitura do dia" : "Leitura do dia"}</b><br><span class="muted">${esc(rec.r.title)}</span></span><span class="tag">Ler</span></a>` : ""; })()}
     ${linksCardHTML()}
     ${adjustHTML()}
     ${fluencyPanelHTML()}
@@ -502,7 +503,7 @@ function review() {
   const answer = (ok) => {
     c.box = ok ? Math.min(c.box + 1, INTERVALS.length - 1) : 0;
     c.due = ok ? Date.now() + INTERVALS[c.box] * DAY : Date.now() + 60000;
-    awardReview(ok);
+    awardReview(ok); today().wordRev = (today().wordRev || 0) + 1;
     save(); updateBadge(); afterEvent(); review();
   };
   $("#yes").onclick = () => answer(true);
@@ -661,7 +662,7 @@ function openTextSheet(l) {
 // ---------- App instalável (PWA) ----------
 // Só vale fora do claude.ai (lá a página roda num quadro sem service worker).
 const PWA_URL = "https://cmateinimadeira-tech.github.io/Aprendendo-Igles/";
-const APP_VERSION = "10"; // mostrado no app para conferir se a atualização chegou
+const APP_VERSION = "11"; // mostrado no app para conferir se a atualização chegou
 const inFrame = (() => { try { return window.top !== window; } catch (e) { return true; } })();
 const isStandalone = matchMedia("(display-mode: standalone)").matches || matchMedia("(display-mode: fullscreen)").matches || navigator.standalone === true;
 const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
@@ -799,12 +800,13 @@ function route() {
   $("#textSheet").hidden = true;
   const h = location.hash.slice(1);
   const isLesson = h.startsWith("l-");
-  const page = isLesson ? "licoes" : ({ teste: "inicio", glossario: "guia", treino: "revisao" }[h] || h || "inicio");
+  const page = isLesson ? "licoes" : h.startsWith("ler-") ? "leitura" : ({ teste: "inicio", glossario: "metas", guia: "metas", treino: "revisao" }[h] || h || "inicio");
   document.querySelectorAll(".tabs a").forEach((a) => a.classList.toggle("on", a.dataset.tab === page));
   updateBadge();
   $("#sheet").hidden = true;
-  if (isLesson) lesson(h.slice(2));
-  else ({ teste: test, licoes: lessonList, revisao: review, glossario: glossary, guia: guide, metas: goals, treino: linksTraining }[h] || home)();
+  if (h.startsWith("ler-")) readText(h.slice(4));
+  else if (isLesson) lesson(h.slice(2));
+  else ({ teste: test, licoes: lessonList, revisao: review, glossario: glossary, guia: guide, metas: goals, treino: linksTraining, leitura: readingList }[h] || home)();
   scrollTo(0, 0);
 }
 addEventListener("hashchange", route);

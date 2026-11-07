@@ -141,7 +141,7 @@ function linksTraining() {
       S.links[it.id] = st;
       if (right) okCount++;
       const g = right ? (isNew ? 5 : 3) : 1; xp += g;
-      awardReview(right); today().xp += g - (right ? XP.reviewOk : XP.reviewMiss);
+      awardReview(right); today().xp += g - (right ? XP.reviewOk : XP.reviewMiss); today().linkItems = (today().linkItems || 0) + 1;
       save(); afterEvent();
       $("#lgo").textContent = k === items.length - 1 ? "Ver resultado" : "Próxima";
       $("#lgo").onclick = () => { k++; draw(); scrollTo(0, 0); };

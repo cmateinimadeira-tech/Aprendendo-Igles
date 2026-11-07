@@ -70,9 +70,37 @@ function totalXP() { return Object.values(S.log || {}).reduce((s, d) => s + d.xp
 function afterEvent() {
   const msgs = [], d = today(), g = goalStatus(d);
   if (!d.goal && g.done) { d.goal = true; d.xp += XP.goal; msgs.push(`🎯 Meta do dia cumprida! +${XP.goal} XP · 🔥 ${streak()} ${streak() === 1 ? "dia" : "dias"} seguidos`); }
+  msgs.push(...checkMissions(d));
   msgs.push(...checkBadges());
   save();
   if (msgs.length) showSheet(msgs.join("<br>"));
+}
+
+// ---------- Missões diárias ----------
+// Três por dia: ler um texto é fixa; as outras duas variam (sorteio estável pela data).
+const MISSIONS = {
+  ler: { label: "Ler um texto na aba Leitura", done: (d) => (d.reads || 0) >= 1 },
+  licao: { label: "Fazer 1 lição", done: (d) => d.lessons.length >= 1 },
+  ligacao: { label: "Treino de ligação: 8 questões", done: (d) => (d.linkItems || 0) >= 8 },
+  revisar: { label: "Revisar 15 palavras", done: (d) => (d.wordRev || 0) >= 15 || ((d.wordRev || 0) > 0 && dueCards().length === 0) },
+  minutos: { label: "10 min de inglês fora do app", done: (d) => ((d.ext || {}).min || 0) >= 10 },
+  reler: { label: "Reler um texto", done: (d) => (d.rereads || 0) >= 1 },
+};
+const MISSION_XP = 10, MISSION_BONUS = 20;
+function dayMissions(d = today()) {
+  if (d.missions) return d.missions;
+  const pool = ["licao", "ligacao", "revisar", "minutos"];
+  if (typeof READINGS !== "undefined" && READINGS.some((r) => typeof rereadDue === "function" && rereadDue(r.id))) pool.push("reler");
+  let h = 0; for (const ch of dayKey()) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  const a = pool.splice(h % pool.length, 1)[0], b = pool[(h >>> 8) % pool.length];
+  d.missions = { ids: ["ler", a, b], done: {}, bonus: false };
+  return d.missions;
+}
+function checkMissions(d) {
+  const m = dayMissions(d), msgs = [];
+  for (const id of m.ids) if (!m.done[id] && MISSIONS[id].done(d)) { m.done[id] = true; d.xp += MISSION_XP; msgs.push(`✅ Missão: ${MISSIONS[id].label} (+${MISSION_XP} XP)`); }
+  if (!m.bonus && m.ids.every((id) => m.done[id])) { m.bonus = true; d.xp += MISSION_BONUS; msgs.push(`🎁 Missões do dia completas! +${MISSION_BONUS} XP`); }
+  return msgs;
 }
 
 // ---------- Conquistas ----------
@@ -102,6 +130,9 @@ const BADGES = [
   { id: "n4", icon: "4️⃣", name: "Nível 4 concluído", desc: "Conclua 75% das lições do nível 4.", test: () => levelDone(4) },
   { id: "lk20", icon: "🔗", name: "20 ligações dominadas", desc: "Domine 20 questões do treino de palavras de ligação.", test: () => linkMastered() >= 20 },
   { id: "lk60", icon: "⛓️", name: "60 ligações dominadas", desc: "Domine 60 questões do treino de palavras de ligação.", test: () => linkMastered() >= 60 },
+  { id: "leitor10", icon: "📖", name: "Leitor", desc: "Leia 10 textos na aba Leitura.", test: () => Object.keys(S.reads || {}).length >= 10 },
+  { id: "releu", icon: "🔁", name: "Releitura mais rápida", desc: "Releia um texto mais rápido que da primeira vez.", test: () => Object.values(S.reads || {}).some((r) => r.length > 1 && r[r.length - 1].wpm > r[0].wpm) },
+  { id: "fora60", icon: "🎧", name: "Uma hora fora do app", desc: "Registre 60 minutos de inglês fora do app em 7 dias.", test: () => typeof extWeek === "function" && extWeek() >= 60 },
   { id: "anpad", icon: "🎓", name: "Primeira ANPAD", desc: "Conclua uma lição no formato ANPAD.", test: () => LESSONS.some((l) => l.exam && passed(l.id)) },
 ];
 function checkBadges(silent) {
@@ -148,6 +179,8 @@ function todayHTML() {
     <p class="muted">${d.goal ? "🎯 Meta do dia cumprida." : `Meta do dia (${DAILY[S.goal.daily].label.toLowerCase()}): ${g.need.desc}`}</p>
     <div class="mini"><span>Lições ${Math.min(d.lessons.length, g.need.lessons)}/${g.need.lessons}</span><div class="bar"><div style="width:${lPct}%"></div></div></div>
     <div class="mini"><span>Revisões ${g.revOk ? "✓" : `${d.reviews}/${g.need.reviews}`}</span><div class="bar"><div style="width:${rPct}%"></div></div></div>
+    <p class="eyebrow" style="margin-top:12px">Missões do dia ${dayMissions(d).bonus ? "· 🎁 completas" : ""}</p>
+    <ul class="missions">${dayMissions(d).ids.map((id) => `<li class="${dayMissions(d).done[id] ? "ok" : ""}">${dayMissions(d).done[id] ? "✅" : "⬜"} ${MISSIONS[id].label}</li>`).join("")}</ul>
   </a>`;
 }
 
@@ -157,6 +190,8 @@ function goals() {
   const wd = (t) => new Date(t).toLocaleDateString("pt-BR", { weekday: "short" }).replace(".", "");
   view().innerHTML = `<h2>Metas</h2>
     ${todayHTML()}
+
+    ${typeof extHTML === "function" ? extHTML() : ""}
 
     <section class="card">
       <h3>Meta diária</h3>
@@ -200,8 +235,13 @@ function goals() {
         <tr><td>Palavra lembrada na revisão</td><td>+${XP.reviewOk}</td></tr>
         <tr><td>Palavra revisada (não lembrada)</td><td>+${XP.reviewMiss}</td></tr>
         <tr><td>Meta do dia cumprida</td><td>+${XP.goal}</td></tr>
+        <tr><td>Texto lido / relido na Leitura</td><td>+15 / +8</td></tr>
+        <tr><td>Minuto de inglês fora do app (até 60/dia)</td><td>+1</td></tr>
+        <tr><td>Missão do dia / todas as missões</td><td>+${MISSION_XP} / +${MISSION_BONUS}</td></tr>
       </table>
-    </section>`;
+    </section>
+    <a class="card row" href="#guia"><span><b>Guia do curso</b><br><span class="muted">Níveis, estratégias, tipos de pergunta, ANPAD</span></span><span class="tag">Abrir</span></a>`;
+  if (typeof bindExt === "function") bindExt();
   view().querySelectorAll("[data-daily]").forEach((b) => b.onclick = () => { S.goal.daily = b.dataset.daily; afterEvent(); goals(); });
   $("#gTarget").onchange = (e) => { S.goal.target = +e.target.value; save(); goals(); };
   $("#gDate").onchange = (e) => { S.goal.date = e.target.value; save(); goals(); };

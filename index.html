@@ -5,165 +5,68 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Aprendendo Inglês</title>
 <style>
-  :root { --bg:#f7f7f4; --fg:#1d1d1b; --card:#fff; --accent:#2457d6; --muted:#6b6b66; --ok:#1d8a4a; --bad:#c23b3b; --line:#e2e2dc; }
+  :root { --bg:#f7f7f4; --fg:#1d1d1b; --card:#fff; --accent:#c8102e; --muted:#6b6b66; --ok:#1d8a4a; --bad:#c23b3b; --line:#e2e2dc; --eng:#eef2fb; --drv:#fbf0ee; }
   @media (prefers-color-scheme: dark) {
-    :root { --bg:#161618; --fg:#ececea; --card:#222226; --accent:#7ba2ff; --muted:#9a9a95; --ok:#4cc27f; --bad:#ef7676; --line:#35353a; }
+    :root { --bg:#161618; --fg:#ececea; --card:#222226; --accent:#ff5a6e; --muted:#9a9a95; --ok:#4cc27f; --bad:#ef7676; --line:#35353a; --eng:#262c3a; --drv:#3a2826; }
   }
   * { box-sizing:border-box; }
   body { margin:0; background:var(--bg); color:var(--fg); font:17px/1.55 system-ui,sans-serif; }
-  main { max-width:680px; margin:0 auto; padding:24px 16px 64px; }
-  h1 { font-size:1.6rem; margin:.2em 0; }
-  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:20px; margin:16px 0; }
+  header { position:sticky; top:0; background:var(--bg); border-bottom:1px solid var(--line); z-index:2; }
+  header .in, main { max-width:700px; margin:0 auto; padding:0 16px; }
+  header .in { display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; padding-top:10px; padding-bottom:10px; }
+  header b { font-size:1.05rem; }
+  nav { display:flex; gap:4px; flex-wrap:wrap; }
+  nav a { color:var(--muted); text-decoration:none; padding:6px 10px; border-radius:8px; font-size:.92rem; }
+  nav a.on { color:var(--fg); background:var(--card); border:1px solid var(--line); }
+  main { padding-top:16px; padding-bottom:64px; }
+  h2 { margin:.3em 0; } h3 { margin:.2em 0 .5em; }
+  .card { display:block; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:18px; margin:14px 0; color:inherit; text-decoration:none; }
+  .row { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+  .locked { opacity:.5; }
+  .tag { font-size:.9rem; white-space:nowrap; }
   .muted { color:var(--muted); font-size:.92rem; }
-  button { font:inherit; cursor:pointer; border-radius:10px; border:1px solid var(--line); background:var(--card); color:var(--fg); padding:10px 14px; }
-  button.primary { background:var(--accent); color:#fff; border-color:var(--accent); }
-  .opts { display:grid; gap:8px; margin-top:12px; }
-  .opts button { text-align:left; }
-  .opts button.sel { border-color:var(--accent); outline:2px solid var(--accent); }
-  .bar { height:8px; background:var(--line); border-radius:99px; overflow:hidden; }
-  .bar > div { height:100%; background:var(--accent); width:0; transition:width .3s; }
-  .level { font-size:2.4rem; font-weight:700; color:var(--accent); }
-  table { width:100%; border-collapse:collapse; margin-top:8px; }
-  td { padding:6px 0; border-bottom:1px solid var(--line); }
+  .btn, button { font:inherit; cursor:pointer; border-radius:10px; border:1px solid var(--line); background:var(--card); color:var(--fg); padding:10px 14px; display:inline-block; text-decoration:none; margin-top:8px; }
+  .btn.primary { background:var(--accent); color:#fff; border-color:var(--accent); }
+  .bad-b { border-color:var(--bad); color:var(--bad); }
+  button.link { border:0; background:none; color:var(--muted); text-decoration:underline; padding:0; }
+  .bar { height:8px; background:var(--line); border-radius:99px; overflow:hidden; margin:8px 0; }
+  .bar > div { height:100%; background:var(--accent); }
+  .level { font-size:2.2rem; font-weight:700; color:var(--accent); }
+  .radio p { margin:8px 0; padding:10px 12px; border-radius:10px; }
+  .radio b { display:block; font-size:.75rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); }
+  .radio .eng { background:var(--eng); margin-right:12%; }
+  .radio .drv { background:var(--drv); margin-left:12%; }
+  .prose { font-size:1.08rem; }
+  .w { text-decoration:underline dotted; text-underline-offset:3px; cursor:pointer; }
+  .gloss { min-height:1.5em; }
+  fieldset.q { border:1px solid var(--line); border-radius:10px; margin:10px 0; padding:10px 12px; }
+  fieldset.q legend { font-weight:600; padding:0 4px; }
+  fieldset.q label { display:block; padding:4px 0; cursor:pointer; }
+  fieldset.right { border-color:var(--ok); } fieldset.wrong { border-color:var(--bad); }
+  .why { font-size:.92rem; margin:6px 0 0; }
+  .right .why { color:var(--ok); } .wrong .why { color:var(--bad); }
+  .ok { color:var(--ok); font-weight:600; } .bad { color:var(--bad); }
+  details summary { cursor:pointer; }
+  table { width:100%; border-collapse:collapse; }
+  td { padding:7px 8px 7px 0; border-bottom:1px solid var(--line); vertical-align:top; }
+  textarea { width:100%; font:inherit; padding:10px; border-radius:10px; border:1px solid var(--line); background:var(--bg); color:var(--fg); }
+  .center { text-align:center; }
+  .big { font-size:2rem; font-weight:700; margin:.3em 0; } .big2 { font-size:1.3rem; }
   .hidden { display:none; }
 </style>
 </head>
 <body>
-<main>
-  <h1>Aprendendo Inglês</h1>
-  <p class="muted">Etapa 1: descobrir de onde partir. Não chute: se não souber, marque “Não sei”. Isso deixa o resultado mais fiel.</p>
-
-  <section id="intro" class="card">
-    <p>O teste tem 24 perguntas, de fácil a difícil, e leva uns 10 minutos. Seu progresso fica salvo neste navegador.</p>
-    <button class="primary" id="start">Começar o teste</button>
-    <button id="reset" class="hidden">Refazer do zero</button>
-  </section>
-
-  <section id="quiz" class="card hidden">
-    <div class="bar"><div id="prog"></div></div>
-    <p class="muted" id="count"></p>
-    <p id="q" style="font-size:1.15rem"></p>
-    <div class="opts" id="opts"></div>
-    <p><button class="primary" id="next" disabled>Próxima</button></p>
-  </section>
-
-  <section id="result" class="card hidden">
-    <p class="muted">Seu ponto de partida</p>
-    <div class="level" id="lvl"></div>
-    <p id="lvlText"></p>
-    <table id="detail"></table>
-    <p class="muted">Próximo passo: aplicar o seu método a partir deste nível.</p>
-  </section>
-</main>
-
-<script>
-// Cada pergunta: nível, enunciado, opções, índice da correta.
-const Q = [
-  // A1
-  ["A1","She ___ a teacher.",["am","is","are"],1],
-  ["A1","I ___ coffee every morning.",["drink","drinks","drinking"],0],
-  ["A1","How ___ are you?",["years","old","age"],1],
-  ["A1","They live ___ Brazil.",["on","at","in"],2],
-  ["A1","This is ___ apple.",["a","an","the one"],1],
-  ["A1","What time ___ it?",["are","is","does"],1],
-  // A2
-  ["A2","Yesterday I ___ to the market.",["go","went","gone"],1],
-  ["A2","There aren't ___ chairs in the room.",["some","any","a"],1],
-  ["A2","She is ___ than her brother.",["tall","taller","tallest"],1],
-  ["A2","I'm ___ to visit my parents tomorrow.",["going","go","goes"],0],
-  ["A2","We ___ TV when the phone rang.",["watched","were watching","watch"],1],
-  ["A2","How ___ water do you drink a day?",["many","much","few"],1],
-  // B1
-  ["B1","I ___ here since 2019.",["live","lived","have lived"],2],
-  ["B1","If it rains, we ___ at home.",["stay","will stay","would stay"],1],
-  ["B1","The report ___ by the team last week.",["wrote","was written","has written"],1],
-  ["B1","You ___ wear a seatbelt. It's the law.",["must","might","could"],0],
-  ["B1","She asked me where ___.",["did I live","I lived","do I live"],1],
-  ["B1","He's used to ___ early.",["wake up","waking up","woke up"],1],
-  // B2
-  ["B2","If I ___ more time, I would learn another language.",["have","had","would have"],1],
-  ["B2","By next year, she ___ her degree.",["will finish","will have finished","finishes"],1],
-  ["B2","I wish I ___ the answer yesterday.",["knew","had known","know"],1],
-  ["B2","Hardly ___ the room when the lights went out.",["he entered","had he entered","he had entered"],1],
-  ["B2","She insisted ___ paying for dinner.",["in","on","to"],1],
-  ["B2","The meeting was called ___ due to bad weather.",["off","away","out"],0],
-];
-const LEVELS = ["A1","A2","B1","B2"];
-const DESC = {
-  "Pré-A1":"Vamos começar pelo básico mesmo: sons, vocabulário essencial e frases simples.",
-  "A1":"Você reconhece o básico. Vamos consolidar a base e destravar frases do dia a dia.",
-  "A2":"Você se vira em situações simples. Falta fluência e segurança nos tempos verbais.",
-  "B1":"Você já se comunica. O foco agora é precisão, vocabulário e naturalidade.",
-  "B2":"Nível avançado de partida. O foco é refinamento, idiomas e fluência."
-};
-const KEY = "ingles-teste-v1";
-const $ = id => document.getElementById(id);
-let i = 0, answers = [], picked = null;
-
-function save(){ try{ localStorage.setItem(KEY, JSON.stringify({i,answers})); }catch(e){} }
-function load(){ try{ return JSON.parse(localStorage.getItem(KEY)); }catch(e){ return null; } }
-
-function show(id){ ["intro","quiz","result"].forEach(s => $(s).classList.toggle("hidden", s!==id)); }
-
-function render(){
-  const [lv,text,opts] = Q[i];
-  picked = null;
-  $("count").textContent = `Pergunta ${i+1} de ${Q.length}`;
-  $("prog").style.width = (i/Q.length*100)+"%";
-  $("q").textContent = text;
-  $("next").disabled = true;
-  $("next").textContent = i===Q.length-1 ? "Ver resultado" : "Próxima";
-  const box = $("opts"); box.innerHTML = "";
-  [...opts, "Não sei"].forEach((o,idx) => {
-    const b = document.createElement("button");
-    b.textContent = o;
-    b.onclick = () => {
-      picked = idx === opts.length ? -1 : idx;
-      [...box.children].forEach(c => c.classList.remove("sel"));
-      b.classList.add("sel");
-      $("next").disabled = false;
-    };
-    box.appendChild(b);
-  });
-  show("quiz");
-}
-
-function finish(){
-  const stats = {};
-  LEVELS.forEach(l => stats[l] = {ok:0,total:0});
-  Q.forEach((q,n) => { stats[q[0]].total++; if(answers[n]===q[3]) stats[q[0]].ok++; });
-  // nível = último nível consecutivo com >= 2/3 de acertos
-  let reached = "Pré-A1";
-  for(const l of LEVELS){
-    if(stats[l].ok/stats[l].total >= 2/3) reached = l; else break;
-  }
-  $("lvl").textContent = reached;
-  $("lvlText").textContent = DESC[reached];
-  $("detail").innerHTML = LEVELS.map(l =>
-    `<tr><td>${l}</td><td>${stats[l].ok} de ${stats[l].total} acertos</td></tr>`).join("");
-  $("reset").classList.remove("hidden");
-  show("result");
-  try{ localStorage.setItem(KEY+"-result", reached); }catch(e){}
-}
-
-$("start").onclick = () => {
-  const s = load();
-  if(s && s.answers.length < Q.length){ i = s.i; answers = s.answers; } else { i = 0; answers = []; }
-  render();
-};
-$("next").onclick = () => {
-  answers[i] = picked;
-  if(i === Q.length-1){ i++; save(); finish(); return; }
-  i++; save(); render();
-};
-$("reset").onclick = () => { try{ localStorage.removeItem(KEY); localStorage.removeItem(KEY+"-result"); }catch(e){} location.reload(); };
-
-// restaura resultado, se já houver
-(function(){
-  const s = load();
-  if(s && s.answers && s.answers.length === Q.length){ answers = s.answers; finish(); }
-  else if(s && s.answers && s.answers.length){ $("start").textContent = "Continuar o teste"; }
-})();
-</script>
+<header><div class="in">
+  <b>Aprendendo Inglês</b>
+  <nav>
+    <a href="#inicio">Início</a>
+    <a href="#licoes">Lições</a>
+    <a href="#revisao">Revisão</a>
+    <a href="#glossario">Rádio F1</a>
+  </nav>
+</div></header>
+<main id="view"></main>
+<script src="data.js"></script>
+<script src="app.js"></script>
 </body>
 </html>

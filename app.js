@@ -213,7 +213,7 @@ function home() {
       <section class="card">
         <h2>Bem-vindo</h2>
         <p>Este curso é focado em <b>ler e entender</b> inglês: mensagens de rádio da Fórmula 1 e textos curtos do dia a dia. A gramática aparece só quando ajuda a entender o texto.</p>
-        <p>Primeiro, um teste rápido de leitura (4 textos curtos, cerca de 5 minutos) para descobrir de onde partir.</p>
+        <p>Primeiro, um teste rápido de leitura (4 textos curtos, 20 perguntas, cerca de 10 a 15 minutos) para descobrir de onde partir.</p>
         <a class="btn primary" href="#teste">Fazer o teste de leitura</a>
       </section>
       ${installHTML()}

@@ -9,7 +9,7 @@ READINGS.push(
     paras: [
       "Every day, people send a lot of emoji: a smiling face, a heart, a hand. Many people think that the word comes from \"emotion\", because emoji often show feelings. However, the word is Japanese. Its first part means \"picture\", and the second part means \"letter\". So an emoji is a picture that you use like a letter.",
       "One of the first well-known sets of emoji was made in Japan in 1999. A young man called Shigetaka Kurita worked for a phone company, and he wanted to give people a simple way to share information and feelings in short messages. His set had 176 small pictures of faces, hearts and other common things. Today, many people see them as an important piece of design.",
-      "At first, emoji were used almost only in Japan, because each company had its own pictures. Around 2010, they became part of the international system that computers use for letters. As a result, a heart sent from one phone looked like a heart on another phone. Soon, emoji became popular around the world. Still, the same emoji can look a little different on each phone, so a happy face on your phone may look different on your friend's phone."
+      "At first, emoji were used almost only in Japan, and each company had its own pictures. Around 2010, they became part of the international system that computers use for letters. As a result, a heart sent from one phone looked like a heart on another phone. Soon, emoji became popular around the world. Still, the same emoji can look a little different on each phone, so a happy face on your phone may look different on your friend's phone."
     ],
     gloss: [["emoji", "emoji (figurinha usada como letra)"]],
     check: { q: "Qual é a ideia principal do texto?", opts: ["Os emoji nasceram no Japão e se espalharam pelo mundo quando passaram a funcionar em todos os celulares.", "A palavra emoji vem do inglês \"emotion\" e foi criada nos Estados Unidos.", "Os emoji têm exatamente a mesma aparência em todos os celulares."], a: 0 }
@@ -35,9 +35,9 @@ READINGS.push(
     topic: "Economia",
     title: "Why are sweets next to the checkout?",
     paras: [
-      "Have you ever noticed what is next to the checkout in a supermarket? Sweets and cold drinks. This does not happen by chance. Shops plan the place of every product, and the area near the checkout is one of the best places in the shop to sell things.",
+      "Have you ever noticed what is next to the checkout in a supermarket? Sweets and cold drinks. This does not happen by chance. Shops plan where every product goes, and the area near the checkout is one of the best places in the shop to sell things.",
       "The reason is simple. While people wait in line, they have nothing to do, so they look around. Sweets do not cost much, and they are small and easy to pick up, so many people take one without thinking. Shops call this an impulse buy: something that you did not plan to buy. Children are also part of the plan. Sweets are often placed low, at the level of a child's eyes, so that children see them and ask their parents for them.",
-      "Although each sale is small, the shop sells to a great number of people every day, and the money adds up. As a result, many shops keep this idea. However, some countries now worry about health. In England, for example, large shops can no longer put sweets and some other foods near the checkout. Next time you wait in line, remember: the shop chose those sweets for you."
+      "Although each sale is small, the shop sells to a great number of people every day, and the money adds up. As a result, many shops keep doing it. However, some countries now worry about health. In England, for example, large shops can no longer put sweets and some other foods near the checkout. Next time you wait in line, remember: the shop chose those sweets for you."
     ],
     gloss: [["checkout", "caixa (do supermercado)"], ["supermarket", "supermercado"], ["sweets", "doces"], ["impulse", "impulso"]],
     check: { q: "Qual é a ideia principal do texto?", opts: ["Os supermercados colocam doces perto do caixa para provocar compras por impulso.", "Os doces ficam perto do caixa porque são os produtos mais caros da loja.", "Todos os países proíbem doces perto do caixa."], a: 0 }
@@ -49,7 +49,7 @@ READINGS.push(
     topic: "Curiosidades",
     title: "Why do onions make your eyes water?",
     paras: [
-      "Almost everyone who makes food at home knows this problem: you cut an onion, and after a few seconds your eyes become red and fill with tears. Of course, you do not feel bad about the onion. So what is really happening?",
+      "Almost everyone who makes food at home knows this problem: you cut an onion, and after a few seconds your eyes become red and fill with tears. Of course, it is not because you feel bad. So what is really happening?",
       "An onion is made of many very small cells. When the onion is whole, some chemicals inside these cells are kept separate. When you cut it, the cells break and the chemicals come together. They produce a new substance that goes up into the air. When this substance reaches your eyes, your eyes do not like it, so they produce tears to clean it away.",
       "There are a few simple ways to get fewer tears. A good knife breaks fewer cells, so less of the substance goes into the air. You can also keep the onion in a cold place for some time before you cut it, because the reaction is less active when it is cold. Still, if you cut a lot of onions, some tears are hard to avoid."
     ],
@@ -63,7 +63,7 @@ READINGS.push(
     topic: "Tecnologia",
     title: "Why is it called Bluetooth?",
     paras: [
-      "Every day, people connect headphones, speakers and watches to their phones without a single wire. The technology that makes this possible is called Bluetooth. It sends information through radio waves, like a radio station, but it uses very little energy. As a result, it does not use up your phone quickly, although it only works over short distances, usually about the size of a room.",
+      "Every day, people connect headphones, speakers and watches to their phones without a single wire. The technology that makes this possible is called Bluetooth. It sends information through radio waves, like a radio station, but it needs very little energy. As a result, it can stay on all day, although it only works over short distances, usually about the size of a room.",
       "There is an interesting idea inside it. Many machines use the same kind of radio waves at the same time, such as Wi-Fi and even microwaves. So that the signal does not get lost, Bluetooth changes its channel many times every second. Your headphones and your phone follow the same plan, so they always move together, while other machines are left behind.",
       "The name is even more surprising. In the late 1990s, people from several technology companies were working together on the project, and they needed a name for it. One of them suggested Harald Bluetooth, a king of Denmark who lived more than a thousand years ago. He was famous for bringing different groups together, and the new technology was supposed to bring different machines together. It was meant to be a temporary name; however, the other ideas did not work out, so it stayed.",
       "Even the small blue sign has a story. It is made of two old Nordic letters: the first letters of Harald and Bluetooth. Next time you see it on your phone, remember that it hides a king."
@@ -94,8 +94,8 @@ READINGS.push(
     title: "Why did Pix spread so fast?",
     paras: [
       "In November 2020, the Central Bank of Brazil launched Pix, a new way to send money. In a few years, it became part of daily life. Today people use it to pay for almost anything, from a cold drink on the street to a large bill. Why did it spread so fast?",
-      "Before Pix, sending money to another bank was slow and often expensive. Most transfers had a fee, and they only worked during business hours from Monday to Friday. If you sent money on a Friday night, it might arrive only on Monday. Pix, however, works 24 hours a day, every day of the year, and the money arrives in a few seconds. For most people, it is also free.",
-      "It is simple, too. Instead of typing long bank numbers, you can use a key, such as a phone number or an email address, or you can just read a QR code. Small businesses liked it immediately, because card machines charge a fee on every sale, while Pix usually costs them much less. As a result, people who sell food in the street, small shops and even neighbours selling old things started to show their Pix key in many places.",
+      "Before Pix, sending money to another bank was slow and often expensive. Many transfers had a fee, and they usually worked only during business hours from Monday to Friday. If you sent money on a Friday night, it might arrive only on Monday. Pix, however, works 24 hours a day, every day of the year, and the money arrives in a few seconds. For most people, it is also free.",
+      "It is simple, too. Instead of typing long bank numbers, you can use a key, such as a phone number or an email address, or you can just read a QR code. Small businesses quickly started to use it, because card machines charge a fee on every sale, while Pix usually costs them much less. As a result, people who sell food in the street, small shops and even neighbours selling old things started to show their Pix key in many places.",
       "Of course, there are risks. Because the money moves so fast, criminals also lie to people so that they send it to the wrong person. So, although Pix is easy, it is a good idea to check the name of the person before you confirm a payment."
     ],
     gloss: [["pix", "Pix (pagamento instantâneo do Banco Central)"], ["fee", "tarifa, taxa"], ["code", "código"]],

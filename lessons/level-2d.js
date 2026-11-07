@@ -9,7 +9,7 @@ LESSONS.push(
     title: "Virtual Safety Car",
     context: "Um carro parou na pista e a direção de prova acionou o Virtual Safety Car (VSC). O engenheiro fala com o piloto pelo rádio.",
     predict: "Com o VSC, todos têm de andar mais devagar. O que mais o piloto pode ou não pode fazer nesse momento?",
-    cognates: ["virtual", "minimum", "positive", "penalty"],
+    cognates: ["virtual", "number", "positive", "penalty"],
     radio: [
       ["Engineer", "VSC, VSC. There's a car stopped at Turn 9. Slow down now."],
       ["Driver", "Copy. What do I need to do?"],
@@ -102,7 +102,7 @@ LESSONS.push(
       { t: "E", q: "Por quanto Leo comprou as mangas?", opts: ["12 reais", "18 reais", "15 reais"], a: 2, why: "“OK, fifteen” e “Leo agreed”. 12 foi a oferta de Leo e 18, a contraproposta do vendedor." },
       { t: "R", q: "Em “the seller called him back”, “him” é…", opts: ["outro cliente", "Leo", "o irmão do vendedor"], a: 1, why: "Quem estava indo embora era Leo (“He started to walk away”); “him” retoma Leo." },
       { t: "I", q: "Por que Leo começou a se afastar da banca?", opts: ["Para pressionar o vendedor a baixar o preço", "Porque as mangas pareciam ruins", "Porque a feira já tinha fechado"], a: 0, why: "Logo depois o vendedor o chama e baixa o preço. O gesto funcionou como pressão. A feira ainda não tinha fechado: era “almost closing time”." },
-      { t: "C", q: "Em “OK, fifteen, but only because it's almost closing time”, o que o “but” mostra?", opts: ["Que o vendedor recusa a oferta", "Que o vendedor aceita, mas deixa claro que é uma exceção", "Que o vendedor aumenta o preço"], a: 1, why: "“OK, fifteen” é a concessão; “but only because…” limita essa concessão: ele só aceita por causa do horário." },
+      { t: "C", q: "Em “…, but only because it's almost closing time”, o que o “but” mostra?", opts: ["Que o vendedor recusa a oferta", "Que o vendedor cede no preço, mas deixa claro que é uma exceção", "Que o vendedor aumenta o preço"], a: 1, why: "“OK, fifteen” é a concessão; “but only because…” limita essa concessão: ele só aceita por causa do horário." },
       { t: "V", q: "Pelo contexto, “drop their prices” significa…", opts: ["mostram os preços", "sobem os preços", "baixam os preços"], a: 2, why: "Por isso é “a good time to ask for a discount”: no fim do dia os preços caem." },
       { t: "D", q: "Segundo a irmã, quando é melhor pedir desconto?", opts: ["Logo de manhã, quando a feira abre", "Perto do fim do dia", "Quando há muitas mangas na banca"], a: 1, why: "“near the end of the day, many sellers drop their prices”. Nada se diz sobre a manhã nem sobre a quantidade de mangas." },
     ],
@@ -177,7 +177,7 @@ LESSONS.push(
     text: "When I landed in Lisbon, I waited at the baggage belt for forty minutes, but my suitcase never came out. I went to the lost luggage desk. While I was filling in a form, the agent checked her computer. \"Your bag is still in Madrid,\" she said. \"It missed its connection.\" She gave me a reference number and 50 euros for toothpaste and clean clothes. The airline brought the suitcase to my hotel the next evening. Nothing was missing.",
     questions: [
       { t: "G", q: "Ideia geral do texto:", opts: ["A mala do viajante foi roubada no aeroporto", "A companhia aérea cancelou o voo para Lisboa", "A mala não chegou com o viajante, mas foi entregue depois"], a: 2, why: "“my suitcase never came out”, e depois “The airline brought the suitcase to my hotel the next evening”. O voo dele chegou normalmente; só a mala ficou para trás." },
-      { t: "E", q: "Onde estava a mala?", opts: ["Em Madri", "No hotel em Lisboa", "Na esteira errada"], a: 0, why: "“Your bag is still in Madrid.” Ela só chegou ao hotel no dia seguinte." },
+      { t: "E", q: "Onde estava a mala quando ele foi ao balcão?", opts: ["Em Madri", "No hotel em Lisboa", "Na esteira errada"], a: 0, why: "“Your bag is still in Madrid.” Ela só chegou ao hotel no dia seguinte." },
       { t: "R", q: "Em “she said”, “she” é…", opts: ["uma passageira na esteira", "a funcionária do balcão", "a dona do hotel"], a: 1, why: "Na frase anterior aparece “the agent checked her computer”; “she” retoma “the agent”." },
       { t: "V", q: "Pelo contexto, “It missed its connection” significa que a mala…", opts: ["não embarcou no voo de conexão", "estragou na conexão", "chegou antes do voo"], a: 0, why: "A mala ficou em Madri (“still in Madrid”): ela não entrou no segundo voo. “miss” = perder (um voo, um ônibus)." },
       { t: "I", q: "Para que serviam os 50 euros?", opts: ["Para pagar um táxi até o hotel", "Para o viajante comprar o básico enquanto esperava a mala", "Para pagar uma multa da companhia"], a: 1, why: "“50 euros for toothpaste and clean clothes”: coisas que estavam na mala e que ele precisava até ela chegar." },

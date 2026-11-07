@@ -166,6 +166,12 @@
   .install-steps li { margin: .3em 0; }
   .topr { display: flex; align-items: center; gap: 6px; min-width: 0; }
   .fsbtn { margin: 0; min-height: 40px; min-width: 40px; padding: 0 10px; font-size: 1.1rem; line-height: 1; border-radius: 10px; }
+  /* Tela cheia: sem barra de status não é preciso reservar a faixa do topo.
+     O cabeçalho sobe até a borda; o nome fica à esquerda e o botão à direita,
+     longe da câmera frontal no centro; o aviso de salvamento é ocultado. */
+  html.fs body::before { display: none; }
+  html.fs .top { top: 0; }
+  html.fs .sync { display: none; }
   .hidden { display: none; }
 </style>
 <!-- ARTIFACT-HEAD-END -->

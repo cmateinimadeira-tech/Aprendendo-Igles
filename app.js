@@ -714,7 +714,9 @@ function fsPref() { try { const v = localStorage.getItem(FS_KEY); return v == nu
 function setFsPref(on) { try { localStorage.setItem(FS_KEY, on ? "1" : "0"); } catch (e) {} }
 const canFS = !inFrame && !!(document.fullscreenEnabled && document.documentElement.requestFullscreen);
 function enterFS() { if (canFS && !document.fullscreenElement) document.documentElement.requestFullscreen({ navigationUI: "hide" }).catch(() => {}); }
-function updateFsBtn() { const b = $("#fsBtn"); if (!b) return; b.hidden = !canFS; b.textContent = document.fullscreenElement ? "✕" : "⛶"; b.setAttribute("aria-label", document.fullscreenElement ? "Sair da tela cheia" : "Tela cheia"); }
+function updateFsBtn() {
+  document.documentElement.classList.toggle("fs", !!document.fullscreenElement || matchMedia("(display-mode: fullscreen)").matches);
+  const b = $("#fsBtn"); if (!b) return; b.hidden = !canFS; b.textContent = document.fullscreenElement ? "✕" : "⛶"; b.setAttribute("aria-label", document.fullscreenElement ? "Sair da tela cheia" : "Tela cheia"); }
 document.addEventListener("click", (e) => { if (fsPref() && !e.target.closest("#fsBtn")) enterFS(); }, true);
 document.addEventListener("fullscreenchange", updateFsBtn);
 addEventListener("load", () => {

@@ -5,7 +5,7 @@ Curso de inglês focado em **leitura e interpretação**, com método próprio e
 ## O método
 Combina três abordagens:
 - **Inglês Instrumental**: estratégias de leitura (cognatos, ideia geral, inferência pelo contexto).
-- **Leitura graduada**: textos curtos e reais, um pouco acima do nível do aluno. Temas: rádio da Fórmula 1 e assuntos gerais.
+- **Leitura graduada**: textos curtos e reais, um pouco acima do nível do aluno. Temas: rádio da Fórmula 1, tecnologia, economia e cotidiano.
 - **Revisão espaçada** do vocabulário (1, 3, 7, 14 e 30 dias).
 
 A gramática entra só quando muda o sentido do texto: um ponto curto por lição, tirado do próprio texto.
@@ -19,7 +19,8 @@ Escrita e fala aparecem de forma dosada e opcional (áudio do texto e uma frase 
 5. Vocabulário, que entra na revisão
 6. Extra opcional: escrever uma frase
 
-**Ritmo:** acertar 80% ou mais libera a próxima lição. Abaixo disso, o aluno relê e tenta de novo.
+**Ritmo:** uma lição conta como concluída com 80% ou mais de acertos. Abaixo disso, o aluno relê e tenta de novo.
+Cada nível (1 a 4) é liberado ao concluir 2 lições do nível anterior. O aluno escolhe os temas que preferir.
 
 ## Arquivos
 - `index.html`: página e estilos

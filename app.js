@@ -13,12 +13,13 @@ const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&
 const view = () => $("#view");
 
 // ---------- Regras de progresso ----------
-function startLevel() { return S.placement ? Math.max(1, Math.min(S.placement.level, 3)) : 1; }
+function startLevel() { return S.placement ? Math.max(1, Math.min(S.placement.level, 4)) : 1; }
 function passed(id) { return (S.done[id] || 0) >= PASS; }
-function unlocked(idx) {
-  const l = LESSONS[idx];
-  return idx === 0 || l.level <= startLevel() || passed(LESSONS[idx - 1].id);
+const NEED = 2; // lições concluídas no nível anterior para liberar o próximo
+function levelOpen(lv) {
+  return lv <= startLevel() || LESSONS.filter((l) => l.level === lv - 1 && passed(l.id)).length >= NEED;
 }
+function unlocked(idx) { return levelOpen(LESSONS[idx].level); }
 function nextLesson() {
   const open = LESSONS.filter((l, i) => unlocked(i) && !passed(l.id));
   return open.find((l) => l.level >= startLevel()) || open[0];
@@ -100,7 +101,7 @@ function home() {
       <div class="bar"><div style="width:${doneCount / LESSONS.length * 100}%"></div></div>
       <p class="muted">${doneCount} de ${LESSONS.length} lições concluídas</p>
     </section>
-    ${n ? `<section class="card"><p class="muted">Próxima lição recomendada</p><h3>${esc(n.title)}</h3><p class="muted">${n.kind} · nível ${n.level}</p><a class="btn primary" href="#licao/${n.id}">Começar</a></section>`
+    ${n ? `<section class="card"><p class="muted">Próxima lição recomendada</p><h3>${esc(n.title)}</h3><p class="muted">${THEME_LABEL[n.theme]} · nível ${n.level}</p><a class="btn primary" href="#licao/${n.id}">Começar</a></section>`
         : `<section class="card"><h3>Você concluiu todas as lições disponíveis!</h3><p>Novas lições serão adicionadas.</p></section>`}
     <section class="card">
       <p class="muted">Revisão de vocabulário</p>
@@ -137,20 +138,33 @@ function test() {
 }
 
 function lessonList() {
-  view().innerHTML = `<h2>Lições</h2>` + LESSONS.map((l, i) => {
-    const open = unlocked(i), sc = S.done[l.id];
-    return `<a class="card row ${open ? "" : "locked"}" ${open ? `href="#licao/${l.id}"` : ""}>
-      <span><b>${esc(l.title)}</b><br><span class="muted">${l.kind} · nível ${l.level}</span></span>
-      <span class="tag">${passed(l.id) ? "✔ " + Math.round(sc * 100) + "%" : open ? (sc != null ? Math.round(sc * 100) + "%" : "Abrir") : "🔒"}</span>
-    </a>`;
-  }).join("") + `<p class="muted">Uma lição libera a próxima quando você acerta 80% ou mais.</p>`;
+  const f = S.filter || "Todos";
+  const chips = ["Todos", ...THEMES].map((t) =>
+    `<button class="chip ${t === f ? "on" : ""}" data-t="${t}">${t === "Todos" ? "Todos" : THEME_LABEL[t]}</button>`).join("");
+  let html = `<h2>Lições</h2><div class="chips">${chips}</div>`;
+  [1, 2, 3, 4].forEach((lv) => {
+    const items = LESSONS.map((l, i) => [l, i]).filter(([l]) => l.level === lv && (f === "Todos" || l.theme === f));
+    if (!items.length) return;
+    const open = levelOpen(lv);
+    html += `<h3 class="lvh">Nível ${lv} ${open ? "" : `<span class="muted">🔒 conclua ${NEED} lições do nível ${lv - 1}</span>`}</h3>`;
+    html += items.map(([l]) => {
+      const sc = S.done[l.id];
+      return `<a class="card row ${open ? "" : "locked"}" ${open ? `href="#licao/${l.id}"` : ""}>
+        <span><b>${esc(l.title)}</b><br><span class="muted">${THEME_LABEL[l.theme]}</span></span>
+        <span class="tag">${passed(l.id) ? "✔ " + Math.round(sc * 100) + "%" : open ? (sc != null ? Math.round(sc * 100) + "%" : "Abrir") : "🔒"}</span>
+      </a>`;
+    }).join("");
+  });
+  html += `<p class="muted">Escolha os temas que preferir. Uma lição conta como concluída com 80% ou mais de acertos.</p>`;
+  view().innerHTML = html;
+  view().querySelectorAll(".chip").forEach((b) => b.onclick = () => { S.filter = b.dataset.t; save(); lessonList(); });
 }
 
 function lesson(id) {
   const l = LESSONS.find((x) => x.id === id);
   if (!l) { location.hash = "#licoes"; return; }
   view().innerHTML = `
-    <p class="muted">${l.kind} · nível ${l.level}</p>
+    <p class="muted">${THEME_LABEL[l.theme]} · nível ${l.level}</p>
     <h2>${esc(l.title)}</h2>
 
     <section class="card">
@@ -176,7 +190,7 @@ function lesson(id) {
     </section>
 
     <section class="card">
-      <details><summary><b>4. Um ponto de gramática:</b> ${esc(l.grammar.title)}</summary>
+      <details><summary><b>4. Ponto-chave:</b> ${esc(l.grammar.title)}</summary>
         <p>${esc(l.grammar.body)}</p>
         <ul>${l.grammar.examples.map((e) => `<li>${esc(e)}</li>`).join("")}</ul>
       </details>

@@ -4,6 +4,7 @@
 // só quando chamado (depois que tudo carregou).
 
 const DAILY = {
+  plano: { label: "Plano do dia", lessons: 3, reviews: 15, desc: "3 lições + 1 texto + revisão de palavras (≈ 20 min)" },
   leve: { label: "Leve", lessons: 1, reviews: 10, desc: "1 lição + 10 revisões" },
   regular: { label: "Regular", lessons: 2, reviews: 15, desc: "2 lições + 15 revisões" },
   intenso: { label: "Intenso", lessons: 4, reviews: 20, desc: "4 lições + 20 revisões" },
@@ -21,7 +22,8 @@ function today() { return dayObj(dayKey()); }
 // Na primeira vez, reconstrói o histórico a partir das lições já feitas (que têm data).
 function gameInit() {
   S.log = S.log || {};
-  S.goal = S.goal || { daily: "regular", target: 5, date: "" };
+  S.goal = S.goal || { daily: "plano", target: 5, date: "" };
+  if (!S.goalV2) { S.goal.daily = "plano"; S.goalV2 = 1; }
   S.badges = S.badges || {};
   if (S.gameInit) return;
   const need = DAILY[S.goal.daily];
@@ -53,7 +55,12 @@ function awardLesson(id, ok, first, passedNow) {
 function awardReview(ok) { const d = today(); d.reviews++; d.xp += ok ? XP.reviewOk : XP.reviewMiss; }
 
 function goalStatus(d = today()) {
-  const need = DAILY[S.goal.daily];
+  const need = DAILY[S.goal.daily] || DAILY.plano;
+  if (S.goal.daily === "plano" && typeof planStatus === "function" && S.placement && d === (S.log || {})[dayKey()]) {
+    const st = planStatus();
+    const nDone = st.tasks.filter((t) => t.done).length;
+    return { need, plan: true, nDone, nAll: st.tasks.length, lessonsOk: st.tasks.filter((t) => t.kind === "lesson").every((t) => t.done), revOk: st.tasks.find((t) => t.kind === "review")?.done, done: st.done };
+  }
   const revOk = d.reviews >= need.reviews || (dueCards().length === 0 && d.reviews > 0) || Object.keys(S.srs).length === 0;
   return { need, lessonsOk: d.lessons.length >= need.lessons, revOk, done: d.lessons.length >= need.lessons && revOk };
 }
@@ -97,6 +104,13 @@ function dayMissions(d = today()) {
   return d.missions;
 }
 function checkMissions(d) {
+  if (S.goal.daily === "plano" && typeof planStatus === "function" && S.placement) {
+    const st = planStatus(), msgs = [];
+    d.planDone = d.planDone || {};
+    for (const t of st.tasks) if (t.done && !d.planDone[t.id]) { d.planDone[t.id] = 1; d.xp += 5; }
+    if (st.done && !d.planBonus) { d.planBonus = true; d.xp += 30; msgs.push("📅 Plano do dia concluído! +30 XP"); }
+    return msgs;
+  }
   const m = dayMissions(d), msgs = [];
   for (const id of m.ids) if (!m.done[id] && MISSIONS[id].done(d)) { m.done[id] = true; d.xp += MISSION_XP; msgs.push(`✅ Missão: ${MISSIONS[id].label} (+${MISSION_XP} XP)`); }
   if (!m.bonus && m.ids.every((id) => m.done[id])) { m.bonus = true; d.xp += MISSION_BONUS; msgs.push(`🎁 Missões do dia completas! +${MISSION_BONUS} XP`); }
@@ -171,6 +185,11 @@ function todayHTML() {
   const d = today(), g = goalStatus(d), st = streak();
   const lPct = Math.min(100, (d.lessons.length / g.need.lessons) * 100);
   const rPct = g.revOk ? 100 : Math.min(100, (d.reviews / g.need.reviews) * 100);
+  if (g.plan) return `<a class="card today" href="#metas">
+    <div class="today-top"><span class="streak ${st ? "on" : ""}">🔥 ${st} ${st === 1 ? "dia" : "dias"}</span><span class="xp">${d.xp} XP hoje · ${weekXP()} na semana</span></div>
+    <div class="mini"><span>Plano do dia ${g.nDone}/${g.nAll}</span><div class="bar"><div style="width:${(g.nDone / g.nAll) * 100}%"></div></div></div>
+    ${typeof extToday === "function" ? `<p class="muted">Inglês fora do app hoje: ${extToday().min} min</p>` : ""}
+  </a>`;
   return `<a class="card today" href="#metas">
     <div class="today-top">
       <span class="streak ${st ? "on" : ""}">🔥 ${st} ${st === 1 ? "dia" : "dias"}</span>
@@ -197,6 +216,7 @@ function goals() {
       <h3>Meta diária</h3>
       <div class="chips">${Object.entries(DAILY).map(([k, v]) => `<button class="chip ${S.goal.daily === k ? "on" : ""}" data-daily="${k}">${v.label}</button>`).join("")}</div>
       <p class="muted">${DAILY[S.goal.daily].desc}. Cumprir a meta vale +${XP.goal} XP e mantém sua sequência de dias 🔥.</p>
+      ${typeof planRunway === "function" ? (() => { const n = planRunway(); const end = new Date(Date.now() + Math.ceil(n / 5 * 7) * DAY); return `<p class="muted">O conteúdo atual cobre cerca de <b>${n} dias de estudo</b> do plano (estudando 5 dias por semana, até ~${fmtDate(end)}).</p>`; })() : ""}
     </section>
 
     <section class="card">

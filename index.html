@@ -212,6 +212,12 @@
   .missions li.ok { color: var(--muted); text-decoration: line-through; }
   .duo4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
   .duo4 .btn { padding: 10px 4px; }
+  .w.kn { text-decoration: none; }
+  .w.dk { text-decoration-color: var(--muted); }
+  .ptasks { list-style: none; padding: 0; margin: 6px 0 4px; display: grid; gap: 2px; }
+  .ptasks a { display: block; padding: 9px 0; color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--line); font-size: .95rem; }
+  .ptasks li:last-child a { border-bottom: 0; }
+  .ptasks li.ok a { color: var(--muted); }
   .hidden { display: none; }
 </style>
 <!-- ARTIFACT-HEAD-END -->
@@ -260,6 +266,9 @@
 <script src="reading/r-level3.js"></script>
 <script src="reading/r-level4.js"></script>
 <script src="reading.js"></script>
+<script src="dict/dict.js"></script>
+<!-- dict/pt-*.js entram aqui após a revisão -->
+<script src="plan.js"></script>
 <script src="game.js"></script>
 <script src="app.js"></script>
 <!-- ARTIFACT-END -->

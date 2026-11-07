@@ -56,3 +56,17 @@ Siga `anpad.js`: `exam: true`, `theme: "ANPAD"`, `paras` (array de parágrafos),
 
 ## Antes de terminar
 Rode `node lessons/validate.js` (se existir) ou, no mínimo, `node -e "require('fs')"`-style: carregue `data.js`, `anpad.js` e seu arquivo num mesmo contexto com `eval` e confira que não há erro de sintaxe, que os ids são únicos, que cada termo de `vocab` aparece no texto e que cada `{{trecho}}` aparece no texto.
+
+## Subníveis (lotes de novembro em diante)
+Cada lição nova tem o campo `sub` além de `level`:
+
+| sub | level | Perfil | Texto | Alternativas | Faixa NGSL |
+|---|---|---|---|---|---|
+| "1" | 1 | A1: avisos, mensagens, rádio simples | 40–70 palavras | 3 | 600 |
+| "2.1" | 2 | A2: textos do dia a dia, passado/futuro simples | 60–90 palavras | 3 | 1.000 |
+| "2.2" | 2 | A2+: ponte para o B1; textos um pouco mais longos, mais conectivos (although, however, unless, so that, instead, while), present perfect, comparativos, voz passiva simples, inferências curtas | 90–115 palavras | 4 | 1.300 |
+| "3.1" | 3 | B1 inicial | 80–110 palavras | 4 | 1.600 |
+
+- **Tradução obrigatória para palavras difíceis:** toda palavra do texto que estiver além da faixa NGSL do subnível precisa estar em `vocab` (até 9 itens, entram na revisão) ou no novo campo opcional `gloss: [["palavra", "tradução"], …]` (só mostra a tradução ao toque; não entra na revisão). Cognatos transparentes e nomes próprios não precisam. O validador acusa ERRO para lições com `sub` que deixem palavra difícil sem tradução.
+- O validador já conhece `ngsl.js`; rode `node lessons/validate.js -v`.
+- Perguntas por subnível: "1": 6 perguntas (1 G, 1 R, 1 V, demais E/D); "2.1": 7 (incluir 1 I e 1 C); "2.2": 7 (incluir 1 I, 1 C e 1 O ou P); "3.1": 7 (2 I, 1 O, 1 C).

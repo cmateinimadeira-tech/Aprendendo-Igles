@@ -57,12 +57,17 @@ const view = () => $("#view");
 // ---------- Regras de progresso ----------
 function startLevel() { return S.placement ? Math.max(1, Math.min(S.placement.level, 4)) : 1; }
 function passed(id) { return (S.done[id] || 0) >= PASS; }
-const NEED = 2; // lições concluídas no nível anterior para liberar o próximo
+// Um nível abre quando 75% do nível anterior estiver concluído (ou pelo teste de nivelamento).
+// Lições do plano do dia ficam sempre disponíveis (o dia de nível 3 do plano, por exemplo).
+const NEED_PCT = 0.75;
+const NEED = "75%";
+function levelNeed(lv) { return Math.ceil(LESSONS.filter((l) => l.level === lv - 1).length * NEED_PCT); }
 function levelOpen(lv) {
-  return lv <= startLevel() || LESSONS.filter((l) => l.level === lv - 1 && passed(l.id)).length >= NEED;
+  return lv <= Math.min(startLevel(), 2) || LESSONS.filter((l) => l.level === lv - 1 && passed(l.id)).length >= levelNeed(lv);
 }
-function unlocked(idx) { return levelOpen(LESSONS[idx].level); }
+function unlocked(idx) { return levelOpen(LESSONS[idx].level) || (typeof inPlanToday === "function" && inPlanToday(LESSONS[idx].id)); }
 function nextLesson() {
+  if (typeof planToday === "function" && S.placement) { const st = planStatus(); const t = st.tasks.find((x) => x.kind === "lesson" && !x.done); if (t) return LESSONS.find((l) => l.id === t.id); }
   const open = LESSONS.filter((l, i) => unlocked(i) && !passed(l.id));
   return open.find((l) => l.level >= startLevel()) || open[0];
 }
@@ -94,17 +99,8 @@ function showSheet(html) {
 }
 
 // ---------- Texto com palavras clicáveis ----------
-function markVocab(str, vocab, links = []) {
-  // Palavras de ligação que não estão no vocabulário da lição também ficam clicáveis (sublinhado próprio).
-  const all = [...vocab.map((v) => ({ t: v[0], pt: v[1], lk: tagOf(v[0]).cat === "ligacao" })),
-    ...links.filter((w) => !vocab.some((v) => v[0].toLowerCase() === w.w.toLowerCase())).map((w) => ({ t: w.w, pt: `${w.pt} (${w.rel})`, lk: true }))];
-  if (!all.length) return esc(str);
-  const terms = all.map((v) => v.t).sort((a, b) => b.length - a.length);
-  const re = new RegExp("\\b(" + terms.map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|") + ")\\b", "gi");
-  return esc(str).replace(re, (m) => {
-    const v = all.find((x) => x.t.toLowerCase() === m.toLowerCase());
-    return `<span class="w${v.lk ? " lk" : ""}" data-pt="${esc(v.pt)}" data-en="${esc(v.t)}">${m}</span>`;
-  });
+function markVocab(str, vocab, links = [], gloss = []) {
+  return markText(str, { vocab, links, gloss });
 }
 // Quebra os parágrafos em linhas fixas (como na prova) para poder citar "line N".
 const WRAP = 72;
@@ -139,14 +135,14 @@ function renderReading(item, vocab = []) {
   const links = item.level && typeof linkTermsFor === "function" ? linkTermsFor(item.level) : [];
   if (item.paras) {
     return `<div class="lined">${examLines(item).map((l, i) =>
-      `<div class="ln ${l.ind ? "ind" : ""}"><i class="${(i + 1) % 5 === 0 ? "five" : ""}">${i + 1}</i><span>${markVocab(l.text, vocab, links)}</span></div>`).join("")}
+      `<div class="ln ${l.ind ? "ind" : ""}"><i class="${(i + 1) % 5 === 0 ? "five" : ""}">${i + 1}</i><span>${markVocab(l.text, vocab, links, item.gloss)}</span></div>`).join("")}
       ${item.source ? `<p class="src">${esc(item.source)}</p>` : ""}</div>`;
   }
   if (item.radio) {
     return `<div class="radio">${item.radio.map(([who, line]) =>
-      `<p class="${who === "Driver" ? "drv" : "eng"}"><b>${who === "Driver" ? "Piloto" : "Engenheiro"}</b>${markVocab(line, vocab, links)}</p>`).join("")}</div>`;
+      `<p class="${who === "Driver" ? "drv" : "eng"}"><b>${who === "Driver" ? "Piloto" : "Engenheiro"}</b>${markVocab(line, vocab, links, item.gloss)}</p>`).join("")}</div>`;
   }
-  return `<p class="prose">${markVocab(item.text, vocab, links)}</p>`;
+  return `<p class="prose">${markVocab(item.text, vocab, links, item.gloss)}</p>`;
 }
 function readingLines(item) { return item.radio ? item.radio.map((r) => r[1]) : item.paras ? item.paras : [item.text]; }
 
@@ -233,6 +229,7 @@ function home() {
   const doneCount = LESSONS.filter((l) => passed(l.id)).length;
   view().innerHTML = `
     ${todayHTML()}
+    ${planCardHTML()}
     <section class="card">
       <p class="muted">Seu nível de leitura</p>
       <div class="level">Nível ${S.placement.level}${LEVELS[S.placement.level] ? ` <span class="cefr">≈ ${LEVELS[S.placement.level].cefr}</span>` : ""}</div>
@@ -241,15 +238,12 @@ function home() {
       <div class="bar"><div style="width:${doneCount / LESSONS.length * 100}%"></div></div>
       <p class="muted">${doneCount} de ${LESSONS.length} lições concluídas</p>
     </section>
-    ${n ? `<section class="card"><p class="muted">Próxima lição recomendada</p><h3>${esc(n.title)}</h3><p class="muted">${THEME_LABEL[n.theme]} · nível ${n.level}</p><a class="btn primary block" href="#l-${n.id}">Começar</a></section>`
-        : `<section class="card"><h3>Você concluiu todas as lições disponíveis!</h3><p>Novas lições serão adicionadas.</p></section>`}
     <section class="card">
       <p class="muted">Revisão de vocabulário</p>
       <p>${due ? `<b>${due}</b> palavra(s) para revisar hoje.` : "Nada para revisar agora."}</p>
       ${due ? `<a class="btn" href="#revisao">Revisar</a>` : ""}
     </section>
     ${!S.placement.results ? `<section class="card"><p class="eyebrow">Teste atualizado</p><p>O teste de nivelamento ficou mais preciso: mais perguntas, 4 alternativas, opção “Não sei” e perguntas em inglês nos textos mais difíceis. Refaça para confirmar seu nível. Suas lições continuam salvas.</p><a class="btn primary block" href="#teste">Refazer o teste</a></section>` : ""}
-    ${(() => { const rec = typeof recommendReading === "function" && READINGS.length ? recommendReading() : null; return rec ? `<a class="card row" href="#ler-${rec.r.id}"><span><b>${rec.reread ? "Releitura do dia" : "Leitura do dia"}</b><br><span class="muted">${esc(rec.r.title)}</span></span><span class="tag">Ler</span></a>` : ""; })()}
     ${linksCardHTML()}
     ${adjustHTML()}
     ${fluencyPanelHTML()}
@@ -360,20 +354,21 @@ function lessonList() {
   const chips = ["Todos", ...THEMES].map((t) =>
     `<button class="chip ${t === f ? "on" : ""}" data-t="${t}">${t === "Todos" ? "Todos" : THEME_LABEL[t]}</button>`).join("");
   let html = `<h2>Lições</h2><div class="chips">${chips}</div>`;
-  Object.keys(LEVELS).map(Number).forEach((lv) => {
-    const items = LESSONS.map((l, i) => [l, i]).filter(([l]) => l.level === lv && (f === "Todos" || l.theme === f));
+  SUB_ORDER.forEach((sub) => {
+    const items = LESSONS.map((l, i) => [l, i]).filter(([l]) => l.sub === sub && (f === "Todos" || l.theme === f));
     if (!items.length) return;
-    const open = levelOpen(lv);
-    html += `<h3 class="lvh">Nível ${lv} <span class="cefr">≈ ${LEVELS[lv].cefr}</span> ${open ? "" : `<span class="muted">🔒 conclua ${NEED} lições do nível ${lv - 1}</span>`}</h3>`;
-    html += items.map(([l]) => {
-      const sc = S.done[l.id];
+    const lv = items[0][0].level, lvOpen = levelOpen(lv);
+    const doneN = items.filter(([l]) => passed(l.id)).length;
+    html += `<h3 class="lvh">${SUB_LABEL[sub]} <span class="cefr">≈ ${LEVELS[lv].cefr} · ${doneN}/${items.length}</span> ${lvOpen ? "" : `<span class="muted">🔒 abre com 75% do nível ${lv - 1}</span>`}</h3>`;
+    html += items.map(([l, i]) => {
+      const sc = S.done[l.id], open = unlocked(i), inPlan = typeof inPlanToday === "function" && inPlanToday(l.id);
       return `<a class="card row ${open ? "" : "locked"}" ${open ? `href="#l-${l.id}"` : ""}>
-        <span><b>${esc(l.title)}</b><br><span class="muted">${THEME_LABEL[l.theme]}</span></span>
+        <span><b>${esc(l.title)}</b><br><span class="muted">${THEME_LABEL[l.theme]}${inPlan ? " · 📅 no plano de hoje" : ""}</span></span>
         <span class="tag">${passed(l.id) ? (mastered(l.id) ? "★ " : "✔ ") + Math.round(sc * 100) + "%" : open ? (sc != null ? Math.round(sc * 100) + "%" : "Abrir") : "🔒"}</span>
       </a>`;
     }).join("");
   });
-  html += `<p class="muted">Escolha os temas que preferir. Uma lição conta como concluída com 80% ou mais de acertos.</p>`;
+  html += `<p class="muted">O plano do dia escolhe as lições para você. Uma lição conta como concluída com 80% ou mais de acertos; cada nível abre com 75% do anterior.</p>`;
   view().innerHTML = html;
   view().querySelectorAll(".chip").forEach((b) => b.onclick = () => { S.filter = b.dataset.t; save(); lessonList(); });
 }
@@ -662,7 +657,7 @@ function openTextSheet(l) {
 // ---------- App instalável (PWA) ----------
 // Só vale fora do claude.ai (lá a página roda num quadro sem service worker).
 const PWA_URL = "https://cmateinimadeira-tech.github.io/Aprendendo-Igles/";
-const APP_VERSION = "11"; // mostrado no app para conferir se a atualização chegou
+const APP_VERSION = "12"; // mostrado no app para conferir se a atualização chegou
 const inFrame = (() => { try { return window.top !== window; } catch (e) { return true; } })();
 const isStandalone = matchMedia("(display-mode: standalone)").matches || matchMedia("(display-mode: fullscreen)").matches || navigator.standalone === true;
 const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
@@ -817,6 +812,7 @@ document.addEventListener("click", (e) => {
   if (t) showSheet(`<b>${esc(t.textContent.replace(" ⓘ", ""))}:</b> ${esc(t.dataset.tip)}`);
   if (e.target.closest("#sheet")) $("#sheet").hidden = true;
 });
+assignSubs();
 gameInit();
 migrateSrs();
 route();

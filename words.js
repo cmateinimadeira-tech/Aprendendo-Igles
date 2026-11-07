@@ -156,3 +156,51 @@ function linksCardHTML() {
   const due = linkDue(), m = linkMastered();
   return `<a class="card row" href="#treino"><span><b>Treino de palavras de ligação</b><br><span class="muted">${m} dominadas${due ? ` · ${due} para revisar` : ""} · however, although, unless, while…</span></span><span class="tag">Treinar</span></a>`;
 }
+
+// ---------- Marcação inteligente de palavras (lições e textos) ----------
+// Sublinha só o que o aluno provavelmente NÃO conhece; o resto continua
+// tocável (mostra a tradução), mas sem sublinhado.
+//  - vocabulário da lição: sublinhado, exceto se já aprendido (revisão no 4º estágio) ou fácil
+//  - palavras de ligação: sublinhado vermelho
+//  - glosas do texto: sublinhado
+//  - demais palavras com tradução no dicionário: sublinhado leve se estiverem além da
+//    faixa de frequência do aluno e não tiverem sido aprendidas; senão, só tocáveis
+function userBand() { const lv = startLevel(); return lv <= 1 ? 600 : lv === 2 ? 1000 : lv === 3 ? 1600 : lv === 4 ? 2200 : 2809; }
+function dictLookup(w) {
+  if (typeof DICT_PT === "undefined") return null;
+  return DICT_PT[w] || (typeof rLemma === "function" ? DICT_PT[rLemma(w)] : null) || null;
+}
+function isLearnedTerm(term) {
+  const c = (S.srs || {})[term] || (S.srs || {})[String(term).toLowerCase()];
+  return !!(c && (c.skip || c.box >= 3)) || tagOf(term).tipo === "facil";
+}
+function markText(str, { vocab = [], gloss = [], links = [] } = {}) {
+  const learned = typeof learnedWords === "function" ? learnedWords() : new Set();
+  const band = userBand();
+  const units = [];
+  for (const [t, pt] of vocab) units.push({ t, pt, kind: isLearnedTerm(t) ? "kn" : tagOf(t).cat === "ligacao" ? "lk" : "vocab" });
+  for (const [t, pt] of gloss || []) if (!units.some((u) => u.t.toLowerCase() === t.toLowerCase())) units.push({ t, pt, kind: "vocab" });
+  for (const w of links) if (!units.some((u) => u.t.toLowerCase() === w.w.toLowerCase())) units.push({ t: w.w, pt: `${w.pt} (${w.rel})`, kind: "lk" });
+  units.sort((a, b) => b.t.length - a.t.length);
+  const esc2 = (t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const re = new RegExp((units.length ? "\\b(" + units.map((u) => esc2(u.t)).join("|") + ")\\b|" : "") + "([A-Za-z][A-Za-z'’-]*)", "gi");
+  let out = "", last = 0, m;
+  while ((m = re.exec(str))) {
+    out += esc(str.slice(last, m.index)); last = re.lastIndex;
+    const tok = m[0];
+    if (units.length && m[1]) {
+      const u = units.find((x) => x.t.toLowerCase() === tok.toLowerCase());
+      const cls = u.kind === "lk" ? "w lk" : u.kind === "kn" ? "w kn" : "w";
+      out += `<span class="${cls}" data-pt="${esc(u.pt)}" data-en="${esc(tok)}">${esc(tok)}</span>`;
+      continue;
+    }
+    const w = tok.toLowerCase().replace(/’/g, "'");
+    const pt = dictLookup(w);
+    if (!pt) { out += esc(tok); continue; }
+    const lem = typeof rLemma === "function" ? rLemma(w) : w;
+    const rank = (typeof NGSL_RANK !== "undefined" && NGSL_RANK[lem]) || 9999;
+    const unknown = rank > band && !learned.has(w) && !learned.has(lem) && !(typeof rCognate === "function" && rCognate(w)) && !isLearnedTerm(w);
+    out += `<span class="w ${unknown ? "dk" : "kn"}" data-pt="${esc(pt)}" data-en="${esc(tok)}">${esc(tok)}</span>`;
+  }
+  return out + esc(str.slice(last));
+}

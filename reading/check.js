@@ -10,6 +10,8 @@ for (const f of files) vm.runInContext(fs.readFileSync(path.join(root, f), "utf8
 const { NGSL_RANK, READINGS, LINK_WORDS } = ctx;
 const NUM_WORDS = new Set("zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty thirty forty fifty sixty seventy eighty ninety hundred thousand million billion first second third fourth fifth half".split(" "));
 const BAND = { 1: 600, 2: 1000, 3: 1600, 4: 2200, 5: 2809 };
+const SUB_BAND = { "1": 600, "2.1": 1000, "2.2": 1300, "3.1": 1600 };
+const bandOf = (r) => SUB_BAND[r.sub] || BAND[r.level];
 const lemma = (w) => {
   if (NGSL_RANK[w]) return w;
   if (NUM_WORDS.has(w)) return "one";
@@ -30,7 +32,7 @@ for (const r of READINGS) {
   tokens.forEach((t, i) => {
     const w = t.toLowerCase().replace(/’/g, "'");
     const parts = w.split("-");
-    const ok = parts.every((p) => (NGSL_RANK[lemma(p)] || 9999) <= BAND[r.level]) || gl.has(w) || cognate(w) || (/^[A-Z]/.test(t) && !startsSentence(i));
+    const ok = parts.every((p) => (NGSL_RANK[lemma(p)] || 9999) <= bandOf(r)) || gl.has(w) || cognate(w) || (/^[A-Z]/.test(t) && !startsSentence(i));
     if (ok) known++; else out.set(w, (out.get(w) || 0) + 1);
   });
   const cov = known / tokens.length;

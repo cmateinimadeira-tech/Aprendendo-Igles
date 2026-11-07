@@ -61,19 +61,7 @@ function recommendReading() {
 }
 
 function markReading(text, r, info) {
-  const links = linkTermsFor(r.level);
-  const glossMap = new Map((r.gloss || []).map((g) => [g[0].toLowerCase(), g[1]]));
-  const terms = [...glossMap.keys(), ...links.map((w) => w.w.toLowerCase())].sort((a, b) => b.length - a.length);
-  const esc2 = (t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const re = terms.length ? new RegExp("\\b(" + terms.map(esc2).join("|") + ")\\b", "gi") : null;
-  let html = esc(text);
-  if (re) html = html.replace(re, (m) => {
-    const k = m.toLowerCase();
-    if (glossMap.has(k)) return `<span class="w" data-pt="${esc(glossMap.get(k))}" data-en="${esc(m)}">${m}</span>`;
-    const lw = links.find((w) => w.w.toLowerCase() === k);
-    return `<span class="w lk" data-pt="${esc(lw.pt + " (" + lw.rel + ")")}" data-en="${esc(m)}">${m}</span>`;
-  });
-  return html;
+  return markText(text, { gloss: r.gloss || [], links: linkTermsFor(r.level) });
 }
 
 function readingList() {

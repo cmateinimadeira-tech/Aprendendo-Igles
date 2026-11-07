@@ -4,11 +4,26 @@
 // trechos {{...}} presentes no texto.
 const fs = require("fs"), path = require("path"), vm = require("vm");
 const root = path.join(__dirname, "..");
-const files = ["data.js", "anpad.js", ...fs.readdirSync(__dirname).filter((f) => /^level-\d+[a-z]?\.js$/.test(f)).sort().map((f) => "lessons/" + f)];
+const files = ["ngsl.js", "data.js", "anpad.js", ...fs.readdirSync(__dirname).filter((f) => /^level-\d+[a-z]?\.js$/.test(f)).sort().map((f) => "lessons/" + f)];
 const ctx = {};
 vm.createContext(ctx);
 for (const f of files) vm.runInContext(fs.readFileSync(path.join(root, f), "utf8"), ctx, { filename: f });
 const { LESSONS, STRATEGIES, QTYPES, THEMES } = vm.runInContext("({ LESSONS, STRATEGIES, QTYPES, THEMES })", ctx);
+const NGSL_RANK = vm.runInContext("NGSL_RANK", ctx);
+// Faixa NGSL por subnível: palavras além dela precisam estar em vocab ou gloss (ou ser cognato transparente/nome próprio).
+const SUB_BAND = { "1": 600, "2.1": 1000, "2.2": 1300, "3.1": 1600, "3.2": 1600, "4": 2200, "5": 2809 };
+const NUMS = new Set("zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty thirty forty fifty sixty seventy eighty ninety hundred thousand million billion first second third half".split(" "));
+const lem = (w) => { if (NGSL_RANK[w] || NUMS.has(w)) return NUMS.has(w) ? "one" : w; const c = w.replace(/n't$|'ll$|'re$|'ve$|'d$|'m$|'s$/, ""); if (NGSL_RANK[c]) return c;
+  return [w.replace(/s$/, ""), w.replace(/es$/, ""), w.replace(/ies$/, "y"), w.replace(/ed$/, ""), w.replace(/d$/, ""), w.replace(/ing$/, ""), w.replace(/ing$/, "e"), w.replace(/ly$/, ""), w.replace(/er$/, ""), w.replace(/est$/, ""), w.replace(/ied$/, "y")].find((t) => NGSL_RANK[t]) || w; };
+const cog = (w) => /(tion|sion|ity|ment|ence|ance|ical|ic|ive|ous|al|ism|ist|ize|ise|ary|ory)s?$/.test(w) && w.length > 5;
+function offBand(l, txt) {
+  const band = SUB_BAND[l.sub] || 9999, known = new Set([...(l.vocab || []), ...(l.gloss || [])].flatMap(([t]) => t.toLowerCase().split(/\s+/)));
+  const toks = [...txt.matchAll(/[A-Za-z][A-Za-z'’-]*/g)], out = new Set();
+  toks.forEach((m) => { const t = m[0], w = t.toLowerCase().replace(/’/g, "'"); const before = txt.slice(0, m.index).replace(/[\s"“‘(]+$/, "");
+    const proper = /^[A-Z]/.test(t) && before && !/[.!?:]$/.test(before);
+    if (proper || cog(w) || known.has(w) || w.split("-").every((p) => (NGSL_RANK[lem(p)] || 9999) <= band || known.has(p))) return; out.add(w); });
+  return [...out];
+}
 
 const errors = [], warns = [], seen = new Set();
 const textOf = (l) => (l.paras ? l.paras.join(" ") : l.radio ? l.radio.map((r) => r[1]).join(" ") : l.text || "");
@@ -32,6 +47,7 @@ for (const l of LESSONS) {
     (q.q.match(/\{\{(.+?)\}\}/g) || []).forEach((m) => { const ph = m.slice(2, -2).toLowerCase(); if (!low.includes(ph)) E(`pergunta ${i + 1}: trecho ${m} não está no texto`); });
     pos.push(q.a);
   });
+  if (l.sub) { const ob = offBand(l, txt); if (ob.length) E(`palavras fora da faixa ${l.sub} sem vocab/gloss: ${ob.join(", ")}`); }
   (l.vocab || []).forEach(([t]) => { if (!new RegExp("\\b" + t.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\b").test(low)) E(`vocab "${t}" não aparece no texto`); });
   if (l.questions && l.questions.length) {
     const max = Math.max(...[0, 1, 2, 3, 4].map((k) => pos.filter((p) => p === k).length));

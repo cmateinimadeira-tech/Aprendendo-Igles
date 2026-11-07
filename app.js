@@ -60,12 +60,13 @@ function questionsHTML(qs, prefix) {
   return qs.map((q, i) => `
     <fieldset class="q" id="${prefix}${i}">
       <legend>${i + 1}. ${esc(q.q)}</legend>
+      ${q.t ? `<span class="qt" title="${esc(QTYPES[q.t].tip)}">${QTYPES[q.t].name}</span>` : ""}
       ${q.opts.map((o, j) => `<label><input type="radio" name="${prefix}${i}" value="${j}"> ${esc(o)}</label>`).join("")}
       <p class="why hidden"></p>
     </fieldset>`).join("");
 }
 function grade(qs, prefix) {
-  let ok = 0, blank = 0;
+  let ok = 0, blank = 0; const byType = [];
   qs.forEach((q, i) => {
     const sel = document.querySelector(`input[name="${prefix}${i}"]:checked`);
     const box = $("#" + prefix + i);
@@ -73,10 +74,36 @@ function grade(qs, prefix) {
     if (!sel) { blank++; return; }
     const right = +sel.value === q.a;
     if (right) ok++;
+    if (q.t) byType.push([q.t, right]);
     box.classList.add(right ? "right" : "wrong");
-    if (q.why) { const w = box.querySelector(".why"); w.textContent = (right ? "✔ " : "✘ ") + q.why; w.classList.remove("hidden"); }
+    if (q.why) {
+      const w = box.querySelector(".why");
+      w.textContent = (right ? "✔ " : "✘ ") + q.why + (!right && q.t ? ` Dica: ${QTYPES[q.t].tip}` : "");
+      w.classList.remove("hidden");
+    }
   });
-  return { ok, blank };
+  return { ok, blank, byType };
+}
+
+// Desempenho por tipo de habilidade de leitura (primeira correção de cada lição).
+function recordSkills(byType) {
+  S.skills = S.skills || {};
+  byType.forEach(([t, right]) => {
+    const k = (S.skills[t] = S.skills[t] || { ok: 0, total: 0 });
+    k.total++; if (right) k.ok++;
+  });
+}
+function skillsHTML() {
+  const sk = S.skills || {};
+  const rows = Object.keys(QTYPES).filter((t) => sk[t] && sk[t].total);
+  if (!rows.length) return "";
+  const pct = (t) => sk[t].ok / sk[t].total;
+  const weak = rows.filter((t) => sk[t].total >= 2).sort((a, b) => pct(a) - pct(b))[0];
+  return `<section class="card">
+    <p class="muted">Suas habilidades de leitura</p>
+    <table>${rows.map((t) => `<tr><td>${QTYPES[t].name}</td><td style="width:45%"><div class="bar"><div style="width:${pct(t) * 100}%"></div></div></td><td class="muted">${Math.round(pct(t) * 100)}%</td></tr>`).join("")}</table>
+    ${weak && pct(weak) < 0.8 ? `<p><b>Ponto a melhorar: ${QTYPES[weak].name}.</b> ${QTYPES[weak].tip}</p>` : ""}
+  </section>`;
 }
 
 // ---------- Telas ----------
@@ -96,8 +123,9 @@ function home() {
   view().innerHTML = `
     <section class="card">
       <p class="muted">Seu nível de leitura</p>
-      <div class="level">Nível ${S.placement.level}</div>
-      <p>${["Vamos começar do básico.", "Você entende frases simples.", "Você entende mensagens curtas do dia a dia.", "Você entende textos curtos com boa segurança.", "Você lê bem; o foco é ganhar vocabulário e velocidade."][S.placement.level]}</p>
+      <div class="level">Nível ${S.placement.level}${LEVELS[S.placement.level] ? ` <span class="cefr">≈ ${LEVELS[S.placement.level].cefr}</span>` : ""}</div>
+      <p>${S.placement.level ? "No teste você mostrou que: " + esc(LEVELS[S.placement.level].can.charAt(0).toLowerCase() + LEVELS[S.placement.level].can.slice(1)) : "Vamos começar do básico, pelo nível 1 (≈ A1)."}</p>
+      <p class="muted">Nível de partida das lições: ${startLevel()} (≈ ${LEVELS[startLevel()].cefr}). <a href="#guia">O que significa cada nível?</a></p>
       <div class="bar"><div style="width:${doneCount / LESSONS.length * 100}%"></div></div>
       <p class="muted">${doneCount} de ${LESSONS.length} lições concluídas</p>
     </section>
@@ -108,6 +136,7 @@ function home() {
       <p>${due ? `<b>${due}</b> palavra(s) para revisar hoje.` : "Nada para revisar agora."}</p>
       ${due ? `<a class="btn" href="#revisao">Revisar</a>` : ""}
     </section>
+    ${skillsHTML()}
     <p><button class="link" id="redo">Refazer o teste de nivelamento</button></p>`;
   $("#redo").onclick = () => { if (confirm("Refazer o teste? Suas lições concluídas continuam salvas.")) { S.placement = null; save(); location.hash = "#teste"; } };
 }
@@ -146,7 +175,7 @@ function lessonList() {
     const items = LESSONS.map((l, i) => [l, i]).filter(([l]) => l.level === lv && (f === "Todos" || l.theme === f));
     if (!items.length) return;
     const open = levelOpen(lv);
-    html += `<h3 class="lvh">Nível ${lv} ${open ? "" : `<span class="muted">🔒 conclua ${NEED} lições do nível ${lv - 1}</span>`}</h3>`;
+    html += `<h3 class="lvh">Nível ${lv} <span class="cefr">≈ ${LEVELS[lv].cefr}</span> ${open ? "" : `<span class="muted">🔒 conclua ${NEED} lições do nível ${lv - 1}</span>`}</h3>`;
     html += items.map(([l]) => {
       const sc = S.done[l.id];
       return `<a class="card row ${open ? "" : "locked"}" ${open ? `href="#licao/${l.id}"` : ""}>
@@ -171,6 +200,7 @@ function lesson(id) {
       <h3>1. Antes de ler</h3>
       <p>${esc(l.context)}</p>
       <p><i>${esc(l.predict)}</i></p>
+      ${l.strategy ? `<div class="strat"><b>Estratégia desta lição: ${STRATEGIES[l.strategy].name}</b><br>${esc(STRATEGIES[l.strategy].how)}</div>` : ""}
       <details><summary>Ver cognatos (palavras parecidas com o português)</summary><p>${l.cognates.map(esc).join(" · ")}</p></details>
     </section>
 
@@ -184,6 +214,7 @@ function lesson(id) {
 
     <section class="card">
       <h3>3. Entendeu?</h3>
+      <p class="muted">Cuidado: a alternativa que repete palavras do texto nem sempre é a certa. Confira o sentido.</p>
       ${questionsHTML(l.questions, "q")}
       <button class="btn primary" id="check">Corrigir</button>
       <div id="res"></div>
@@ -209,12 +240,23 @@ function lesson(id) {
       </details>
     </section>`;
 
-  view().querySelectorAll(".w").forEach((el) => el.onclick = () => { $("#gloss").innerHTML = `<b>${esc(el.dataset.en)}</b> = ${esc(el.dataset.pt)}`; });
+  const looked = new Set();
+  const words = readingLines(l).join(" ").split(/\s+/).length;
+  view().querySelectorAll(".w").forEach((el) => el.onclick = () => {
+    looked.add(el.dataset.en.toLowerCase());
+    $("#gloss").innerHTML = `<b>${esc(el.dataset.en)}</b> = ${esc(el.dataset.pt)}`;
+  });
   $("#listen").onclick = () => speak(readingLines(l));
   $("#note").oninput = (e) => { S.notes[l.id] = e.target.value; save(); };
   $("#check").onclick = () => {
-    const { ok, blank } = grade(l.questions, "q");
+    const { ok, blank, byType } = grade(l.questions, "q");
     if (blank) { $("#res").innerHTML = `<p class="muted">Responda todas as perguntas (faltam ${blank}).</p>`; return; }
+    S.attempted = S.attempted || {};
+    if (!S.attempted[l.id]) { S.attempted[l.id] = 1; recordSkills(byType); }
+    // Cobertura de vocabulário: a pesquisa sobre leitura (Nation) indica que
+    // a leitura fica fluente quando se conhece cerca de 95–98% das palavras.
+    const cov = Math.round((1 - looked.size / words) * 100);
+    const covMsg = `<p class="muted">Você consultou ${looked.size} palavra(s) em um texto de ~${words}: entendeu cerca de ${cov}% sozinho.${cov < 95 ? " Abaixo de 95% a leitura fica pesada; é normal no começo, e a revisão ajuda." : ""}</p>`;
     const sc = ok / l.questions.length;
     S.done[l.id] = Math.max(S.done[l.id] || 0, sc);
     let msg;
@@ -226,7 +268,7 @@ function lesson(id) {
       msg = `<p class="bad">${ok} de ${l.questions.length}. Releia o texto prestando atenção nas explicações acima e tente de novo. Sem pressa.</p><button class="btn" id="retry">Tentar de novo</button>`;
     }
     save();
-    $("#res").innerHTML = msg;
+    $("#res").innerHTML = msg + covMsg;
     const r = $("#retry"); if (r) r.onclick = () => lesson(id);
   };
 }
@@ -264,12 +306,34 @@ function glossary() {
     <section class="card"><table>${GLOSSARY.map(([en, pt]) => `<tr><td><b>${esc(en)}</b></td><td>${esc(pt)}</td></tr>`).join("")}</table></section>`;
 }
 
+function guide() {
+  view().innerHTML = `<h2>Guia do curso</h2>
+    <p class="muted">Como o curso organiza a progressão, com base no Quadro Europeu Comum de Referência (CEFR) e em programas de Inglês Instrumental de institutos e universidades federais.</p>
+
+    <section class="card"><h3>Níveis</h3>
+      ${Object.entries(LEVELS).map(([n, L]) => `<p><b>Nível ${n} (≈ ${L.cefr})</b><br>${esc(L.can)}<br><span class="muted">Textos de ${L.size}. Foco: ${esc(L.skills)}</span></p>`).join("")}
+      <p class="muted">Avanço: uma lição conta como concluída com 80% de acertos; cada nível é liberado com ${NEED} lições do nível anterior. As palavras novas voltam para revisão após 1, 3, 7, 14 e 30 dias.</p>
+    </section>
+
+    <section class="card"><h3>Estratégias de leitura</h3>
+      <table>${Object.values(STRATEGIES).map((x) => `<tr><td><b>${x.name}</b></td><td>${esc(x.how)}</td></tr>`).join("")}</table>
+    </section>
+
+    <section class="card"><h3>Tipos de pergunta</h3>
+      <table>${Object.values(QTYPES).map((x) => `<tr><td><b>${x.name}</b></td><td>${esc(x.tip)}</td></tr>`).join("")}</table>
+    </section>
+
+    <section class="card"><h3>Falsos cognatos</h3>
+      <table>${FALSE_FRIENDS.map(([en, pt, no]) => `<tr><td><b>${esc(en)}</b></td><td>${esc(pt)}<br><span class="muted">${esc(no)}</span></td></tr>`).join("")}</table>
+    </section>`;
+}
+
 // ---------- Navegação ----------
 function route() {
   if ("speechSynthesis" in window) speechSynthesis.cancel();
   const [page, arg] = location.hash.slice(1).split("/");
   document.querySelectorAll("nav a").forEach((a) => a.classList.toggle("on", a.getAttribute("href") === "#" + (page || "inicio")));
-  ({ teste: test, licoes: lessonList, licao: () => lesson(arg), revisao: review, glossario: glossary }[page] || home)();
+  ({ teste: test, licoes: lessonList, licao: () => lesson(arg), revisao: review, glossario: glossary, guia: guide }[page] || home)();
   scrollTo(0, 0);
 }
 addEventListener("hashchange", route);

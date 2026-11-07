@@ -50,6 +50,7 @@ const PLACEMENT = [
 const LESSONS = [
   {
     id: "box-box",
+    strategy: "prediction",
     level: 1,
     theme: "F1",
     title: "Box, box!",
@@ -66,11 +67,12 @@ const LESSONS = [
       ["Engineer", "Good stop. You are P4. Gap to P3 is two seconds."],
     ],
     questions: [
-      { q: "Ideia geral: o que acontece nesta conversa?", opts: ["O piloto abandona a corrida", "O piloto faz um pit stop", "Começa a chover"], a: 1, why: "“Box, box” é o chamado para entrar nos boxes. No final: “Good stop” (boa parada)." },
-      { q: "Quando o piloto deve parar?", opts: ["Na próxima volta", "Nesta volta", "Em duas voltas"], a: 1, why: "“Box this lap” = pare nesta volta." },
-      { q: "Qual pneu ele vai colocar?", opts: ["Duro", "Médio", "De chuva"], a: 0, why: "“We are going to the hard tyres. Hards.”" },
-      { q: "Por que o engenheiro diz “You are faster”?", opts: ["Porque o carro de trás está com pneus médios velhos", "Porque o piloto está em P1", "Porque o carro de trás bateu"], a: 0, why: "“He is on old mediums” — o rival tem pneus gastos." },
-      { q: "Depois da parada, qual a situação?", opts: ["P3, dois segundos à frente do P4", "P4, dois segundos atrás do P3", "P2, quatro segundos atrás"], a: 1, why: "“You are P4. Gap to P3 is two seconds.”" },
+      { t: "G", q: "Ideia geral: o que acontece nesta conversa?", opts: ["O piloto abandona a corrida", "O piloto faz um pit stop", "Começa a chover"], a: 1, why: "“Box, box” é o chamado para entrar nos boxes. No final: “Good stop” (boa parada)." },
+      { t: "E", q: "Quando o piloto deve parar?", opts: ["Na próxima volta", "Nesta volta", "Em duas voltas"], a: 1, why: "“Box this lap” = pare nesta volta." },
+      { t: "E", q: "Qual pneu ele vai colocar?", opts: ["Duro", "Médio", "De chuva"], a: 0, why: "“We are going to the hard tyres. Hards.”" },
+      { t: "D", q: "Por que o engenheiro diz “You are faster”?", opts: ["Porque o carro de trás está com pneus médios velhos", "Porque o piloto está em P1", "Porque o carro de trás bateu"], a: 0, why: "“He is on old mediums” — o rival tem pneus gastos." },
+      { t: "E", q: "Depois da parada, qual a situação?", opts: ["P3, dois segundos à frente do P4", "P4, dois segundos atrás do P3", "P2, quatro segundos atrás"], a: 1, why: "“You are P4. Gap to P3 is two seconds.”" },
+      {"t": "V", "q": "Nesta conversa, “Copy” significa…", "opts": ["copiar", "entendido", "repita"], "a": 1, "why": "No rádio, copy = recebi e entendi a mensagem. Não tem nada a ver com “copiar”."},
     ],
     grammar: {
       title: "Ordens: o verbo vem primeiro",
@@ -91,6 +93,7 @@ const LESSONS = [
   },
   {
     id: "message-friend",
+    strategy: "skimming",
     level: 1,
     theme: "Cotidiano",
     title: "A message from a friend",
@@ -99,11 +102,12 @@ const LESSONS = [
     cognates: ["cinema", "online", "film"],
     text: "Hi Ana! I can't go to the cinema tonight. I have a lot of work. Can we go on Saturday? The new film starts at 7 pm. I can buy the tickets online. Let me know! – Paulo",
     questions: [
-      { q: "Ideia geral: o que Paulo quer?", opts: ["Cancelar e remarcar o cinema", "Convidar Ana para jantar", "Pedir ajuda no trabalho"], a: 0, why: "Ele não pode hoje (“I can't go… tonight”) e sugere sábado." },
-      { q: "Por que ele não pode ir hoje?", opts: ["Está doente", "Tem muito trabalho", "Não tem dinheiro"], a: 1, why: "“I have a lot of work.”" },
-      { q: "Que dia ele sugere?", opts: ["Sexta", "Sábado", "Domingo"], a: 1, why: "“Can we go on Saturday?”" },
-      { q: "A que horas começa o filme?", opts: ["17h", "19h", "21h"], a: 1, why: "“7 pm” = 7 da noite = 19h." },
-      { q: "O que Paulo se oferece para fazer?", opts: ["Comprar os ingressos pela internet", "Buscar Ana em casa", "Pagar o jantar"], a: 0, why: "“I can buy the tickets online.”" },
+      { t: "G", q: "Ideia geral: o que Paulo quer?", opts: ["Cancelar e remarcar o cinema", "Convidar Ana para jantar", "Pedir ajuda no trabalho"], a: 0, why: "Ele não pode hoje (“I can't go… tonight”) e sugere sábado." },
+      { t: "D", q: "Por que ele não pode ir hoje?", opts: ["Está doente", "Tem muito trabalho", "Não tem dinheiro"], a: 1, why: "“I have a lot of work.”" },
+      { t: "E", q: "Que dia ele sugere?", opts: ["Sexta", "Sábado", "Domingo"], a: 1, why: "“Can we go on Saturday?”" },
+      { t: "E", q: "A que horas começa o filme?", opts: ["17h", "19h", "21h"], a: 1, why: "“7 pm” = 7 da noite = 19h." },
+      { t: "D", q: "O que Paulo se oferece para fazer?", opts: ["Comprar os ingressos pela internet", "Buscar Ana em casa", "Pagar o jantar"], a: 0, why: "“I can buy the tickets online.”" },
+      {"t": "R", "q": "Em “I can buy the tickets online”, quem é “I”?", "opts": ["Ana", "Paulo", "O cinema"], "a": 1, "why": "Quem escreve é Paulo (assinatura no fim), então “I” = Paulo."},
     ],
     grammar: {
       title: "can / can't",
@@ -123,6 +127,7 @@ const LESSONS = [
   },
   {
     id: "rain-coming",
+    strategy: "inferencia",
     level: 2,
     theme: "F1",
     title: "Rain is coming",
@@ -137,11 +142,13 @@ const LESSONS = [
       ["Engineer", "Not yet. The track is still dry in sectors 1 and 2."],
     ],
     questions: [
-      { q: "Ideia geral: sobre o que é a conversa?", opts: ["Uma batida na pista", "A chegada da chuva e a troca de pneus", "Falta de combustível"], a: 1, why: "Fala-se de chuva prevista e de pneus intermediários (“inters”)." },
-      { q: "Quando a chuva deve chegar?", opts: ["Já está chovendo", "Em dez minutos", "Em dez voltas"], a: 1, why: "“Rain is expected in ten minutes.”" },
-      { q: "Qual o problema do piloto?", opts: ["A traseira do carro está escorregando", "O motor está falhando", "O rádio está ruim"], a: 0, why: "“The rear is sliding a lot.” — rear = traseira; sliding = escorregando." },
-      { q: "O que o engenheiro decide agora?", opts: ["Parar já nos boxes", "Ficar na pista por enquanto", "Abandonar"], a: 1, why: "“Stay out for now.” = fique na pista por enquanto." },
-      { q: "Por que não colocar intermediários ainda?", opts: ["Porque acabaram os pneus", "Porque a pista ainda está seca nos setores 1 e 2", "Porque o piloto não quer"], a: 1, why: "“Not yet. The track is still dry in sectors 1 and 2.”" },
+      { t: "G", q: "Ideia geral: sobre o que é a conversa?", opts: ["Uma batida na pista", "A chegada da chuva e a troca de pneus", "Falta de combustível"], a: 1, why: "Fala-se de chuva prevista e de pneus intermediários (“inters”)." },
+      { t: "E", q: "Quando a chuva deve chegar?", opts: ["Já está chovendo", "Em dez minutos", "Em dez voltas"], a: 1, why: "“Rain is expected in ten minutes.”" },
+      { t: "D", q: "Qual o problema do piloto?", opts: ["A traseira do carro está escorregando", "O motor está falhando", "O rádio está ruim"], a: 0, why: "“The rear is sliding a lot.” — rear = traseira; sliding = escorregando." },
+      { t: "D", q: "O que o engenheiro decide agora?", opts: ["Parar já nos boxes", "Ficar na pista por enquanto", "Abandonar"], a: 1, why: "“Stay out for now.” = fique na pista por enquanto." },
+      { t: "D", q: "Por que não colocar intermediários ainda?", opts: ["Porque acabaram os pneus", "Porque a pista ainda está seca nos setores 1 e 2", "Porque o piloto não quer"], a: 1, why: "“Not yet. The track is still dry in sectors 1 and 2.”" },
+      {"t": "R", "q": "Em “We will make the call”, “we” se refere a…", "opts": ["o piloto e o rival", "a equipe", "os fiscais da prova"], "a": 1, "why": "Quem fala é o engenheiro, em nome da equipe."},
+      {"t": "I", "q": "Pela conversa, o piloto parece…", "opts": ["querer trocar para intermediários logo", "tranquilo com o carro", "querer abandonar"], "a": 0, "why": "Ele reclama que a traseira escorrega e pergunta “Should we go to inters?”. A vontade dele não está dita, mas dá para deduzir."},
     ],
     grammar: {
       title: "will (futuro) e should (sugestão)",
@@ -162,6 +169,7 @@ const LESSONS = [
   },
   {
     id: "bike-lanes",
+    strategy: "repetidas",
     level: 2,
     theme: "Cotidiano",
     title: "New bike lanes in the city",
@@ -170,11 +178,13 @@ const LESSONS = [
     cognates: ["kilometres", "project", "million", "cyclists", "traffic", "extended"],
     text: "Last month, the city opened 20 kilometres of new bike lanes. The project cost 5 million reais and took two years. Since then, the number of cyclists has increased by 30%. However, some drivers complained about traffic in the city centre. The mayor said the lanes will be extended next year.",
     questions: [
-      { q: "Ideia geral da notícia:", opts: ["A cidade abriu novas ciclovias", "A cidade fechou ruas para carros", "Um acidente com ciclistas"], a: 0, why: "“the city opened 20 kilometres of new bike lanes”." },
-      { q: "Quanto tempo levou o projeto?", opts: ["Um mês", "Dois anos", "Cinco anos"], a: 1, why: "“took two years”." },
-      { q: "O que aconteceu com o número de ciclistas?", opts: ["Caiu 30%", "Aumentou 30%", "Não mudou"], a: 1, why: "“has increased by 30%”." },
-      { q: "Quem reclamou e de quê?", opts: ["Ciclistas, do preço", "Motoristas, do trânsito no centro", "O prefeito, do atraso"], a: 1, why: "“However, some drivers complained about traffic in the city centre.”" },
-      { q: "O que vai acontecer no ano que vem?", opts: ["As ciclovias serão ampliadas", "As ciclovias serão fechadas", "Haverá nova eleição"], a: 0, why: "“the lanes will be extended next year”." },
+      { t: "G", q: "Ideia geral da notícia:", opts: ["A cidade abriu novas ciclovias", "A cidade fechou ruas para carros", "Um acidente com ciclistas"], a: 0, why: "“the city opened 20 kilometres of new bike lanes”." },
+      { t: "E", q: "Quanto tempo levou o projeto?", opts: ["Um mês", "Dois anos", "Cinco anos"], a: 1, why: "“took two years”." },
+      { t: "E", q: "O que aconteceu com o número de ciclistas?", opts: ["Caiu 30%", "Aumentou 30%", "Não mudou"], a: 1, why: "“has increased by 30%”." },
+      { t: "D", q: "Quem reclamou e de quê?", opts: ["Ciclistas, do preço", "Motoristas, do trânsito no centro", "O prefeito, do atraso"], a: 1, why: "“However, some drivers complained about traffic in the city centre.”" },
+      { t: "D", q: "O que vai acontecer no ano que vem?", opts: ["As ciclovias serão ampliadas", "As ciclovias serão fechadas", "Haverá nova eleição"], a: 0, why: "“the lanes will be extended next year”." },
+      {"t": "R", "q": "Em “the lanes will be extended”, “the lanes” são…", "opts": ["as faixas para carros", "as novas ciclovias", "as linhas de ônibus"], "a": 1, "why": "“the lanes” retoma as “new bike lanes” do início."},
+      {"t": "O", "q": "Como o texto trata as ciclovias?", "opts": ["Só elogia", "Mostra resultados positivos e também uma crítica", "É contra elas"], "a": 1, "why": "“However” introduz a reclamação dos motoristas, depois dos dados positivos."},
     ],
     grammar: {
       title: "Grupo nominal: leia de trás para frente",
@@ -195,6 +205,7 @@ const LESSONS = [
   },
   {
     id: "lift-and-coast",
+    strategy: "referencia",
     level: 3,
     theme: "F1",
     title: "Lift and coast",
@@ -211,11 +222,13 @@ const LESSONS = [
       ["Engineer", "Understood. Keep the delta positive."],
     ],
     questions: [
-      { q: "Por que a equipe pede “lift and coast”?", opts: ["Falta combustível", "Os freios estão superaquecendo", "Vai chover"], a: 1, why: "“Fuel is OK, but the brakes are running hot.”" },
-      { q: "O que o piloto pensava sobre o combustível?", opts: ["Que estava tudo bem", "Que ia acabar", "Que tinha demais"], a: 0, why: "“I thought we were fine.” = Achei que estávamos bem." },
-      { q: "O que a equipe fará se o rival parar nesta volta?", opts: ["Nada", "Parar na volta seguinte para se defender", "Parar na mesma volta"], a: 1, why: "“If he does, we will cover him next lap.” — cover = responder/defender." },
-      { q: "Qual a preocupação do piloto?", opts: ["Ficar tempo demais na pista com pneus acabados", "Parar cedo demais", "O carro de trás bater nele"], a: 0, why: "“Don't leave me out too long. My tyres are gone.”" },
-      { q: "Qual é a meta de perda de tempo por volta?", opts: ["Dois segundos", "Dois décimos", "Doze décimos"], a: 1, why: "“Target is two tenths per lap.” — tenths = décimos." },
+      {"t": "G", "q": "Ideia geral da conversa:", "opts": ["A equipe poupa o carro e se prepara para uma disputa de estratégia", "O piloto vai abandonar", "A equipe comemora a vitória"], "a": 0, "why": "Fala-se de poupar freios e de como reagir ao rival (undercut)."},
+      { t: "D", q: "Por que a equipe pede “lift and coast”?", opts: ["Falta combustível", "Os freios estão superaquecendo", "Vai chover"], a: 1, why: "“Fuel is OK, but the brakes are running hot.”" },
+      { t: "D", q: "O que o piloto pensava sobre o combustível?", opts: ["Que estava tudo bem", "Que ia acabar", "Que tinha demais"], a: 0, why: "“I thought we were fine.” = Achei que estávamos bem." },
+      { t: "I", q: "O que a equipe fará se o rival parar nesta volta?", opts: ["Nada", "Parar na volta seguinte para se defender", "Parar na mesma volta"], a: 1, why: "“If he does, we will cover him next lap.” — cover = responder/defender." },
+      { t: "O", q: "Qual a preocupação do piloto?", opts: ["Ficar tempo demais na pista com pneus acabados", "Parar cedo demais", "O carro de trás bater nele"], a: 0, why: "“Don't leave me out too long. My tyres are gone.”" },
+      { t: "E", q: "Qual é a meta de perda de tempo por volta?", opts: ["Dois segundos", "Dois décimos", "Doze décimos"], a: 1, why: "“Target is two tenths per lap.” — tenths = décimos." },
+      {"t": "R", "q": "Em “If he does, we will cover him”, “he” é…", "opts": ["o engenheiro", "o piloto do carro de trás", "o companheiro de equipe"], "a": 1, "why": "O piloto acabou de perguntar sobre “the car behind”; he/him retomam esse rival."},
     ],
     grammar: {
       title: "if… will: condição e consequência",
@@ -236,6 +249,7 @@ const LESSONS = [
   },
   {
     id: "sleep",
+    strategy: "prediction",
     level: 3,
     theme: "Cotidiano",
     title: "How much sleep do we need?",
@@ -244,11 +258,13 @@ const LESSONS = [
     cognates: ["adults", "function", "studies", "memory", "concentration", "experts"],
     text: "Most adults need between seven and nine hours of sleep. Although many people believe they can function well on less, studies show that lack of sleep affects memory and concentration. Screens are often blamed: the blue light from phones may make it harder to fall asleep. Experts suggest that you should avoid using your phone for at least an hour before bed.",
     questions: [
-      { q: "Quantas horas de sono a maioria dos adultos precisa?", opts: ["De 5 a 7", "De 7 a 9", "Mais de 9"], a: 1, why: "“between seven and nine hours”." },
-      { q: "O que muitas pessoas acreditam?", opts: ["Que funcionam bem dormindo menos", "Que precisam dormir mais", "Que celular ajuda a dormir"], a: 0, why: "“many people believe they can function well on less”." },
-      { q: "O que os estudos mostram?", opts: ["Pouco sono afeta memória e concentração", "Dormir muito faz mal", "Telas não afetam o sono"], a: 0, why: "“lack of sleep affects memory and concentration” — lack = falta." },
-      { q: "Qual o efeito da luz azul do celular?", opts: ["Ajuda a relaxar", "Pode dificultar pegar no sono", "Melhora a memória"], a: 1, why: "“may make it harder to fall asleep”." },
-      { q: "O que os especialistas recomendam?", opts: ["Usar o celular só na cama", "Evitar o celular por pelo menos uma hora antes de dormir", "Dormir com a luz acesa"], a: 1, why: "“you should avoid using your phone for at least an hour before bed”." },
+      {"t": "G", "q": "Objetivo principal do texto:", "opts": ["Informar sobre o sono e dar uma recomendação", "Vender um remédio", "Contar uma história pessoal"], "a": 0, "why": "Traz dados, explica um problema (telas) e termina com uma recomendação."},
+      { t: "E", q: "Quantas horas de sono a maioria dos adultos precisa?", opts: ["De 5 a 7", "De 7 a 9", "Mais de 9"], a: 1, why: "“between seven and nine hours”." },
+      { t: "D", q: "O que muitas pessoas acreditam?", opts: ["Que funcionam bem dormindo menos", "Que precisam dormir mais", "Que celular ajuda a dormir"], a: 0, why: "“many people believe they can function well on less”." },
+      { t: "D", q: "O que os estudos mostram?", opts: ["Pouco sono afeta memória e concentração", "Dormir muito faz mal", "Telas não afetam o sono"], a: 0, why: "“lack of sleep affects memory and concentration” — lack = falta." },
+      { t: "D", q: "Qual o efeito da luz azul do celular?", opts: ["Ajuda a relaxar", "Pode dificultar pegar no sono", "Melhora a memória"], a: 1, why: "“may make it harder to fall asleep”." },
+      { t: "D", q: "O que os especialistas recomendam?", opts: ["Usar o celular só na cama", "Evitar o celular por pelo menos uma hora antes de dormir", "Dormir com a luz acesa"], a: 1, why: "“you should avoid using your phone for at least an hour before bed”." },
+      {"t": "V", "q": "“Screens are often blamed” indica que as telas são…", "opts": ["elogiadas", "apontadas como culpadas", "proibidas"], "a": 1, "why": "O resto da frase explica: a luz azul atrapalha o sono. Logo, as telas levam a culpa."},
     ],
     grammar: {
       title: "although (embora) e may (pode ser que)",
@@ -271,6 +287,7 @@ const LESSONS = [
   // ===== Tecnologia =====
   {
     id: "app-update",
+    strategy: "cognatos",
     level: 1,
     theme: "Tecnologia",
     title: "Update available",
@@ -279,11 +296,12 @@ const LESSONS = [
     cognates: ["version", "app", "Wi-Fi", "install"],
     text: "Update available. A new version of the app is ready. This update fixes bugs and improves battery life. The download is 85 MB. Use Wi-Fi to save mobile data. Install now or later?",
     questions: [
-      { q: "Ideia geral: o que a mensagem oferece?", opts: ["Uma nova versão do aplicativo", "Um desconto na loja", "Um novo celular"], a: 0, why: "“A new version of the app is ready.”" },
-      { q: "O que a atualização faz?", opts: ["Corrige erros e melhora a bateria", "Apaga suas fotos", "Aumenta a tela"], a: 0, why: "“fixes bugs and improves battery life” — bugs = erros de programa." },
-      { q: "Qual o tamanho do download?", opts: ["8,5 MB", "85 MB", "85 GB"], a: 1, why: "“The download is 85 MB.”" },
-      { q: "Por que usar Wi-Fi?", opts: ["Para baixar mais rápido", "Para economizar os dados móveis", "Porque é obrigatório"], a: 1, why: "“Use Wi-Fi to save mobile data.” — save = economizar." },
-      { q: "Você é obrigado a instalar agora?", opts: ["Sim", "Não, pode instalar depois", "A mensagem não diz"], a: 1, why: "“Install now or later?” — later = mais tarde." },
+      { t: "G", q: "Ideia geral: o que a mensagem oferece?", opts: ["Uma nova versão do aplicativo", "Um desconto na loja", "Um novo celular"], a: 0, why: "“A new version of the app is ready.”" },
+      { t: "D", q: "O que a atualização faz?", opts: ["Corrige erros e melhora a bateria", "Apaga suas fotos", "Aumenta a tela"], a: 0, why: "“fixes bugs and improves battery life” — bugs = erros de programa." },
+      { t: "E", q: "Qual o tamanho do download?", opts: ["8,5 MB", "85 MB", "85 GB"], a: 1, why: "“The download is 85 MB.”" },
+      { t: "D", q: "Por que usar Wi-Fi?", opts: ["Para baixar mais rápido", "Para economizar os dados móveis", "Porque é obrigatório"], a: 1, why: "“Use Wi-Fi to save mobile data.” — save = economizar." },
+      { t: "D", q: "Você é obrigado a instalar agora?", opts: ["Sim", "Não, pode instalar depois", "A mensagem não diz"], a: 1, why: "“Install now or later?” — later = mais tarde." },
+      {"t": "V", "q": "Pelo contexto, “bugs” aqui significa…", "opts": ["insetos", "erros do programa", "vírus perigosos"], "a": 1, "why": "Em tecnologia, bug = falha no programa. O contexto ajuda: a atualização “fixes bugs” (corrige…)."},
     ],
     grammar: {
       title: "-s no fim do verbo",
@@ -305,6 +323,7 @@ const LESSONS = [
   },
   {
     id: "new-sign-in",
+    strategy: "falsos",
     level: 2,
     theme: "Tecnologia",
     title: "New sign-in to your account",
@@ -313,11 +332,12 @@ const LESSONS = [
     cognates: ["account", "country", "verification", "immediately"],
     text: "We noticed a sign-in to your account from a new device in another country. If this was you, you don't need to do anything. If not, someone may know your password. Please change it immediately and turn on two-step verification. Remember: we will never ask for your password by email.",
     questions: [
-      { q: "Ideia geral: por que o e-mail foi enviado?", opts: ["Houve um acesso à conta a partir de um aparelho novo", "A conta foi apagada", "Há uma nova função no aplicativo"], a: 0, why: "“We noticed a sign-in to your account from a new device.”" },
-      { q: "Se foi você que entrou, o que fazer?", opts: ["Trocar a senha", "Nada", "Responder o e-mail"], a: 1, why: "“If this was you, you don't need to do anything.”" },
-      { q: "Se não foi você, o que pode ter acontecido?", opts: ["Alguém pode saber sua senha", "O celular quebrou", "A conta venceu"], a: 0, why: "“someone may know your password” — may = pode ser que." },
-      { q: "O que o e-mail recomenda?", opts: ["Trocar a senha e ativar a verificação em duas etapas", "Enviar a senha por e-mail", "Desligar o celular"], a: 0, why: "“change it immediately and turn on two-step verification”." },
-      { q: "A empresa pede senha por e-mail?", opts: ["Sim, às vezes", "Nunca", "Só em outro país"], a: 1, why: "“we will never ask for your password by email” — never = nunca. Um e-mail pedindo senha é golpe." },
+      { t: "G", q: "Ideia geral: por que o e-mail foi enviado?", opts: ["Houve um acesso à conta a partir de um aparelho novo", "A conta foi apagada", "Há uma nova função no aplicativo"], a: 0, why: "“We noticed a sign-in to your account from a new device.”" },
+      { t: "D", q: "Se foi você que entrou, o que fazer?", opts: ["Trocar a senha", "Nada", "Responder o e-mail"], a: 1, why: "“If this was you, you don't need to do anything.”" },
+      { t: "D", q: "Se não foi você, o que pode ter acontecido?", opts: ["Alguém pode saber sua senha", "O celular quebrou", "A conta venceu"], a: 0, why: "“someone may know your password” — may = pode ser que." },
+      { t: "D", q: "O que o e-mail recomenda?", opts: ["Trocar a senha e ativar a verificação em duas etapas", "Enviar a senha por e-mail", "Desligar o celular"], a: 0, why: "“change it immediately and turn on two-step verification”." },
+      { t: "D", q: "A empresa pede senha por e-mail?", opts: ["Sim, às vezes", "Nunca", "Só em outro país"], a: 1, why: "“we will never ask for your password by email” — never = nunca. Um e-mail pedindo senha é golpe." },
+      {"t": "R", "q": "Em “Please change it immediately”, “it” se refere a…", "opts": ["a conta", "a senha", "o aparelho"], "a": 1, "why": "A frase anterior fala de “your password”; “it” retoma essa palavra."},
     ],
     grammar: {
       title: "Negação: don't, not, never",
@@ -338,6 +358,7 @@ const LESSONS = [
   },
   {
     id: "ai-at-work",
+    strategy: "conectivos",
     level: 4,
     theme: "Tecnologia",
     title: "AI at the office",
@@ -346,11 +367,13 @@ const LESSONS = [
     cognates: ["survey", "artificial intelligence", "documents", "results", "convincing"],
     text: "A recent survey found that more than half of office workers now use artificial intelligence tools at least once a week, mostly to write emails and summarise documents. While most say these tools save them time, many admit they do not always check the results. Companies are therefore being urged to train their staff, since AI can produce answers that sound convincing but are wrong.",
     questions: [
-      { q: "Ideia geral do texto:", opts: ["O uso de IA no trabalho cresce, mas exige cuidado", "A IA vai substituir todos os empregos", "As empresas proibiram a IA"], a: 0, why: "Mostra o uso crescente e alerta para respostas erradas." },
-      { q: "Quantos trabalhadores usam IA toda semana?", opts: ["Menos da metade", "Mais da metade", "Todos"], a: 1, why: "“more than half of office workers”." },
-      { q: "Para que usam principalmente?", opts: ["Escrever e-mails e resumir documentos", "Programar sistemas", "Fazer reuniões"], a: 0, why: "“mostly to write emails and summarise documents”." },
-      { q: "O que muitos admitem?", opts: ["Que não gostam da IA", "Que nem sempre conferem os resultados", "Que perdem tempo com ela"], a: 1, why: "“many admit they do not always check the results”." },
-      { q: "Por que as empresas devem treinar a equipe?", opts: ["Porque a IA pode dar respostas convincentes, mas erradas", "Porque a IA é cara", "Porque a lei obriga"], a: 0, why: "“since AI can produce answers that sound convincing but are wrong” — since aqui = porque." },
+      { t: "G", q: "Ideia geral do texto:", opts: ["O uso de IA no trabalho cresce, mas exige cuidado", "A IA vai substituir todos os empregos", "As empresas proibiram a IA"], a: 0, why: "Mostra o uso crescente e alerta para respostas erradas." },
+      { t: "E", q: "Quantos trabalhadores usam IA toda semana?", opts: ["Menos da metade", "Mais da metade", "Todos"], a: 1, why: "“more than half of office workers”." },
+      { t: "D", q: "Para que usam principalmente?", opts: ["Escrever e-mails e resumir documentos", "Programar sistemas", "Fazer reuniões"], a: 0, why: "“mostly to write emails and summarise documents”." },
+      { t: "D", q: "O que muitos admitem?", opts: ["Que não gostam da IA", "Que nem sempre conferem os resultados", "Que perdem tempo com ela"], a: 1, why: "“many admit they do not always check the results”." },
+      { t: "I", q: "Por que as empresas devem treinar a equipe?", opts: ["Porque a IA pode dar respostas convincentes, mas erradas", "Porque a IA é cara", "Porque a lei obriga"], a: 0, why: "“since AI can produce answers that sound convincing but are wrong” — since aqui = porque." },
+      {"t": "R", "q": "Em “these tools save them time”, “them” se refere a…", "opts": ["as empresas", "os trabalhadores", "os documentos"], "a": 1, "why": "“most say these tools save them time”: quem diz são os trabalhadores (office workers)."},
+      {"t": "O", "q": "Qual a postura do texto sobre a IA?", "opts": ["Entusiasmo total", "Reconhece vantagens, mas alerta para riscos", "Rejeição total"], "a": 1, "why": "Mostra o ganho de tempo, mas destaca respostas erradas e a necessidade de treinamento."},
     ],
     grammar: {
       title: "Conectivos que mostram a lógica: while, therefore, since",
@@ -375,6 +398,7 @@ const LESSONS = [
   // ===== Economia =====
   {
     id: "weekend-sale",
+    strategy: "scanning",
     level: 1,
     theme: "Economia",
     title: "Weekend sale",
@@ -383,11 +407,12 @@ const LESSONS = [
     cognates: ["%", "Monday", "Saturday"],
     text: "SALE! 30% off all shoes this weekend. Buy two pairs, get one free. We accept cash or card. Prices include tax. Open Monday to Saturday, 9 am to 8 pm.",
     questions: [
-      { q: "Ideia geral: o que o cartaz anuncia?", opts: ["Uma liquidação de sapatos", "Vagas de emprego", "Uma loja nova"], a: 0, why: "“SALE! 30% off all shoes” — sale = liquidação/promoção." },
-      { q: "Qual o desconto?", opts: ["30% a mais", "30% de desconto", "3% de desconto"], a: 1, why: "“30% off” — off = de desconto." },
-      { q: "Se você comprar dois pares…", opts: ["ganha mais um de graça", "paga o dobro", "ganha 30% a mais"], a: 0, why: "“Buy two pairs, get one free.”" },
-      { q: "Os impostos estão incluídos no preço?", opts: ["Sim", "Não", "Só no cartão"], a: 0, why: "“Prices include tax.”" },
-      { q: "Que horário a loja fecha?", opts: ["18h", "20h", "21h"], a: 1, why: "“9 am to 8 pm” — pm = depois do meio-dia; 8 pm = 20h." },
+      { t: "G", q: "Ideia geral: o que o cartaz anuncia?", opts: ["Uma liquidação de sapatos", "Vagas de emprego", "Uma loja nova"], a: 0, why: "“SALE! 30% off all shoes” — sale = liquidação/promoção." },
+      { t: "V", q: "Qual o desconto?", opts: ["30% a mais", "30% de desconto", "3% de desconto"], a: 1, why: "“30% off” — off = de desconto." },
+      { t: "D", q: "Se você comprar dois pares…", opts: ["ganha mais um de graça", "paga o dobro", "ganha 30% a mais"], a: 0, why: "“Buy two pairs, get one free.”" },
+      { t: "D", q: "Os impostos estão incluídos no preço?", opts: ["Sim", "Não", "Só no cartão"], a: 0, why: "“Prices include tax.”" },
+      { t: "E", q: "Que horário a loja fecha?", opts: ["18h", "20h", "21h"], a: 1, why: "“9 am to 8 pm” — pm = depois do meio-dia; 8 pm = 20h." },
+      {"t": "I", "q": "Quem leva 3 pares paga quantos?", "opts": ["3", "2", "1"], "a": 1, "why": "“Buy two pairs, get one free”: paga 2 e leva o 3º de graça. A resposta não está escrita; você deduz."},
     ],
     grammar: {
       title: "Palavras pequenas que mudam o preço: off, free, include",
@@ -407,6 +432,7 @@ const LESSONS = [
   },
   {
     id: "food-prices",
+    strategy: "scanning",
     level: 3,
     theme: "Economia",
     title: "Food prices go up",
@@ -415,11 +441,13 @@ const LESSONS = [
     cognates: ["report", "regions", "transport", "economists", "months"],
     text: "Food prices rose 8% last year, according to a new report. Coffee and beef had the biggest increases. Bad weather in producing regions reduced harvests, while transport costs also went up. Economists expect prices to fall slightly in the coming months, but they warn that this depends on the weather.",
     questions: [
-      { q: "Quanto subiram os preços dos alimentos?", opts: ["8% no ano passado", "8% no mês passado", "18% no ano"], a: 0, why: "“rose 8% last year” — rose é o passado de rise (subir)." },
-      { q: "Quais produtos subiram mais?", opts: ["Arroz e feijão", "Café e carne bovina", "Frutas e verduras"], a: 1, why: "“Coffee and beef had the biggest increases.”" },
-      { q: "Quais foram as causas?", opts: ["Clima ruim e transporte mais caro", "Impostos e greve", "Excesso de produção"], a: 0, why: "“Bad weather… reduced harvests, while transport costs also went up.”" },
-      { q: "O que os economistas esperam?", opts: ["Alta forte", "Leve queda nos próximos meses", "Preços congelados"], a: 1, why: "“expect prices to fall slightly in the coming months”." },
-      { q: "Do que essa previsão depende?", opts: ["Do governo", "Do clima", "Do dólar"], a: 1, why: "“they warn that this depends on the weather”." },
+      {"t": "G", "q": "Ideia geral da notícia:", "opts": ["Os alimentos subiram; o texto traz causas e previsão", "Os alimentos ficaram mais baratos", "O governo congelou os preços"], "a": 0, "why": "Alta de 8%, causas (clima, transporte) e previsão dos economistas."},
+      { t: "E", q: "Quanto subiram os preços dos alimentos?", opts: ["8% no ano passado", "8% no mês passado", "18% no ano"], a: 0, why: "“rose 8% last year” — rose é o passado de rise (subir)." },
+      { t: "E", q: "Quais produtos subiram mais?", opts: ["Arroz e feijão", "Café e carne bovina", "Frutas e verduras"], a: 1, why: "“Coffee and beef had the biggest increases.”" },
+      { t: "D", q: "Quais foram as causas?", opts: ["Clima ruim e transporte mais caro", "Impostos e greve", "Excesso de produção"], a: 0, why: "“Bad weather… reduced harvests, while transport costs also went up.”" },
+      { t: "D", q: "O que os economistas esperam?", opts: ["Alta forte", "Leve queda nos próximos meses", "Preços congelados"], a: 1, why: "“expect prices to fall slightly in the coming months”." },
+      { t: "D", q: "Do que essa previsão depende?", opts: ["Do governo", "Do clima", "Do dólar"], a: 1, why: "“they warn that this depends on the weather”." },
+      {"t": "R", "q": "Em “but they warn”, “they” são…", "opts": ["os produtores", "os economistas", "os consumidores"], "a": 1, "why": "O sujeito anterior da mesma frase é “Economists”."},
     ],
     grammar: {
       title: "Passado irregular: rose, had, went",
@@ -441,6 +469,7 @@ const LESSONS = [
   },
   {
     id: "interest-rates",
+    strategy: "afixos",
     level: 4,
     theme: "Economia",
     title: "Central bank raises rates",
@@ -449,11 +478,13 @@ const LESSONS = [
     cognates: ["central bank", "inflation", "economy", "critics", "percentage"],
     text: "The central bank raised its benchmark interest rate by half a percentage point on Wednesday, the third increase this year. Policymakers said inflation remained well above their target and that further rises could not be ruled out. Higher rates make borrowing more expensive, which tends to cool spending; however, critics argue the bank risks slowing the economy too much.",
     questions: [
-      { q: "O que o banco central fez?", opts: ["Baixou os juros", "Subiu os juros em meio ponto", "Manteve os juros"], a: 1, why: "“raised its benchmark interest rate by half a percentage point”." },
-      { q: "É a primeira alta do ano?", opts: ["Sim", "Não, é a terceira", "Não, é a segunda"], a: 1, why: "“the third increase this year”." },
-      { q: "Por que subiram os juros?", opts: ["Porque a inflação continua bem acima da meta", "Porque a economia está parada", "Porque o dólar caiu"], a: 0, why: "“inflation remained well above their target”." },
-      { q: "Novas altas são possíveis?", opts: ["Não, estão descartadas", "Sim, não podem ser descartadas", "O texto não diz"], a: 1, why: "“further rises could not be ruled out” — rule out = descartar; aqui está negado." },
-      { q: "Qual a crítica feita?", opts: ["Que os juros deveriam subir mais", "Que o banco pode desacelerar demais a economia", "Que a inflação é falsa"], a: 1, why: "“critics argue the bank risks slowing the economy too much”." },
+      {"t": "G", "q": "Ideia geral da notícia:", "opts": ["O banco subiu os juros contra a inflação, mas há críticas", "O banco cortou os juros", "A inflação acabou"], "a": 0, "why": "Alta de juros, justificativa (inflação) e crítica (risco de frear demais a economia)."},
+      { t: "D", q: "O que o banco central fez?", opts: ["Baixou os juros", "Subiu os juros em meio ponto", "Manteve os juros"], a: 1, why: "“raised its benchmark interest rate by half a percentage point”." },
+      { t: "E", q: "É a primeira alta do ano?", opts: ["Sim", "Não, é a terceira", "Não, é a segunda"], a: 1, why: "“the third increase this year”." },
+      { t: "D", q: "Por que subiram os juros?", opts: ["Porque a inflação continua bem acima da meta", "Porque a economia está parada", "Porque o dólar caiu"], a: 0, why: "“inflation remained well above their target”." },
+      { t: "V", q: "Novas altas são possíveis?", opts: ["Não, estão descartadas", "Sim, não podem ser descartadas", "O texto não diz"], a: 1, why: "“further rises could not be ruled out” — rule out = descartar; aqui está negado." },
+      { t: "O", q: "Qual a crítica feita?", opts: ["Que os juros deveriam subir mais", "Que o banco pode desacelerar demais a economia", "Que a inflação é falsa"], a: 1, why: "“critics argue the bank risks slowing the economy too much”." },
+      {"t": "R", "q": "Em “which tends to cool spending”, “which” se refere a…", "opts": ["o banco central", "empréstimos ficarem mais caros", "a inflação"], "a": 1, "why": "“which” retoma a ideia anterior inteira: juros altos encarecem o crédito, o que esfria o consumo."},
     ],
     grammar: {
       title: "Quem diz o quê: said, argue, warn",
@@ -478,6 +509,7 @@ const LESSONS = [
   // ===== F1 (nível 4) =====
   {
     id: "chequered-flag",
+    strategy: "inferencia",
     level: 4,
     theme: "F1",
     title: "So close",
@@ -491,11 +523,12 @@ const LESSONS = [
       ["Driver", "Fair enough. Still, we left a win on the table. Thanks, guys. Great job in the pit stops."],
     ],
     questions: [
-      { q: "Em que posição o piloto terminou?", opts: ["P1", "P2", "Abandonou"], a: 1, why: "“That's the chequered flag. P2.”" },
-      { q: "“The safety car didn't fall our way” significa…", opts: ["o safety car não nos favoreceu", "o safety car bateu em nós", "não houve safety car"], a: 0, why: "fall someone's way = acontecer a favor de alguém. Com didn't: não nos favoreceu." },
-      { q: "Qual a reclamação do piloto?", opts: ["Pararam durante o safety car e perderam posição na pista", "O carro estava lento", "A equipe demorou no pit stop"], a: 0, why: "“Why did we pit under the safety car? We gave away track position.”" },
-      { q: "Qual a justificativa do engenheiro?", opts: ["Se tivessem ficado na pista, os pneus não aguentariam até o fim", "O piloto pediu para parar", "Começou a chover"], a: 0, why: "“Had we stayed out, the tyres wouldn't have made it to the end.”" },
-      { q: "Como o piloto termina a conversa?", opts: ["Furioso, culpando a equipe", "Aceita, mas acha que perderam uma vitória, e agradece", "Feliz com o resultado"], a: 1, why: "“Fair enough. Still, we left a win on the table. Thanks, guys.”" },
+      { t: "E", q: "Em que posição o piloto terminou?", opts: ["P1", "P2", "Abandonou"], a: 1, why: "“That's the chequered flag. P2.”" },
+      { t: "V", q: "“The safety car didn't fall our way” significa…", opts: ["o safety car não nos favoreceu", "o safety car bateu em nós", "não houve safety car"], a: 0, why: "fall someone's way = acontecer a favor de alguém. Com didn't: não nos favoreceu." },
+      { t: "D", q: "Qual a reclamação do piloto?", opts: ["Pararam durante o safety car e perderam posição na pista", "O carro estava lento", "A equipe demorou no pit stop"], a: 0, why: "“Why did we pit under the safety car? We gave away track position.”" },
+      { t: "D", q: "Qual a justificativa do engenheiro?", opts: ["Se tivessem ficado na pista, os pneus não aguentariam até o fim", "O piloto pediu para parar", "Começou a chover"], a: 0, why: "“Had we stayed out, the tyres wouldn't have made it to the end.”" },
+      { t: "O", q: "Como o piloto termina a conversa?", opts: ["Furioso, culpando a equipe", "Aceita, mas acha que perderam uma vitória, e agradece", "Feliz com o resultado"], a: 1, why: "“Fair enough. Still, we left a win on the table. Thanks, guys.”" },
+      {"t": "R", "q": "“We'll go through it in the debrief”: “it” é…", "opts": ["a bandeira", "a decisão de parar durante o safety car", "o pneu"], "a": 1, "why": "O engenheiro responde à pergunta do piloto sobre a parada; “it” retoma esse assunto."},
     ],
     grammar: {
       title: "O que teria acontecido: had… would have",
@@ -554,4 +587,60 @@ const GLOSSARY = [
   ["Sector 1, 2, 3", "As três partes em que a volta é dividida."],
   ["Chequered flag", "Bandeira quadriculada: fim da corrida."],
   ["Get in there!", "Comemoração: “Isso aí!”"],
+];
+
+// ---------- Referências pedagógicas ----------
+// Níveis do curso alinhados ao Quadro Europeu Comum (CEFR). Os descritores de
+// leitura são paráfrases da grade de autoavaliação do Conselho da Europa.
+// A extensão dos textos é uma referência interna do curso.
+const LEVELS = {
+  1: { cefr: "A1", can: "Entende nomes, palavras conhecidas e frases muito simples, como em avisos, cartazes e catálogos.", size: "30 a 60 palavras", skills: "Ideia geral, informação específica, cognatos." },
+  2: { cefr: "A2", can: "Lê textos curtos e simples. Encontra informações previsíveis em anúncios, cardápios e horários. Entende mensagens pessoais curtas.", size: "50 a 90 palavras", skills: "+ referência (it, they, this) e inferências simples." },
+  3: { cefr: "B1", can: "Entende textos com linguagem frequente do dia a dia ou do trabalho, e descrições de fatos, sentimentos e desejos.", size: "70 a 120 palavras", skills: "+ vocabulário pelo contexto e a atitude de quem escreve." },
+  4: { cefr: "B2", can: "Lê artigos e reportagens sobre questões atuais em que o autor assume uma posição ou ponto de vista.", size: "90 a 150 palavras", skills: "+ argumentos, opiniões contrárias e o que fica nas entrelinhas." },
+};
+
+// Tipos de pergunta (baseados nos programas de Inglês Instrumental e nos guias Cambridge).
+const QTYPES = {
+  G: { name: "Ideia geral", tip: "Leia rápido o texto inteiro (skimming) e pergunte-se: de que se trata?" },
+  E: { name: "Informação específica", tip: "Procure só o dado pedido (scanning): números, nomes, datas." },
+  D: { name: "Detalhe", tip: "Volte ao trecho certo e leia com atenção a frase inteira." },
+  I: { name: "Inferência", tip: "A resposta não está escrita: deduza a partir do que o texto diz." },
+  R: { name: "Referência", tip: "Pronomes (it, they, he, this, which) retomam algo dito antes. Volte uma ou duas frases." },
+  V: { name: "Vocabulário no contexto", tip: "Use as palavras ao redor para adivinhar o sentido antes de consultar." },
+  O: { name: "Opinião / atitude", tip: "Observe conectivos (however, although) e verbos como argue e warn: eles revelam posições." },
+};
+
+// Estratégias de leitura (ementas de Inglês Instrumental de IFs e universidades federais).
+const STRATEGIES = {
+  prediction: { name: "Predição", how: "Antes de ler, use o título, o contexto e as imagens para prever o assunto. Depois confira se acertou." },
+  skimming: { name: "Skimming", how: "Leia rapidamente o texto inteiro só para captar a ideia geral, sem parar nas palavras difíceis." },
+  scanning: { name: "Scanning", how: "Passe os olhos procurando uma informação específica: números, datas, nomes, horários." },
+  cognatos: { name: "Cognatos", how: "Marque as palavras parecidas com o português (version, install). Elas dão a base do sentido." },
+  falsos: { name: "Falsos cognatos", how: "Algumas palavras parecem português, mas não são: notice = notar/aviso (não “notícia”). Desconfie quando o sentido não fechar." },
+  repetidas: { name: "Palavras repetidas", how: "Palavras que se repetem mostram o tema central. Encontre-as antes de ler os detalhes." },
+  inferencia: { name: "Inferência", how: "Deduza o sentido de expressões e intenções pelo contexto, sem traduzir palavra por palavra." },
+  referencia: { name: "Referência", how: "Ao ver he, it, they, this ou which, pergunte: a quem ou a que isso se refere?" },
+  conectivos: { name: "Conectivos", how: "Palavras como however, while, therefore e since mostram a lógica: contraste, causa, consequência." },
+  afixos: { name: "Prefixos e sufixos", how: "Partes de palavras ajudam a adivinhar: -ing (ação), -er (quem faz), un- (negação), -ly (modo)." },
+};
+
+// Falsos cognatos frequentes em notícias, tecnologia, economia e F1.
+const FALSE_FRIENDS = [
+  ["actually", "na verdade", "não é “atualmente” (= currently)"],
+  ["pretend", "fingir", "não é “pretender” (= intend)"],
+  ["realize", "perceber", "não é “realizar” (= carry out)"],
+  ["eventually", "no fim / com o tempo", "não é “eventualmente” (= occasionally)"],
+  ["notice", "notar / aviso", "não é “notícia” (= news)"],
+  ["attend", "frequentar / comparecer", "não é “atender” (= answer, serve)"],
+  ["library", "biblioteca", "não é “livraria” (= bookshop)"],
+  ["college", "faculdade", "não é “colégio” (= school)"],
+  ["parents", "pais", "não é “parentes” (= relatives)"],
+  ["sensible", "sensato", "não é “sensível” (= sensitive)"],
+  ["novel", "romance (livro)", "não é “novela” (= soap opera)"],
+  ["policy", "política / norma", "não é “polícia” (= police)"],
+  ["commodity", "mercadoria básica (café, soja, petróleo)", "não é “comodidade” (= comfort)"],
+  ["application", "inscrição / aplicativo", "não é “aplicação financeira” (= investment)"],
+  ["retire", "aposentar-se; na F1: abandonar a corrida", "não é “retirar” (= remove)"],
+  ["push", "empurrar; no rádio da F1: acelerar", "não é “puxar” (= pull)"],
 ];

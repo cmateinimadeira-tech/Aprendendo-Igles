@@ -29,3 +29,9 @@ Cada nível (1 a 4) é liberado ao concluir 2 lições do nível anterior. O alu
 
 ## Como usar
 Abra `index.html` no navegador. O progresso fica salvo no próprio navegador.
+
+## Fundamentação
+- **Níveis 1 a 4 ≈ A1, A2, B1 e B2 do CEFR** (Quadro Europeu Comum de Referência), usando os descritores de leitura da grade de autoavaliação do Conselho da Europa.
+- **Estratégias de leitura** (predição, skimming, scanning, cognatos, falsos cognatos, palavras repetidas, inferência, referência, conectivos, afixos), tiradas de ementas de Inglês Instrumental do IFPB, do IFCE, da UFC e da UNIVASF. A abordagem vem do Projeto Nacional de Inglês Instrumental (PUC-SP, coordenado por M. A. Celani).
+- **Tipos de pergunta** (ideia geral, informação específica, detalhe, inferência, referência, vocabulário no contexto, opinião/atitude) e alternativas que repetem palavras do texto sem estarem certas, conforme o guia de leitura do Cambridge B1 Preliminary.
+- **Cobertura de vocabulário:** segundo a pesquisa de Nation e outros, a leitura independente fica viável com 95 a 98% das palavras conhecidas. O app mostra quanto do texto o aluno entendeu sem consultar.

@@ -2,46 +2,63 @@
 // de F1 (não são transcrições reais de pilotos).
 
 // ---------- Teste de nivelamento por leitura ----------
+// 4 textos (níveis 1 a 4), 5 perguntas cada, 4 alternativas + "Não sei".
+// Nos textos 3 e 4 as perguntas são em inglês, para que a pergunta não
+// revele o conteúdo do texto (como na prova ANPAD).
+// Pontuação: acerto com certeza = 1; acerto por dedução = 0,5; erro ou "Não sei" = 0.
+// Um nível é alcançado com 3,5 pontos de 5 (70%), em sequência.
+const PLACEMENT_PASS = 3.5;
 const PLACEMENT = [
   {
     level: 1,
-    text: "My name is Carlos. I live in Vitória with my wife and two children. I work in a school. On Sundays, we go to the beach.",
+    text: "Hi, I'm Marta. I'm 34 and I live in Vila Velha, near the sea. I'm a nurse at a small hospital. I work at night, from 7 pm to 7 am. In the morning I sleep, and in the afternoon I walk on the beach with my dog, Bolt. I don't like cold weather.",
     questions: [
-      { q: "Onde Carlos trabalha?", opts: ["Em um hospital", "Em uma escola", "Na praia"], a: 1 },
-      { q: "Quantos filhos ele tem?", opts: ["Um", "Dois", "Três"], a: 1 },
-      { q: "O que a família faz aos domingos?", opts: ["Vai à praia", "Vai à escola", "Fica em casa"], a: 0 },
+      { t: "E", q: "Qual é a profissão de Marta?", opts: ["Médica", "Enfermeira", "Professora", "Garçonete"], a: 1 },
+      { t: "E", q: "Em que horário ela trabalha?", opts: ["Das 7h às 19h", "Das 19h às 7h", "Das 7h às 17h", "Só nos fins de semana"], a: 1 },
+      { t: "D", q: "O que ela faz à tarde?", opts: ["Dorme", "Trabalha no hospital", "Caminha na praia", "Faz compras"], a: 2 },
+      { t: "R", q: "Quem é Bolt?", opts: ["O filho dela", "O marido dela", "O cachorro dela", "Um colega"], a: 2 },
+      { t: "D", q: "Do que Marta não gosta?", opts: ["Do mar", "De tempo frio", "De trabalhar à noite", "De caminhar"], a: 1 },
     ],
   },
   {
     level: 2,
     radio: [
-      ["Engineer", "Car ahead is three seconds in front. He is struggling with his tyres."],
-      ["Engineer", "You can catch him in five laps."],
-      ["Driver", "OK. Is it going to rain?"],
-      ["Engineer", "No rain expected."],
+      ["Engineer", "Safety car, safety car. Stay out, we are not boxing."],
+      ["Driver", "Why not? The others are pitting."],
+      ["Engineer", "Your tyres are only eight laps old. The cars behind you are on very old tyres. You will be P3 after they stop."],
+      ["Driver", "OK, but I need a gap. The car behind is on fresh softs now."],
+      ["Engineer", "Understood. The safety car is in this lap. Push from turn 10."],
     ],
     questions: [
-      { q: "Qual a distância para o carro da frente?", opts: ["Três voltas", "Três segundos", "Cinco segundos"], a: 1 },
-      { q: "Qual o problema do carro da frente?", opts: ["Está com dificuldade com os pneus", "Está sem combustível", "Vai parar nos boxes"], a: 0 },
-      { q: "Vai chover?", opts: ["Sim, em cinco voltas", "Não há previsão de chuva", "O engenheiro não sabe"], a: 1 },
+      { t: "G", q: "O que a equipe decide?", opts: ["Parar nos boxes", "Não parar nos boxes", "Abandonar a corrida", "Esperar a chuva"], a: 1 },
+      { t: "D", q: "Qual é o motivo da decisão?", opts: ["Os pneus do piloto ainda são relativamente novos", "O pit lane está fechado", "O piloto pediu para não parar", "Falta combustível"], a: 0 },
+      { t: "I", q: "Em que posição o piloto deve ficar depois que os outros pararem?", opts: ["Primeiro", "Terceiro", "Oitavo", "A mesma de agora"], a: 1 },
+      { t: "D", q: "O que preocupa o piloto?", opts: ["O carro de trás está com pneus macios novos", "Os freios estão quentes", "O rádio está falhando", "O safety car está lento"], a: 0 },
+      { t: "E", q: "Quando ele deve acelerar ao máximo?", opts: ["Imediatamente", "A partir da curva 10", "Só na volta seguinte inteira", "Depois do pit stop"], a: 1 },
     ],
   },
   {
     level: 3,
-    text: "Due to maintenance work, the library will be closed from Monday to Wednesday. Books that are due during this period can be returned on Thursday without a fine. Online services will remain available.",
+    lang: "en",
+    text: "Dear customers, from 1 March our internet plans will change. The Basic plan will cost R$ 89 per month instead of R$ 79, but its speed will double to 200 Mbps. Customers who prefer to keep the old speed and price can do so until the end of the year by contacting our support team. The Premium plan will not change. If you pay by automatic debit, you will receive a 5% discount on any plan. We apologise for any inconvenience.",
     questions: [
-      { q: "Por que a biblioteca vai fechar?", opts: ["Por falta de funcionários", "Por manutenção", "Por causa de um feriado"], a: 1 },
-      { q: "Um livro que vence na terça-feira…", opts: ["pode ser devolvido na quinta sem multa", "deve ser devolvido na segunda", "terá multa"], a: 0 },
-      { q: "E os serviços on-line?", opts: ["Também fecham", "Continuam disponíveis", "Só funcionam na quinta"], a: 1 },
+      { t: "P", q: "What is the main purpose of the message?", opts: ["To announce changes to internet plans.", "To apologise for a service failure.", "To advertise a new phone.", "To cancel the Premium plan."], a: 0 },
+      { t: "D", q: "After 1 March, the Basic plan will be", opts: ["cheaper and slower.", "more expensive and faster.", "the same price and faster.", "more expensive and slower."], a: 1 },
+      { t: "D", q: "Customers who want to keep the old price must", opts: ["do nothing.", "contact the support team.", "pay by automatic debit.", "move to the Premium plan."], a: 1 },
+      { t: "R", q: "In “can do so”, the words “do so” refer to", opts: ["paying by automatic debit.", "keeping the old speed and price.", "contacting the support team.", "changing to the Premium plan."], a: 1 },
+      { t: "D", q: "Which statement is TRUE according to the text?", opts: ["The Premium plan will become more expensive.", "The discount is only for the Basic plan.", "Automatic debit gives a discount on every plan.", "The Premium plan's speed will double."], a: 2 },
     ],
   },
   {
     level: 4,
-    text: "Despite a strong start, the team failed to score points. The decision to keep the driver out on worn tyres, which many had questioned, ultimately cost him three positions in the final laps. The team principal admitted that, had they pitted earlier, the result would have been different.",
+    lang: "en",
+    text: "For decades, companies treated customer complaints as a cost to be minimised. Call centres were moved abroad, waiting times grew, and the goal was to close each case as quickly as possible. Recent research, however, suggests that this strategy may be short-sighted. Customers whose problems are solved well often become more loyal than those who never had a problem at all. Some firms have therefore begun to see complaints as a source of free information about their products. Not everyone is convinced: critics point out that the effect disappears when the same problem happens twice, and that no amount of good service can compensate for a poor product.",
     questions: [
-      { q: "A equipe marcou pontos?", opts: ["Sim, apesar da largada ruim", "Não, apesar da boa largada", "Sim, três pontos"], a: 1 },
-      { q: "O que custou posições ao piloto?", opts: ["Ficar na pista com pneus gastos", "Uma batida na largada", "Um pit stop lento"], a: 0 },
-      { q: "O que o chefe da equipe admitiu?", opts: ["Que o piloto errou", "Que, se tivessem parado antes, o resultado seria outro", "Que os pneus eram novos"], a: 1 },
+      { t: "G", q: "The main idea of the text is that", opts: ["complaints should be avoided at all costs.", "complaints, if handled well, can benefit companies.", "call centres abroad are more efficient.", "customers rarely complain about good products."], a: 1 },
+      { t: "D", q: "According to the text, in the past companies", opts: ["valued complaints as useful information.", "tried to reduce the cost of dealing with complaints.", "hired more staff to answer calls.", "ignored their customers completely."], a: 1 },
+      { t: "V", q: "The expression “short-sighted” means", opts: ["focused only on immediate results.", "very expensive.", "carefully planned.", "widely successful."], a: 0 },
+      { t: "C", q: "In the text, “therefore” introduces", opts: ["a contrast.", "a consequence.", "an example.", "a condition."], a: 1 },
+      { t: "O", q: "The critics argue that", opts: ["good service can compensate for any product.", "the loyalty effect does not survive a repeated problem.", "complaints are a source of free information.", "customers who never complain are the most loyal."], a: 1 },
     ],
   },
 ];

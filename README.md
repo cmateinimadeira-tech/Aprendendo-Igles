@@ -31,6 +31,13 @@ Cada nível (1 a 4) é liberado ao concluir 2 lições do nível anterior. O alu
 ## Como usar
 Abra `index.html` no navegador. O progresso fica salvo no próprio navegador.
 
+## Teste de nivelamento
+4 textos (níveis 1 a 4), 5 perguntas cada, 4 alternativas embaralhadas a cada aplicação, mais a opção “Não sei”.
+Nos textos 3 e 4 as perguntas são em inglês. Em cada resposta o aluno indica se entendeu no texto ou deduziu:
+acerto com certeza vale 1 ponto, por dedução 0,5. O nível exige 3,5 de 5 pontos, em sequência.
+Depois, as lições ajustam o nível: se as duas primeiras lições do nível de partida ficarem abaixo de 80% na
+primeira tentativa, o app sugere descer um nível.
+
 ## Fundamentação
 - **Níveis 1 a 4 ≈ A1, A2, B1 e B2 do CEFR** (Quadro Europeu Comum de Referência), usando os descritores de leitura da grade de autoavaliação do Conselho da Europa.
 - **Estratégias de leitura** (predição, skimming, scanning, cognatos, falsos cognatos, palavras repetidas, inferência, referência, conectivos, afixos), tiradas de ementas de Inglês Instrumental do IFPB, do IFCE, da UFC e da UNIVASF. A abordagem vem do Projeto Nacional de Inglês Instrumental (PUC-SP, coordenado por M. A. Celani).

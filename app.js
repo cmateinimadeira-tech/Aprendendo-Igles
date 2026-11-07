@@ -178,6 +178,19 @@ function recordSkills(byType) {
     k.total++; if (right) k.ok++;
   });
 }
+// Ajuste automático: se as duas primeiras lições feitas no nível de partida
+// ficaram abaixo de 80% na primeira tentativa, sugere descer um nível.
+function adjustHTML() {
+  const L = startLevel();
+  if (L <= 1 || (S.adjustKept || {})[L]) return "";
+  const firsts = LESSONS.filter((l) => l.level === L && S.first && S.first[l.id] != null).map((l) => S.first[l.id]);
+  if (firsts.length < 2 || firsts.filter((x) => x < PASS).length < 2) return "";
+  return `<section class="card">
+    <p class="eyebrow">Ajuste de nível</p>
+    <p>Nas primeiras lições do nível ${L} você ficou abaixo de 80% na primeira tentativa. Isso indica que o nível ${L - 1} é um ponto de partida melhor agora. Você não perde nada do que já fez.</p>
+    <div class="duo"><button class="btn" id="lvKeep">Manter nível ${L}</button><button class="btn primary" id="lvDown">Ir para o nível ${L - 1}</button></div>
+  </section>`;
+}
 function skillsHTML() {
   const sk = S.skills || {};
   const rows = Object.keys(QTYPES).filter((t) => sk[t] && sk[t].total);
@@ -209,7 +222,7 @@ function home() {
     <section class="card">
       <p class="muted">Seu nível de leitura</p>
       <div class="level">Nível ${S.placement.level}${LEVELS[S.placement.level] ? ` <span class="cefr">≈ ${LEVELS[S.placement.level].cefr}</span>` : ""}</div>
-      <p>${S.placement.level ? "No teste você mostrou que: " + esc(LEVELS[S.placement.level].can.charAt(0).toLowerCase() + LEVELS[S.placement.level].can.slice(1)) : "Vamos começar do básico, pelo nível 1 (≈ A1)."}</p>
+      <p>${S.placement.adjusted ? "Nível ajustado pelo seu desempenho nas lições. " : ""}${S.placement.level ? (S.placement.adjusted ? "Neste nível você: " : "No teste você mostrou que: ") + esc(LEVELS[S.placement.level].can.charAt(0).toLowerCase() + LEVELS[S.placement.level].can.slice(1)) : "Vamos começar do básico, pelo nível 1 (≈ A1)."}</p>
       <p class="muted">Nível de partida das lições: ${startLevel()} (≈ ${LEVELS[startLevel()].cefr}). <a href="#guia">O que significa cada nível?</a></p>
       <div class="bar"><div style="width:${doneCount / LESSONS.length * 100}%"></div></div>
       <p class="muted">${doneCount} de ${LESSONS.length} lições concluídas</p>
@@ -221,8 +234,13 @@ function home() {
       <p>${due ? `<b>${due}</b> palavra(s) para revisar hoje.` : "Nada para revisar agora."}</p>
       ${due ? `<a class="btn" href="#revisao">Revisar</a>` : ""}
     </section>
+    ${!S.placement.results ? `<section class="card"><p class="eyebrow">Teste atualizado</p><p>O teste de nivelamento ficou mais preciso: mais perguntas, 4 alternativas, opção “Não sei” e perguntas em inglês nos textos mais difíceis. Refaça para confirmar seu nível. Suas lições continuam salvas.</p><a class="btn primary block" href="#teste">Refazer o teste</a></section>` : ""}
+    ${adjustHTML()}
     ${skillsHTML()}
     <p><button class="link" id="redo">Refazer o teste de nivelamento</button></p>`;
+  const down = $("#lvDown"), keep = $("#lvKeep");
+  if (down) down.onclick = () => { S.placement.level = startLevel() - 1; S.placement.adjusted = true; save(); home(); };
+  if (keep) keep.onclick = () => { S.adjustKept = S.adjustKept || {}; S.adjustKept[startLevel()] = true; save(); home(); };
   $("#redo").onclick = (e) => {
     if (e.target.dataset.armed) { S.placement = null; save(); location.hash = "#teste"; return; }
     e.target.dataset.armed = 1;
@@ -230,29 +248,90 @@ function home() {
   };
 }
 
+// ---------- Teste de nivelamento ----------
+// Embaralha as alternativas a cada aplicação (sem padrão de posição e sem
+// decorar ao refazer). Cada resposta pede "entendi no texto" ou "deduzi/chutei".
+function shuffled(q) {
+  const idx = q.opts.map((_, i) => i);
+  for (let i = idx.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [idx[i], idx[j]] = [idx[j], idx[i]]; }
+  return { ...q, opts: idx.map((i) => q.opts[i]), a: idx.indexOf(q.a) };
+}
 function test() {
-  let step = 0; const scores = [];
+  let step = 0; const results = [];
   const draw = () => {
     const t = PLACEMENT[step];
+    const qs = t.questions.map(shuffled);
     view().innerHTML = `
       <section class="card">
+        <p class="eyebrow">Teste de nivelamento · texto ${step + 1} de ${PLACEMENT.length}</p>
         <div class="bar"><div style="width:${step / PLACEMENT.length * 100}%"></div></div>
-        <p class="muted">Texto ${step + 1} de ${PLACEMENT.length}. Responda o que conseguir; se não souber, deixe em branco.</p>
+        ${step === 0 ? `<p class="muted">Responda com honestidade: escolha <b>Não sei</b> quando não souber e diga se entendeu a resposta no texto ou se deduziu. Assim o nível sai fiel ao que você realmente lê.</p>` : ""}
+        ${t.lang === "en" ? `<p class="muted">Neste texto as perguntas são em inglês, como na prova ANPAD.</p>` : ""}
         ${renderReading(t)}
-        ${questionsHTML(t.questions, "p")}
-        <button class="btn primary block" id="go">${step === PLACEMENT.length - 1 ? "Ver resultado" : "Próximo texto"}</button>
-      </section>`;
+      </section>
+      ${qs.map((q, i) => `
+        <fieldset class="q" id="p${i}">
+          <legend>${i + 1}. ${esc(q.q)}</legend>
+          ${q.opts.map((o, j) => `<label><input type="radio" name="p${i}" value="${j}"> ${esc(o)}</label>`).join("")}
+          <label class="dunno"><input type="radio" name="p${i}" value="-1"> Não sei</label>
+          <div class="sure" hidden>
+            <span class="muted">Como você chegou à resposta?</span>
+            <div class="duo">
+              <label><input type="radio" name="s${i}" value="1"> Entendi no texto</label>
+              <label><input type="radio" name="s${i}" value="0"> Deduzi ou chutei</label>
+            </div>
+          </div>
+        </fieldset>`).join("")}
+      <p id="msg" class="bad"></p>
+      <button class="btn primary block" id="go">${step === PLACEMENT.length - 1 ? "Ver resultado" : "Próximo texto"}</button>`;
+
+    qs.forEach((q, i) => document.querySelectorAll(`input[name="p${i}"]`).forEach((r) => r.onchange = () => {
+      $(`#p${i} .sure`).hidden = r.value === "-1";
+    }));
+
     $("#go").onclick = () => {
-      scores[step] = grade(t.questions, "p").ok;
+      let score = 0, sure = 0, deduced = 0, dunno = 0, missing = 0;
+      qs.forEach((q, i) => {
+        const sel = document.querySelector(`input[name="p${i}"]:checked`);
+        if (!sel) { missing++; return; }
+        if (sel.value === "-1") { dunno++; return; }
+        const s = document.querySelector(`input[name="s${i}"]:checked`);
+        if (!s) { missing++; return; }
+        const right = +sel.value === q.a, isSure = s.value === "1";
+        if (right && isSure) { score += 1; sure++; }
+        if (right && !isSure) { score += 0.5; deduced++; }
+      });
+      if (missing) { $("#msg").textContent = `Falta responder ${missing} pergunta(s), incluindo como você chegou à resposta.`; return; }
+      results[step] = { level: t.level, score, sure, deduced, dunno, total: qs.length };
       if (step < PLACEMENT.length - 1) { step++; draw(); scrollTo(0, 0); return; }
-      // nível = último texto em sequência com pelo menos 2 de 3 acertos
       let level = 0;
-      for (let i = 0; i < PLACEMENT.length; i++) { if (scores[i] >= 2) level = PLACEMENT[i].level; else break; }
-      S.placement = { level, scores }; save();
-      location.hash = "#inicio";
+      for (const r of results) { if (r.score >= PLACEMENT_PASS) level = r.level; else break; }
+      S.placement = { level, results, at: Date.now() };
+      save();
+      testResult();
     };
   };
   draw();
+}
+function testResult() {
+  const P = S.placement, next = P.results.find((r) => r.level === P.level + 1);
+  const transition = next && next.score >= 2.5;
+  view().innerHTML = `
+    <section class="card">
+      <p class="eyebrow">Resultado do teste</p>
+      <div class="level">Nível ${P.level || 1}${LEVELS[P.level || 1] ? ` <span class="cefr">≈ ${LEVELS[P.level || 1].cefr}</span>` : ""}</div>
+      <p>${P.level ? esc(LEVELS[P.level].can) : "Vamos começar do básico, pelo nível 1."}</p>
+      ${transition ? `<p class="muted">Você ficou perto do nível ${P.level + 1}: comece pelo nível ${P.level || 1} e avance assim que as lições ficarem fáceis.</p>` : ""}
+    </section>
+    <section class="card">
+      <h3>Seu desempenho por texto</h3>
+      <table>
+        <tr class="muted"><td>Texto</td><td>Pontos</td><td>Certeza</td><td>Dedução</td><td>Não sei</td></tr>
+        ${P.results.map((r) => `<tr><td>Nível ${r.level}</td><td><b>${String(r.score).replace(".", ",")}</b>/${r.total}</td><td>${r.sure}</td><td>${r.deduced}</td><td>${r.dunno}</td></tr>`).join("")}
+      </table>
+      <p class="muted">Acerto com certeza vale 1 ponto, acerto por dedução vale 0,5. Cada nível pede 3,5 pontos de 5.</p>
+    </section>
+    <a class="btn primary block" href="#inicio">Começar as lições</a>`;
 }
 
 function lessonList() {
@@ -344,7 +423,7 @@ function lesson(id) {
     const { ok, blank, byType } = grade(l.questions, "q");
     if (blank) { $("#res").innerHTML = `<p class="muted">Responda todas as perguntas (faltam ${blank}).</p>`; return; }
     S.attempted = S.attempted || {};
-    if (!S.attempted[l.id]) { S.attempted[l.id] = 1; recordSkills(byType); }
+    if (!S.attempted[l.id]) { S.attempted[l.id] = 1; recordSkills(byType); S.first = S.first || {}; S.first[l.id] = ok / l.questions.length; }
     // Cobertura de vocabulário: a pesquisa sobre leitura (Nation) indica que
     // a leitura fica fluente quando se conhece cerca de 95–98% das palavras.
     const cov = Math.round((1 - looked.size / words) * 100);
@@ -402,6 +481,13 @@ function glossary() {
 function guide() {
   view().innerHTML = `<h2>Guia do curso</h2>
     <p class="muted">Como o curso organiza a progressão, com base no Quadro Europeu Comum de Referência (CEFR) e em programas de Inglês Instrumental de institutos e universidades federais.</p>
+
+    <section class="card"><h3>Como o curso funciona</h3>
+      <p><b>1. Teste de nivelamento (uma vez, ou quando quiser conferir).</b> Quatro textos, cinco perguntas cada. Mede de onde começar. Acerto por dedução vale meio ponto.</p>
+      <p><b>2. Lições (o dia a dia).</b> Cada lição ensina e avalia ao mesmo tempo: estratégia de leitura, texto, perguntas com explicação, um ponto-chave e vocabulário. A primeira tentativa de cada lição é a medida real do seu nível.</p>
+      <p><b>3. Revisão espaçada.</b> As palavras das lições concluídas voltam após 1, 3, 7, 14 e 30 dias.</p>
+      <p><b>4. Ajuste contínuo.</b> 80% libera a lição; 2 lições concluídas liberam o nível seguinte. Se as duas primeiras lições do seu nível ficarem abaixo de 80% na primeira tentativa, o app sugere descer um nível. O painel de habilidades aponta o tipo de pergunta mais difícil para você.</p>
+    </section>
 
     <section class="card"><h3>Níveis</h3>
       ${Object.entries(LEVELS).map(([n, L]) => `<p><b>Nível ${n} (≈ ${L.cefr})</b><br>${esc(L.can)}<br><span class="muted">Textos de ${L.size}. Foco: ${esc(L.skills)}</span></p>`).join("")}

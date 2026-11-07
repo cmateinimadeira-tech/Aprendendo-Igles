@@ -27,6 +27,8 @@ Cada nível (1 a 4) é liberado ao concluir 2 lições do nível anterior. O alu
 - `app.js`: lógica (teste, lições, revisão, progresso)
 - `data.js`: conteúdo (teste de nivelamento, lições dos níveis 1 a 4, glossário da F1, guia)
 - `anpad.js`: nível 5, com lições no formato da prova de Inglês da ANPAD
+- `lessons/level-N.js`: lições extras de cada nível (8 por nível do 1 ao 4, 6 no nível 5)
+- `lessons/BRIEF.md` e `lessons/validate.js`: regras para escrever lições e validador (`node lessons/validate.js -v`)
 
 ## Como usar
 Abra `index.html` no navegador. O progresso fica salvo no próprio navegador.
@@ -54,5 +56,11 @@ Criado a partir da análise de provas de Inglês da ANPAD de 2010 (fevereiro, ju
 ## Acesso pelo celular
 O app foi pensado para o smartphone: barra de abas inferior, alternativas em cartões grandes e significado das palavras numa faixa no rodapé.
 Ele é publicado no claude.ai (Artifact privado). Para atualizar a versão publicada, gere a página com
-`python3 tools/build-artifact.py <saída>.html` e publique junto com `data.js`, `anpad.js` e `app.js`.
+`python3 tools/build-artifact.py <saída>.html` e publique junto com `data.js`, `anpad.js`, `app.js` e `lessons/level-*.js`.
 Com login no claude.ai, o progresso também fica salvo numa área privada da conta; fora dele, só no navegador.
+
+## Tempo de leitura (fluência)
+Na primeira tentativa de cada lição o app mede o tempo ativo (pausas longas e app em segundo plano não contam),
+as palavras por minuto até a primeira resposta e quantas vezes o aluno volta ao texto depois de começar a responder.
+Metas internas do curso: 40, 60, 80, 100 e 120 palavras/min nos níveis 1 a 5. Lição com 80% e leitura fluente
+recebe ★ (dominada). O botão "Ver texto" abre o texto numa folha sobreposta, sem rolar a página.

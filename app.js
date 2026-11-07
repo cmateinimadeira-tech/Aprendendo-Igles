@@ -703,6 +703,29 @@ function bindHomeExtras() {
   };
 }
 
+
+// ---------- Tela cheia ----------
+// O Chrome no Android nem sempre respeita "fullscreen" do manifesto; a API de
+// tela cheia funciona, mas só depois de um toque. Então, com a preferência
+// ligada (padrão no app instalado), o primeiro toque coloca o app em tela cheia.
+// Ao sair e voltar para o app, o próximo toque faz de novo.
+const FS_KEY = "ingles-fs";
+function fsPref() { try { const v = localStorage.getItem(FS_KEY); return v == null ? isStandalone : v === "1"; } catch (e) { return isStandalone; } }
+function setFsPref(on) { try { localStorage.setItem(FS_KEY, on ? "1" : "0"); } catch (e) {} }
+const canFS = !inFrame && !!(document.fullscreenEnabled && document.documentElement.requestFullscreen);
+function enterFS() { if (canFS && !document.fullscreenElement) document.documentElement.requestFullscreen({ navigationUI: "hide" }).catch(() => {}); }
+function updateFsBtn() { const b = $("#fsBtn"); if (!b) return; b.hidden = !canFS; b.textContent = document.fullscreenElement ? "✕" : "⛶"; b.setAttribute("aria-label", document.fullscreenElement ? "Sair da tela cheia" : "Tela cheia"); }
+document.addEventListener("click", (e) => { if (fsPref() && !e.target.closest("#fsBtn")) enterFS(); }, true);
+document.addEventListener("fullscreenchange", updateFsBtn);
+addEventListener("load", () => {
+  updateFsBtn();
+  const b = $("#fsBtn");
+  if (b) b.onclick = () => {
+    if (document.fullscreenElement) { setFsPref(false); document.exitFullscreen().catch(() => {}); }
+    else { setFsPref(true); enterFS(); }
+  };
+});
+
 // ---------- Navegação ----------
 function updateBadge() {
   const due = dueCards().length, b = $("#dueBadge");

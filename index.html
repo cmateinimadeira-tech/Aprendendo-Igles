@@ -180,6 +180,26 @@
   @media (prefers-reduced-motion: reduce) { .top { transition: none; } }
   .probe { position: fixed; top: 0; left: 0; width: 0; height: 0; padding-top: env(safe-area-inset-top, 0px); visibility: hidden; pointer-events: none; }
   .diag { font-size: .72rem; }
+  .today { display: block; }
+  .today-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .streak { font-weight: 700; font-size: 1.15rem; color: var(--muted); }
+  .streak.on { color: var(--accent); }
+  .xp { font-size: .85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .mini { display: grid; grid-template-columns: 9.5em minmax(0, 1fr); align-items: center; gap: 10px; font-size: .88rem; }
+  .mini .bar { margin: 6px 0; }
+  .xpgain { font-weight: 700; color: var(--accent); font-size: 1.1rem; margin: 10px 0 0; }
+  .field { display: grid; gap: 4px; margin: 10px 0; font-size: .9rem; color: var(--muted); }
+  .field select, .field input { font: inherit; font-size: 1rem; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); min-height: 46px; }
+  .week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; text-align: center; }
+  .wday { display: grid; gap: 2px; padding: 8px 0; border-radius: 10px; background: var(--soft); font-variant-numeric: tabular-nums; font-size: .8rem; }
+  .wday b { font-size: 1.1rem; }
+  .wday.met { background: var(--accent); color: var(--on-accent); }
+  .wday.met .muted { color: var(--on-accent); opacity: .85; }
+  .badges { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+  .badge { display: grid; gap: 2px; padding: 10px; border-radius: 12px; border: 1px dashed var(--line); opacity: .55; font-size: .85rem; }
+  .badge .bi { font-size: 1.5rem; filter: grayscale(1); }
+  .badge.got { opacity: 1; border-style: solid; border-color: var(--accent); }
+  .badge.got .bi { filter: none; }
   .hidden { display: none; }
 </style>
 <!-- ARTIFACT-HEAD-END -->
@@ -204,7 +224,7 @@
   <a href="#licoes" data-tab="licoes"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5M8 7h7M8 11h7"/></svg>Lições</a>
   <a href="#revisao" data-tab="revisao"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7"/><path d="M4 4v4h4"/></svg>Revisão<span class="badge" id="dueBadge" hidden></span></a>
   <a href="#guia" data-tab="guia"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg>Guia</a>
-  <a href="#glossario" data-tab="glossario"><svg viewBox="0 0 24 24"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg>Rádio F1</a>
+  <a href="#metas" data-tab="metas"><svg viewBox="0 0 24 24"><path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M9 20h6"/></svg>Metas</a>
 </div></nav>
 <script src="data.js"></script>
 <script src="anpad.js"></script>
@@ -213,6 +233,7 @@
 <script src="lessons/level-3.js"></script>
 <script src="lessons/level-4.js"></script>
 <script src="lessons/level-5.js"></script>
+<script src="game.js"></script>
 <script src="app.js"></script>
 <!-- ARTIFACT-END -->
 </body>

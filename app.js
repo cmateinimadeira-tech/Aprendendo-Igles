@@ -38,7 +38,7 @@ async function initCloud() {
     cloud = ref;
     const remote = snap.exists ? snap.data() : null;
     if (remote && remote.state && (remote.updatedAt || 0) > (S.updatedAt || 0)) {
-      Object.assign(S, JSON.parse(remote.state));
+      Object.assign(S, JSON.parse(remote.state)); gameInit();
       try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {}
       route();
       setSync("✓ salvo na conta");
@@ -224,6 +224,7 @@ function home() {
   }
   const doneCount = LESSONS.filter((l) => passed(l.id)).length;
   view().innerHTML = `
+    ${todayHTML()}
     <section class="card">
       <p class="muted">Seu nível de leitura</p>
       <div class="level">Nível ${S.placement.level}${LEVELS[S.placement.level] ? ` <span class="cefr">≈ ${LEVELS[S.placement.level].cefr}</span>` : ""}</div>
@@ -436,6 +437,7 @@ function lesson(id) {
     const { ok, blank, byType } = grade(qs, "q");
     if (blank) { $("#res").innerHTML = `<p class="muted">Responda todas as perguntas (faltam ${blank}).</p>`; return; }
     S.attempted = S.attempted || {};
+    const firstTry = !S.attempted[l.id];
     let timeMsg = "";
     if (!S.attempted[l.id]) {
       S.attempted[l.id] = 1; recordSkills(byType); S.first = S.first || {}; S.first[l.id] = ok / l.questions.length;
@@ -448,7 +450,9 @@ function lesson(id) {
     const cov = Math.round((1 - looked.size / words) * 100);
     const covMsg = `<p class="muted">Você consultou ${looked.size} palavra(s) em um texto de ~${words}: entendeu cerca de ${cov}% sozinho.${cov < 95 ? " Abaixo de 95% a leitura fica pesada; é normal no começo, e a revisão ajuda." : ""}</p>`;
     const sc = ok / l.questions.length;
+    const wasPassed = passed(l.id);
     S.done[l.id] = Math.max(S.done[l.id] || 0, sc);
+    const gain = awardLesson(l.id, ok, firstTry, sc >= PASS);
     let msg;
     if (sc >= PASS) {
       l.vocab.forEach(([en, pt, ex]) => { if (!S.srs[en]) S.srs[en] = { pt, ex, box: 0, due: Date.now() }; });
@@ -458,7 +462,8 @@ function lesson(id) {
       msg = `<p class="bad">${ok} de ${l.questions.length}. Releia o texto prestando atenção nas explicações acima e tente de novo. Sem pressa.</p><button class="btn block" id="retry">Tentar de novo</button>`;
     }
     save(); updateBadge();
-    $("#res").innerHTML = msg + timeMsg + covMsg;
+    $("#res").innerHTML = `<p class="xpgain">+${gain} XP${firstTry ? "" : " (refazendo vale menos)"}</p>` + msg + timeMsg + covMsg;
+    afterEvent();
     $("#res").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" });
     const r = $("#retry"); if (r) r.onclick = () => lesson(id);
   };
@@ -485,7 +490,8 @@ function review() {
   const answer = (ok) => {
     c.box = ok ? Math.min(c.box + 1, INTERVALS.length - 1) : 0;
     c.due = ok ? Date.now() + INTERVALS[c.box] * DAY : Date.now() + 60000;
-    save(); updateBadge(); review();
+    awardReview(ok);
+    save(); updateBadge(); afterEvent(); review();
   };
   $("#yes").onclick = () => answer(true);
   $("#no").onclick = () => answer(false);
@@ -500,6 +506,8 @@ function glossary() {
 function guide() {
   view().innerHTML = `<h2>Guia do curso</h2>
     <p class="muted">Como o curso organiza a progressão, com base no Quadro Europeu Comum de Referência (CEFR) e em programas de Inglês Instrumental de institutos e universidades federais.</p>
+
+    <a class="card row" href="#glossario"><span><b>Glossário do rádio da F1</b><br><span class="muted">Expressões das mensagens transcritas na TV</span></span><span class="tag">Abrir</span></a>
 
     <section class="card"><h3>Como o curso funciona</h3>
       <p><b>1. Teste de nivelamento (uma vez, ou quando quiser conferir).</b> Quatro textos, cinco perguntas cada. Mede de onde começar. Acerto por dedução vale meio ponto.</p>
@@ -640,7 +648,7 @@ function openTextSheet(l) {
 // ---------- App instalável (PWA) ----------
 // Só vale fora do claude.ai (lá a página roda num quadro sem service worker).
 const PWA_URL = "https://cmateinimadeira-tech.github.io/Aprendendo-Igles/";
-const APP_VERSION = "8"; // mostrado no app para conferir se a atualização chegou
+const APP_VERSION = "9"; // mostrado no app para conferir se a atualização chegou
 const inFrame = (() => { try { return window.top !== window; } catch (e) { return true; } })();
 const isStandalone = matchMedia("(display-mode: standalone)").matches || matchMedia("(display-mode: fullscreen)").matches || navigator.standalone === true;
 const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
@@ -725,7 +733,7 @@ function bindHomeExtras() {
     if (!data || typeof data !== "object" || !("done" in data)) { $("#bkMsg").textContent = "Código inválido."; return; }
     if (!e.target.dataset.armed) { e.target.dataset.armed = 1; e.target.textContent = "Toque de novo para substituir o progresso"; return; }
     S = Object.assign({ placement: null, done: {}, srs: {}, notes: {} }, data);
-    save(); updateBadge(); home();
+    gameInit(); save(); updateBadge(); home();
     showSheet("Progresso importado.");
   };
 }
@@ -778,12 +786,12 @@ function route() {
   $("#textSheet").hidden = true;
   const h = location.hash.slice(1);
   const isLesson = h.startsWith("l-");
-  const page = isLesson ? "licoes" : ({ teste: "inicio" }[h] || h || "inicio");
+  const page = isLesson ? "licoes" : ({ teste: "inicio", glossario: "guia" }[h] || h || "inicio");
   document.querySelectorAll(".tabs a").forEach((a) => a.classList.toggle("on", a.dataset.tab === page));
   updateBadge();
   $("#sheet").hidden = true;
   if (isLesson) lesson(h.slice(2));
-  else ({ teste: test, licoes: lessonList, revisao: review, glossario: glossary, guia: guide }[h] || home)();
+  else ({ teste: test, licoes: lessonList, revisao: review, glossario: glossary, guia: guide, metas: goals }[h] || home)();
   scrollTo(0, 0);
 }
 addEventListener("hashchange", route);
@@ -794,5 +802,6 @@ document.addEventListener("click", (e) => {
   if (t) showSheet(`<b>${esc(t.textContent.replace(" ⓘ", ""))}:</b> ${esc(t.dataset.tip)}`);
   if (e.target.closest("#sheet")) $("#sheet").hidden = true;
 });
+gameInit();
 route();
 initCloud();

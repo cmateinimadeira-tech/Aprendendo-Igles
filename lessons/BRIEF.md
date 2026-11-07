@@ -3,7 +3,7 @@
 Curso de **leitura e interpretação** em inglês para um adulto brasileiro, falante de português, que fez inglês há mais de 15 anos e quer chegar ao nível da prova de Inglês da ANPAD. Foco: entender textos; gramática só quando muda o sentido.
 
 ## Onde escrever
-Um arquivo por faixa: `lessons/level-N.js`, com este formato exato:
+Um arquivo por lote: `lessons/level-N.js` ou `lessons/level-N<letra>.js` (ex.: `level-2b.js`), com este formato exato:
 
 ```js
 // Lições extras do nível N. Conteúdo original; pessoas, empresas e estudos são fictícios.

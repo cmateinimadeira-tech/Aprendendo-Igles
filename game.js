@@ -1,0 +1,206 @@
+// ---------- Gamificação e metas de aprendizagem ----------
+// Pontos (XP), meta diária, sequência de dias, conquistas e meta de longo prazo
+// com previsão de chegada. Carregado antes de app.js; usa S, save, LESSONS etc.
+// só quando chamado (depois que tudo carregou).
+
+const DAILY = {
+  leve: { label: "Leve", lessons: 1, reviews: 10, desc: "1 lição + 10 revisões" },
+  regular: { label: "Regular", lessons: 2, reviews: 15, desc: "2 lições + 15 revisões" },
+  intenso: { label: "Intenso", lessons: 4, reviews: 20, desc: "4 lições + 20 revisões" },
+};
+const XP = { correctFirst: 10, correctRetry: 2, star: 20, reviewOk: 3, reviewMiss: 1, goal: 25 };
+const TARGETS = { 2: "Nível 2 (≈ A2)", 3: "Nível 3 (≈ B1)", 4: "Nível 4 (≈ B2)", 5: "Prova ANPAD (nível 5)" };
+
+function dayKey(ts = Date.now()) {
+  const d = new Date(ts);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+function dayObj(k) { S.log = S.log || {}; return (S.log[k] = S.log[k] || { xp: 0, lessons: [], reviews: 0, goal: false }); }
+function today() { return dayObj(dayKey()); }
+
+// Na primeira vez, reconstrói o histórico a partir das lições já feitas (que têm data).
+function gameInit() {
+  S.log = S.log || {};
+  S.goal = S.goal || { daily: "regular", target: 5, date: "" };
+  S.badges = S.badges || {};
+  if (S.gameInit) return;
+  const need = DAILY[S.goal.daily];
+  for (const [id, t] of Object.entries(S.timing || {})) {
+    if (!t.at) continue;
+    const d = dayObj(dayKey(t.at)), f = (S.first || {})[id] || 0;
+    d.xp += Math.round(f * t.nq) * XP.correctFirst + (mastered(id) ? XP.star : 0);
+    if (f >= PASS && !d.lessons.includes(id)) d.lessons.push(id);
+  }
+  // Revisões passadas: a última revisão de cada palavra foi em (próxima data − intervalo do estágio).
+  for (const c of Object.values(S.srs || {})) {
+    if (!(c.box >= 1)) continue;
+    const d = dayObj(dayKey(c.due - INTERVALS[c.box] * DAY));
+    d.reviews++; d.xp += XP.reviewOk;
+  }
+  for (const d of Object.values(S.log)) if (!d.goal && d.lessons.length >= need.lessons && d.reviews >= need.reviews) { d.goal = true; d.xp += XP.goal; }
+  S.gameInit = 1;
+  checkBadges(true);
+}
+
+function awardLesson(id, ok, first, passedNow) {
+  const d = today();
+  let gain = ok * (first ? XP.correctFirst : XP.correctRetry);
+  if (first && mastered(id)) gain += XP.star;
+  if (passedNow && !d.lessons.includes(id)) d.lessons.push(id);
+  d.xp += gain;
+  return gain;
+}
+function awardReview(ok) { const d = today(); d.reviews++; d.xp += ok ? XP.reviewOk : XP.reviewMiss; }
+
+function goalStatus(d = today()) {
+  const need = DAILY[S.goal.daily];
+  const revOk = d.reviews >= need.reviews || (dueCards().length === 0 && d.reviews > 0) || Object.keys(S.srs).length === 0;
+  return { need, lessonsOk: d.lessons.length >= need.lessons, revOk, done: d.lessons.length >= need.lessons && revOk };
+}
+function streak() {
+  let n = 0, t = Date.now();
+  if (!(S.log || {})[dayKey(t)]?.goal) t -= DAY; // hoje ainda pode ser cumprido
+  while ((S.log || {})[dayKey(t)]?.goal) { n++; t -= DAY; }
+  return n;
+}
+function weekXP() { let s = 0; for (let i = 0; i < 7; i++) s += ((S.log || {})[dayKey(Date.now() - i * DAY)] || {}).xp || 0; return s; }
+function totalXP() { return Object.values(S.log || {}).reduce((s, d) => s + d.xp, 0); }
+
+// Depois de cada lição ou revisão: confere meta do dia e conquistas, e avisa.
+function afterEvent() {
+  const msgs = [], d = today(), g = goalStatus(d);
+  if (!d.goal && g.done) { d.goal = true; d.xp += XP.goal; msgs.push(`🎯 Meta do dia cumprida! +${XP.goal} XP · 🔥 ${streak()} ${streak() === 1 ? "dia" : "dias"} seguidos`); }
+  msgs.push(...checkBadges());
+  save();
+  if (msgs.length) showSheet(msgs.join("<br>"));
+}
+
+// ---------- Conquistas ----------
+function levelDone(L) {
+  const ls = LESSONS.filter((l) => l.level === L);
+  return ls.length > 0 && ls.filter((l) => passed(l.id)).length >= Math.ceil(ls.length * 0.75);
+}
+const passedCount = () => LESSONS.filter((l) => passed(l.id)).length;
+const starCount = () => LESSONS.filter((l) => mastered(l.id)).length;
+const memorized = () => Object.values(S.srs || {}).filter((c) => c.box >= 3).length;
+const BADGES = [
+  { id: "primeira", icon: "🌱", name: "Primeira lição", desc: "Conclua uma lição.", test: () => passedCount() >= 1 },
+  { id: "l10", icon: "📘", name: "10 lições", desc: "Conclua 10 lições.", test: () => passedCount() >= 10 },
+  { id: "l30", icon: "📚", name: "30 lições", desc: "Conclua 30 lições.", test: () => passedCount() >= 30 },
+  { id: "s5", icon: "⭐", name: "5 estrelas", desc: "Domine 5 lições (80% com leitura fluente).", test: () => starCount() >= 5 },
+  { id: "s15", icon: "🌟", name: "15 estrelas", desc: "Domine 15 lições.", test: () => starCount() >= 15 },
+  { id: "q3", icon: "🔥", name: "3 dias seguidos", desc: "Cumpra a meta do dia 3 dias seguidos.", test: () => streak() >= 3 },
+  { id: "q7", icon: "🔥", name: "Semana completa", desc: "Cumpra a meta do dia 7 dias seguidos.", test: () => streak() >= 7 },
+  { id: "q30", icon: "🏆", name: "Mês completo", desc: "Cumpra a meta do dia 30 dias seguidos.", test: () => streak() >= 30 },
+  { id: "rev0", icon: "🧹", name: "Revisão em dia", desc: "Zere a revisão com 30 ou mais palavras no ciclo.", test: () => Object.keys(S.srs || {}).length >= 30 && dueCards().length === 0 },
+  { id: "mem50", icon: "🧠", name: "50 palavras na memória", desc: "Leve 50 palavras ao 4º estágio da revisão (7 dias ou mais).", test: () => memorized() >= 50 },
+  { id: "perf3", icon: "🎯", name: "Perfeito no nível 3", desc: "Acerte 100% na 1ª tentativa de uma lição de nível 3 ou acima.", test: () => LESSONS.some((l) => l.level >= 3 && (S.first || {})[l.id] === 1) },
+  { id: "flu3", icon: "⚡", name: "Leitura fluente no nível 3", desc: "Domine (★) uma lição de nível 3 ou acima.", test: () => LESSONS.some((l) => l.level >= 3 && mastered(l.id)) },
+  { id: "n1", icon: "1️⃣", name: "Nível 1 concluído", desc: "Conclua 75% das lições do nível 1.", test: () => levelDone(1) },
+  { id: "n2", icon: "2️⃣", name: "Nível 2 concluído", desc: "Conclua 75% das lições do nível 2.", test: () => levelDone(2) },
+  { id: "n3", icon: "3️⃣", name: "Nível 3 concluído", desc: "Conclua 75% das lições do nível 3.", test: () => levelDone(3) },
+  { id: "n4", icon: "4️⃣", name: "Nível 4 concluído", desc: "Conclua 75% das lições do nível 4.", test: () => levelDone(4) },
+  { id: "anpad", icon: "🎓", name: "Primeira ANPAD", desc: "Conclua uma lição no formato ANPAD.", test: () => LESSONS.some((l) => l.exam && passed(l.id)) },
+];
+function checkBadges(silent) {
+  const msgs = [];
+  for (const b of BADGES) if (!S.badges[b.id] && b.test()) { S.badges[b.id] = Date.now(); if (!silent) msgs.push(`🏅 Conquista: ${b.icon} ${b.name}`); }
+  return msgs;
+}
+
+// ---------- Meta de aprendizagem (longo prazo) ----------
+// Caminho = concluir 75% das lições de cada nível, do nível atual até o anterior à meta.
+function pathInfo() {
+  const target = +S.goal.target || 5, from = startLevel();
+  const levels = [];
+  for (let L = Math.min(from, target - 1); L <= target - 1; L++) {
+    const ls = LESSONS.filter((l) => l.level === L), total = ls.length, done = ls.filter((l) => passed(l.id)).length;
+    const need = Math.ceil(total * 0.75);
+    levels.push({ L, total, done, need, rem: Math.max(0, need - done) });
+  }
+  const remaining = levels.reduce((s, x) => s + x.rem, 0);
+  // ritmo: lições concluídas nos últimos 14 dias
+  const ids = new Set();
+  for (let i = 0; i < 14; i++) (((S.log || {})[dayKey(Date.now() - i * DAY)] || {}).lessons || []).forEach((id) => ids.add(id));
+  const perWeek = ids.size / 2;
+  const eta = perWeek > 0 ? new Date(Date.now() + (remaining / perWeek) * 7 * DAY) : null;
+  let needPerWeek = null;
+  if (S.goal.date) {
+    const weeks = Math.max(1, (new Date(S.goal.date + "T23:59:59") - Date.now()) / (7 * DAY));
+    needPerWeek = Math.ceil(remaining / weeks);
+  }
+  return { target, levels, remaining, perWeek, eta, needPerWeek };
+}
+const fmtDate = (d) => d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" });
+
+// ---------- Telas ----------
+function todayHTML() {
+  const d = today(), g = goalStatus(d), st = streak();
+  const lPct = Math.min(100, (d.lessons.length / g.need.lessons) * 100);
+  const rPct = g.revOk ? 100 : Math.min(100, (d.reviews / g.need.reviews) * 100);
+  return `<a class="card today" href="#metas">
+    <div class="today-top">
+      <span class="streak ${st ? "on" : ""}">🔥 ${st} ${st === 1 ? "dia" : "dias"}</span>
+      <span class="xp">${d.xp} XP hoje · ${weekXP()} na semana</span>
+    </div>
+    <p class="muted">${d.goal ? "🎯 Meta do dia cumprida." : `Meta do dia (${DAILY[S.goal.daily].label.toLowerCase()}): ${g.need.desc}`}</p>
+    <div class="mini"><span>Lições ${Math.min(d.lessons.length, g.need.lessons)}/${g.need.lessons}</span><div class="bar"><div style="width:${lPct}%"></div></div></div>
+    <div class="mini"><span>Revisões ${g.revOk ? "✓" : `${d.reviews}/${g.need.reviews}`}</span><div class="bar"><div style="width:${rPct}%"></div></div></div>
+  </a>`;
+}
+
+function goals() {
+  const p = pathInfo(), st = streak();
+  const days = [...Array(7)].map((_, i) => { const t = Date.now() - (6 - i) * DAY, d = (S.log || {})[dayKey(t)] || {}; return { t, d }; });
+  const wd = (t) => new Date(t).toLocaleDateString("pt-BR", { weekday: "short" }).replace(".", "");
+  view().innerHTML = `<h2>Metas</h2>
+    ${todayHTML()}
+
+    <section class="card">
+      <h3>Meta diária</h3>
+      <div class="chips">${Object.entries(DAILY).map(([k, v]) => `<button class="chip ${S.goal.daily === k ? "on" : ""}" data-daily="${k}">${v.label}</button>`).join("")}</div>
+      <p class="muted">${DAILY[S.goal.daily].desc}. Cumprir a meta vale +${XP.goal} XP e mantém sua sequência de dias 🔥.</p>
+    </section>
+
+    <section class="card">
+      <h3>Meta de aprendizagem</h3>
+      <label class="field">Quero chegar a
+        <select id="gTarget">${Object.entries(TARGETS).filter(([k]) => +k > 1).map(([k, v]) => `<option value="${k}" ${+S.goal.target === +k ? "selected" : ""}>${v}</option>`).join("")}</select>
+      </label>
+      <label class="field">Até (opcional)
+        <input type="date" id="gDate" value="${S.goal.date || ""}">
+      </label>
+      ${p.levels.map((x) => `<div class="mini"><span>Nível ${x.L}: ${Math.min(x.done, x.need)}/${x.need}${x.done >= x.need ? " ✓" : ""}</span><div class="bar"><div style="width:${x.need ? Math.min(100, (x.done / x.need) * 100) : 100}%"></div></div></div>`).join("")}
+      <p>${p.remaining === 0 ? `<b>Caminho concluído!</b> ${p.target === 5 ? "As lições ANPAD estão liberadas para você." : "Hora de escolher uma meta maior."}`
+          : `Faltam <b>${p.remaining}</b> ${p.remaining === 1 ? "lição" : "lições"} para concluir o caminho até ${esc(TARGETS[p.target])}.`}</p>
+      ${p.remaining ? `<p class="muted">${p.perWeek > 0 ? `No seu ritmo das últimas 2 semanas (${String(p.perWeek).replace(".", ",")} lições por semana), você chega lá por volta de <b>${fmtDate(p.eta)}</b>.` : "Conclua algumas lições para o app calcular sua previsão de chegada."}
+        ${p.needPerWeek != null ? ` Para chegar até ${fmtDate(new Date(S.goal.date + "T12:00:00"))}: <b>${p.needPerWeek} ${p.needPerWeek === 1 ? "lição" : "lições"} por semana</b>.` : ""}</p>` : ""}
+      <p class="muted">Concluir um nível = 75% das lições dele com 80% de acertos. Novas lições entram no caminho à medida que são publicadas.</p>
+    </section>
+
+    <section class="card">
+      <h3>Últimos 7 dias</h3>
+      <div class="week">${days.map(({ t, d }) => `<div class="wday ${d.goal ? "met" : ""}"><span class="muted">${wd(t)}</span><b>${d.goal ? "✓" : "·"}</b><span class="muted">${d.xp || 0}</span></div>`).join("")}</div>
+      <p class="muted">Sequência atual: 🔥 ${st} ${st === 1 ? "dia" : "dias"} · Total: ${totalXP()} XP</p>
+    </section>
+
+    <section class="card">
+      <h3>Conquistas <span class="muted">${Object.keys(S.badges).length}/${BADGES.length}</span></h3>
+      <div class="badges">${BADGES.map((b) => `<div class="badge ${S.badges[b.id] ? "got" : ""}"><span class="bi">${b.icon}</span><b>${esc(b.name)}</b><span class="muted">${esc(b.desc)}</span></div>`).join("")}</div>
+    </section>
+
+    <section class="card">
+      <h3>Como ganhar XP</h3>
+      <table>
+        <tr><td>Acerto na 1ª tentativa</td><td>+${XP.correctFirst}</td></tr>
+        <tr><td>Acerto ao refazer</td><td>+${XP.correctRetry}</td></tr>
+        <tr><td>Lição dominada (★)</td><td>+${XP.star}</td></tr>
+        <tr><td>Palavra lembrada na revisão</td><td>+${XP.reviewOk}</td></tr>
+        <tr><td>Palavra revisada (não lembrada)</td><td>+${XP.reviewMiss}</td></tr>
+        <tr><td>Meta do dia cumprida</td><td>+${XP.goal}</td></tr>
+      </table>
+    </section>`;
+  view().querySelectorAll("[data-daily]").forEach((b) => b.onclick = () => { S.goal.daily = b.dataset.daily; afterEvent(); goals(); });
+  $("#gTarget").onchange = (e) => { S.goal.target = +e.target.value; save(); goals(); };
+  $("#gDate").onchange = (e) => { S.goal.date = e.target.value; save(); goals(); };
+}

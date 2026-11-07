@@ -4,7 +4,7 @@
 // trechos {{...}} presentes no texto.
 const fs = require("fs"), path = require("path"), vm = require("vm");
 const root = path.join(__dirname, "..");
-const files = ["data.js", "anpad.js", ...fs.readdirSync(__dirname).filter((f) => /^level-\d+\.js$/.test(f)).sort().map((f) => "lessons/" + f)];
+const files = ["data.js", "anpad.js", ...fs.readdirSync(__dirname).filter((f) => /^level-\d+[a-z]?\.js$/.test(f)).sort().map((f) => "lessons/" + f)];
 const ctx = {};
 vm.createContext(ctx);
 for (const f of files) vm.runInContext(fs.readFileSync(path.join(root, f), "utf8"), ctx, { filename: f });

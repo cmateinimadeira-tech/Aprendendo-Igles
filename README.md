@@ -43,3 +43,9 @@ Criado a partir da análise de provas de Inglês da ANPAD de 2010 (fevereiro, ju
 - Linhas numeradas, perguntas em inglês com 5 alternativas (A–E) e tradução opcional das perguntas.
 - Tipos de pergunta da prova: propósito, detalhe, função de exemplos, próxima seção, vocabulário e expressões, conectivos, referência e EXCEPT FOR.
 - As provas originais não fazem parte do repositório.
+
+## Acesso pelo celular
+O app foi pensado para o smartphone: barra de abas inferior, alternativas em cartões grandes e significado das palavras numa faixa no rodapé.
+Ele é publicado no claude.ai (Artifact privado). Para atualizar a versão publicada, gere a página com
+`python3 tools/build-artifact.py <saída>.html` e publique junto com `data.js`, `anpad.js` e `app.js`.
+Com login no claude.ai, o progresso também fica salvo numa área privada da conta; fora dele, só no navegador.

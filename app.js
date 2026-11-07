@@ -1,14 +1,55 @@
-// ---------- Estado salvo no navegador ----------
+// ---------- Estado salvo ----------
+const $ = (sel) => document.querySelector(sel);
 const KEY = "ingles-leitura-v1";
 const PASS = 0.8; // 80% para avançar
 const INTERVALS = [0, 1, 3, 7, 14, 30]; // dias entre revisões, por caixa
 const DAY = 86400000;
 
-let S = { placement: null, done: {}, srs: {}, notes: {} };
+let S = { placement: null, done: {}, srs: {}, notes: {}, updatedAt: 0 };
 try { Object.assign(S, JSON.parse(localStorage.getItem(KEY)) || {}); } catch (e) {}
-function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
 
-const $ = (sel) => document.querySelector(sel);
+// O progresso fica no aparelho (localStorage) e, quando o app está aberto
+// pelo claude.ai com login, também numa área privada da conta (capability db).
+let cloud = null, cloudTimer = null;
+function setSync(txt) { const el = $("#sync"); if (el) el.textContent = txt; }
+function save() {
+  S.updatedAt = Date.now();
+  try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {}
+  if (cloud) {
+    clearTimeout(cloudTimer);
+    cloudTimer = setTimeout(() => {
+      cloud.set({ state: JSON.stringify(S), updatedAt: S.updatedAt })
+        .then(() => setSync("✓ salvo na conta"))
+        .catch(() => setSync("salvo neste aparelho"));
+    }, 800);
+  }
+}
+async function initCloud() {
+  setSync("salvo neste aparelho");
+  if (!window.claude || !window.claude.use) return;
+  try {
+    const [db, user] = await Promise.all([claude.use("db"), claude.use("user")]);
+    if (!db || !user) return;
+    const uid = await user.id();
+    if (!uid) return;
+    const ref = db.doc("data/users/" + uid + "/progress");
+    const snap = await Promise.race([ref.get(), new Promise((_, r) => setTimeout(() => r(new Error("timeout")), 10000))]);
+    cloud = ref;
+    const remote = snap.exists ? snap.data() : null;
+    if (remote && remote.state && (remote.updatedAt || 0) > (S.updatedAt || 0)) {
+      Object.assign(S, JSON.parse(remote.state));
+      try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {}
+      route();
+      setSync("✓ salvo na conta");
+    } else if (S.updatedAt) {
+      await ref.set({ state: JSON.stringify(S), updatedAt: S.updatedAt });
+      setSync("✓ salvo na conta");
+    } else {
+      setSync("✓ conta conectada");
+    }
+  } catch (e) { cloud = null; }
+}
+
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const view = () => $("#view");
 
@@ -28,13 +69,23 @@ function dueCards() { const now = Date.now(); return Object.entries(S.srs).filte
 
 // ---------- Áudio opcional (voz do navegador) ----------
 function speak(lines) {
-  if (!("speechSynthesis" in window)) { alert("Seu navegador não tem leitura em voz alta."); return; }
+  if (!("speechSynthesis" in window)) { showSheet("Este navegador não tem leitura em voz alta."); return; }
   speechSynthesis.cancel();
   lines.forEach((t) => {
     const u = new SpeechSynthesisUtterance(t);
     u.lang = "en-GB"; u.rate = 0.9;
     speechSynthesis.speak(u);
   });
+}
+
+// ---------- Faixa inferior (significado de palavras, avisos) ----------
+let sheetTimer = null;
+function showSheet(html) {
+  const sh = $("#sheet");
+  $("#sheetText").innerHTML = html;
+  sh.hidden = false;
+  clearTimeout(sheetTimer);
+  sheetTimer = setTimeout(() => (sh.hidden = true), 5000);
 }
 
 // ---------- Texto com palavras clicáveis ----------
@@ -94,7 +145,7 @@ function questionsHTML(qs, prefix, item) {
   return qs.map((q, i) => `
     <fieldset class="q" id="${prefix}${i}">
       <legend>${i + 1}. ${esc(resolveLines(q.q, item, "line"))}${q.qpt ? `<span class="qpt">${esc(resolveLines(q.qpt, item, "linha"))}</span>` : ""}</legend>
-      ${q.t ? `<span class="qt" title="${esc(QTYPES[q.t].tip)}">${QTYPES[q.t].name}</span>` : ""}
+      ${q.t ? `<button type="button" class="qt" data-tip="${esc(QTYPES[q.t].tip)}">${QTYPES[q.t].name} ⓘ</button>` : ""}
       ${q.opts.map((o, j) => `<label><input type="radio" name="${prefix}${i}" value="${j}"> ${q.opts.length === 5 ? "ABCDE"[j] + ") " : ""}${esc(o)}</label>`).join("")}
       <p class="why hidden"></p>
     </fieldset>`).join("");
@@ -163,7 +214,7 @@ function home() {
       <div class="bar"><div style="width:${doneCount / LESSONS.length * 100}%"></div></div>
       <p class="muted">${doneCount} de ${LESSONS.length} lições concluídas</p>
     </section>
-    ${n ? `<section class="card"><p class="muted">Próxima lição recomendada</p><h3>${esc(n.title)}</h3><p class="muted">${THEME_LABEL[n.theme]} · nível ${n.level}</p><a class="btn primary" href="#licao/${n.id}">Começar</a></section>`
+    ${n ? `<section class="card"><p class="muted">Próxima lição recomendada</p><h3>${esc(n.title)}</h3><p class="muted">${THEME_LABEL[n.theme]} · nível ${n.level}</p><a class="btn primary block" href="#l-${n.id}">Começar</a></section>`
         : `<section class="card"><h3>Você concluiu todas as lições disponíveis!</h3><p>Novas lições serão adicionadas.</p></section>`}
     <section class="card">
       <p class="muted">Revisão de vocabulário</p>
@@ -172,7 +223,11 @@ function home() {
     </section>
     ${skillsHTML()}
     <p><button class="link" id="redo">Refazer o teste de nivelamento</button></p>`;
-  $("#redo").onclick = () => { if (confirm("Refazer o teste? Suas lições concluídas continuam salvas.")) { S.placement = null; save(); location.hash = "#teste"; } };
+  $("#redo").onclick = (e) => {
+    if (e.target.dataset.armed) { S.placement = null; save(); location.hash = "#teste"; return; }
+    e.target.dataset.armed = 1;
+    e.target.textContent = "Toque de novo para confirmar (as lições concluídas continuam salvas)";
+  };
 }
 
 function test() {
@@ -185,7 +240,7 @@ function test() {
         <p class="muted">Texto ${step + 1} de ${PLACEMENT.length}. Responda o que conseguir; se não souber, deixe em branco.</p>
         ${renderReading(t)}
         ${questionsHTML(t.questions, "p")}
-        <button class="btn primary" id="go">${step === PLACEMENT.length - 1 ? "Ver resultado" : "Próximo texto"}</button>
+        <button class="btn primary block" id="go">${step === PLACEMENT.length - 1 ? "Ver resultado" : "Próximo texto"}</button>
       </section>`;
     $("#go").onclick = () => {
       scores[step] = grade(t.questions, "p").ok;
@@ -212,7 +267,7 @@ function lessonList() {
     html += `<h3 class="lvh">Nível ${lv} <span class="cefr">≈ ${LEVELS[lv].cefr}</span> ${open ? "" : `<span class="muted">🔒 conclua ${NEED} lições do nível ${lv - 1}</span>`}</h3>`;
     html += items.map(([l]) => {
       const sc = S.done[l.id];
-      return `<a class="card row ${open ? "" : "locked"}" ${open ? `href="#licao/${l.id}"` : ""}>
+      return `<a class="card row ${open ? "" : "locked"}" ${open ? `href="#l-${l.id}"` : ""}>
         <span><b>${esc(l.title)}</b><br><span class="muted">${THEME_LABEL[l.theme]}</span></span>
         <span class="tag">${passed(l.id) ? "✔ " + Math.round(sc * 100) + "%" : open ? (sc != null ? Math.round(sc * 100) + "%" : "Abrir") : "🔒"}</span>
       </a>`;
@@ -242,7 +297,6 @@ function lesson(id) {
       <h3>2. Leia</h3>
       <p class="muted">Primeiro leia tudo uma vez, sem parar. Depois, toque nas palavras sublinhadas para ver o significado, mas só depois de tentar adivinhar pelo contexto.</p>
       ${renderReading(l, l.vocab)}
-      <p id="gloss" class="gloss muted">&nbsp;</p>
       <button class="btn" id="listen">🔊 Ouvir (opcional)</button>
     </section>
 
@@ -251,7 +305,7 @@ function lesson(id) {
       <p class="muted">Cuidado: a alternativa que repete palavras do texto nem sempre é a certa. Confira o sentido.</p>
       ${l.exam ? `<p class="muted">Formato ANPAD: perguntas em inglês. Tente primeiro sem tradução.</p><label class="muted"><input type="checkbox" id="pt"> Mostrar perguntas em português</label>` : ""}
       ${questionsHTML(l.questions, "q", l)}
-      <button class="btn primary" id="check">Corrigir</button>
+      <button class="btn primary block" id="check">Corrigir</button>
       <div id="res"></div>
     </section>
 
@@ -279,7 +333,8 @@ function lesson(id) {
   const words = readingLines(l).join(" ").split(/\s+/).length;
   view().querySelectorAll(".w").forEach((el) => el.onclick = () => {
     looked.add(el.dataset.en.toLowerCase());
-    $("#gloss").innerHTML = `<b>${esc(el.dataset.en)}</b> = ${esc(el.dataset.pt)}`;
+    el.classList.add("seen");
+    showSheet(`<b>${esc(el.dataset.en)}</b> = ${esc(el.dataset.pt)}`);
   });
   $("#listen").onclick = () => speak(readingLines(l));
   document.body.classList.remove("show-pt");
@@ -300,12 +355,13 @@ function lesson(id) {
     if (sc >= PASS) {
       l.vocab.forEach(([en, pt, ex]) => { if (!S.srs[en]) S.srs[en] = { pt, ex, box: 0, due: Date.now() }; });
       const n = nextLesson();
-      msg = `<p class="ok">Muito bem: ${ok} de ${l.questions.length}. Lição concluída.</p>` + (n ? `<a class="btn primary" href="#licao/${n.id}">Próxima: ${esc(n.title)}</a>` : "");
+      msg = `<p class="ok">Muito bem: ${ok} de ${l.questions.length}. Lição concluída.</p>` + (n ? `<a class="btn primary block" href="#l-${n.id}">Próxima: ${esc(n.title)}</a>` : "");
     } else {
-      msg = `<p class="bad">${ok} de ${l.questions.length}. Releia o texto prestando atenção nas explicações acima e tente de novo. Sem pressa.</p><button class="btn" id="retry">Tentar de novo</button>`;
+      msg = `<p class="bad">${ok} de ${l.questions.length}. Releia o texto prestando atenção nas explicações acima e tente de novo. Sem pressa.</p><button class="btn block" id="retry">Tentar de novo</button>`;
     }
-    save();
+    save(); updateBadge();
     $("#res").innerHTML = msg + covMsg;
+    $("#res").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" });
     const r = $("#retry"); if (r) r.onclick = () => lesson(id);
   };
 }
@@ -324,14 +380,14 @@ function review() {
       <p class="big">${esc(en)}</p>
       ${c.ex ? `<p class="muted">“${esc(c.ex)}”</p>` : ""}
       <div id="back" class="hidden"><p class="big2">${esc(c.pt)}</p>
-        <button class="btn bad-b" id="no">Não lembrei</button> <button class="btn primary" id="yes">Lembrei</button></div>
-      <button class="btn" id="show">Mostrar significado</button>
+        <div class="duo"><button class="btn bad-b" id="no">Não lembrei</button><button class="btn primary" id="yes">Lembrei</button></div></div>
+      <button class="btn primary block" id="show">Mostrar significado</button>
     </section>`;
   $("#show").onclick = () => { $("#back").classList.remove("hidden"); $("#show").classList.add("hidden"); };
   const answer = (ok) => {
     c.box = ok ? Math.min(c.box + 1, INTERVALS.length - 1) : 0;
     c.due = ok ? Date.now() + INTERVALS[c.box] * DAY : Date.now() + 60000;
-    save(); review();
+    save(); updateBadge(); review();
   };
   $("#yes").onclick = () => answer(true);
   $("#no").onclick = () => answer(false);
@@ -372,12 +428,30 @@ function guide() {
 }
 
 // ---------- Navegação ----------
+function updateBadge() {
+  const due = dueCards().length, b = $("#dueBadge");
+  if (b) { b.hidden = !due; b.textContent = due; }
+}
+// Endereços simples (#inicio, #licoes, #l-<id-da-lição>) para funcionar
+// dentro do claude.ai, que só repassa #nome.
 function route() {
   if ("speechSynthesis" in window) speechSynthesis.cancel();
-  const [page, arg] = location.hash.slice(1).split("/");
-  document.querySelectorAll("nav a").forEach((a) => a.classList.toggle("on", a.getAttribute("href") === "#" + (page || "inicio")));
-  ({ teste: test, licoes: lessonList, licao: () => lesson(arg), revisao: review, glossario: glossary, guia: guide }[page] || home)();
+  const h = location.hash.slice(1);
+  const isLesson = h.startsWith("l-");
+  const page = isLesson ? "licoes" : ({ teste: "inicio" }[h] || h || "inicio");
+  document.querySelectorAll(".tabs a").forEach((a) => a.classList.toggle("on", a.dataset.tab === page));
+  updateBadge();
+  $("#sheet").hidden = true;
+  if (isLesson) lesson(h.slice(2));
+  else ({ teste: test, licoes: lessonList, revisao: review, glossario: glossary, guia: guide }[h] || home)();
   scrollTo(0, 0);
 }
 addEventListener("hashchange", route);
+// Toque no tipo de pergunta mostra a dica (no celular não existe "passar o mouse").
+document.addEventListener("click", (e) => {
+  const t = e.target.closest(".qt");
+  if (t) showSheet(`<b>${esc(t.textContent.replace(" ⓘ", ""))}:</b> ${esc(t.dataset.tip)}`);
+  if (e.target.closest("#sheet")) $("#sheet").hidden = true;
+});
 route();
+initCloud();

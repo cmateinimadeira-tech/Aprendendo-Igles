@@ -639,7 +639,7 @@ function openTextSheet(l) {
 // Só vale fora do claude.ai (lá a página roda num quadro sem service worker).
 const PWA_URL = "https://cmateinimadeira-tech.github.io/Aprendendo-Igles/";
 const inFrame = (() => { try { return window.top !== window; } catch (e) { return true; } })();
-const isStandalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+const isStandalone = matchMedia("(display-mode: standalone)").matches || matchMedia("(display-mode: fullscreen)").matches || navigator.standalone === true;
 const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
 let installEvent = null;
 if (!inFrame && "serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) {

@@ -66,7 +66,7 @@ Metas internas do curso: 40, 60, 80, 100 e 120 palavras/min nos níveis 1 a 5. L
 recebe ★ (dominada). O botão "Ver texto" abre o texto numa folha sobreposta, sem rolar a página.
 
 ## App instalável (PWA)
-O curso também funciona como app instalado no celular, em tela cheia e offline (`manifest.webmanifest`, `sw.js`, `icons/`).
+O curso também funciona como app instalado no celular, em tela cheia (no Android some até a barra de status; no iPhone a barra da hora continua, por limitação do sistema) e offline (`manifest.webmanifest`, `sw.js`, `icons/`).
 Endereço, depois de ativar o GitHub Pages: https://cmateinimadeira-tech.github.io/Aprendendo-Igles/
 
 Para ativar (uma vez): no GitHub, **Settings → Pages → Build and deployment → Source: Deploy from a branch**,

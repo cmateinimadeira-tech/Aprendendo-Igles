@@ -541,8 +541,13 @@ const FLUENCY_WPM = { 1: 40, 2: 60, 3: 80, 4: 100, 5: 120 }; // metas internas d
 let currentTrack = null;
 function startTracking(l) {
   if (currentTrack) currentTrack.stop();
-  let active = 0, last = Date.now(), readMs = null, looks = 0, answering = false, textOnScreen = true, stopped = false;
-  const tick = () => { const now = Date.now(); if (!document.hidden) active += Math.min(now - last, 90000); last = now; };
+  let active = 0, readActive = 0, last = Date.now(), readMs = null, looks = 0, answering = false, textOnScreen = true, textVisible = false, stopped = false;
+  // readActive só conta enquanto o texto em inglês está visível e você ainda não começou a responder.
+  const tick = () => {
+    const now = Date.now();
+    if (!document.hidden) { const dt = Math.min(now - last, 90000); active += dt; if (textVisible && !answering) readActive += dt; }
+    last = now;
+  };
   const onVis = () => { if (document.hidden) tick(); else last = Date.now(); };
   const evs = ["scroll", "touchstart", "click", "keydown", "change"];
   evs.forEach((e) => addEventListener(e, tick, { passive: true, capture: true }));
@@ -556,8 +561,14 @@ function startTracking(l) {
     fab.hidden = textOnScreen || !$("#qCard");
   }), { threshold: 0.15 });
   io.observe(card);
+  const textEl = card.querySelector(".radio, .prose, .lined");
+  const io2 = new IntersectionObserver((entries) => entries.forEach((en) => {
+    tick();
+    textVisible = en.isIntersecting && en.intersectionRect.height >= Math.min(innerHeight * 0.35, en.boundingClientRect.height * 0.5);
+  }), { threshold: [0, 0.1, 0.25, 0.5, 0.75, 1] });
+  if (textEl) io2.observe(textEl);
   document.querySelectorAll('#qCard input[type="radio"]').forEach((r) => r.addEventListener("change", () => {
-    if (!answering) { tick(); readMs = active; answering = true; }
+    if (!answering) { tick(); readMs = readActive; answering = true; }
   }));
   fab.onclick = () => { if (answering) looks++; openTextSheet(l); };
   const t = (currentTrack = {
@@ -565,12 +576,12 @@ function startTracking(l) {
       if (stopped) return; stopped = true;
       evs.forEach((e) => removeEventListener(e, tick, { capture: true }));
       document.removeEventListener("visibilitychange", onVis);
-      io.disconnect(); fab.hidden = true;
+      io.disconnect(); io2.disconnect(); fab.hidden = true;
     },
     finish(words, nq) {
       tick(); t.stop();
-      const r = readMs != null ? readMs : active;
-      return { ms: active, readMs: r, wpm: Math.round(words / Math.max(r / 60000, 0.25)), looks, nq };
+      const r = readMs != null ? readMs : readActive;
+      return { ms: active, readMs: r, wpm: Math.round(words / Math.max(r / 60000, 0.1)), looks, nq, rv: 2 };
     },
   });
   return t;
@@ -592,7 +603,9 @@ function timingHTML(t) {
 }
 function mastered(id) { const t = (S.timing || {})[id]; return !!(t && t.ok && fluency(t).key === "fluente"); }
 function fluencyPanelHTML() {
-  const list = Object.values(S.timing || {}).sort((a, b) => a.at - b.at);
+  // Medições novas (rv 2) contam só o tempo com o texto em inglês na tela; as antigas incluíam a parte em português.
+  const all = Object.values(S.timing || {}).sort((a, b) => a.at - b.at);
+  const list = all.some((t) => t.rv === 2) ? all.filter((t) => t.rv === 2) : all;
   if (!list.length) return "";
   const last = list.slice(-5);
   const avg = (arr, f) => Math.round(arr.reduce((s, x) => s + f(x), 0) / arr.length);

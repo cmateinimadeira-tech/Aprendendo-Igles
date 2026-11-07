@@ -5,7 +5,7 @@ LINK_WORDS.push(
   { w: "so", pt: "então, por isso", rel: "consequência", level: 2, tip: "Introduz o resultado; a causa vem antes. Não confunda com “so that” (para que)." },
   { w: "because", pt: "porque", rel: "causa", level: 2, tip: "Introduz a causa (uma frase com verbo). O resultado costuma vir antes." },
   { w: "because of", pt: "por causa de", rel: "causa", level: 3, tip: "Como “because”, mas seguido de substantivo, não de frase: because of the rain." },
-  { w: "or", pt: "ou; senão", rel: "adição", level: 2, tip: "Alternativa: uma coisa ou outra. Depois de uma ordem, quer dizer “senão”: Hurry, or you'll be late." },
+  { w: "or", pt: "ou; senão", rel: "alternativa", level: 2, tip: "Alternativa: uma coisa ou outra. Depois de uma ordem, quer dizer “senão”: Hurry, or you'll be late." },
   { w: "then", pt: "depois, em seguida; então", rel: "sequência", level: 2, tip: "Marca o próximo passo de uma sequência. Em “if… then” quer dizer “então”." },
   { w: "after that", pt: "depois disso", rel: "sequência", level: 2, tip: "Mostra que um fato vem depois do que foi dito antes; costuma abrir a frase, com vírgula." },
   { w: "first", pt: "primeiro, em primeiro lugar", rel: "sequência", level: 2, tip: "Abre uma lista de passos ou argumentos; espere um “then”, “next” ou “finally” depois." },
@@ -24,11 +24,11 @@ LINK_WORDS.push(
   { w: "instead of", pt: "em vez de", rel: "contraste", level: 3, tip: "Seguido de substantivo ou verbo com -ing: instead of driving. O que vem depois dele NÃO acontece." },
   { w: "for example", pt: "por exemplo", rel: "exemplo", level: 2, tip: "Apresenta um caso concreto da ideia geral dita antes." },
   { w: "such as", pt: "como, tal como", rel: "exemplo", level: 2, tip: "Introduz exemplos dentro da frase, logo depois de um substantivo: devices such as phones." },
-  { w: "as well as", pt: "além de, assim como", rel: "adição", level: 3, tip: "Soma um item ao outro (= and also); não tem sentido de comparação aqui." },
+  { w: "as well as", pt: "além de, assim como", rel: "adição", level: 3, tip: "Soma um item ao outro (= and also). Não confunda com a comparação “as well as” = tão bem quanto (she sings as well as you)." },
   { w: "also", pt: "também", rel: "adição", level: 2, tip: "Acrescenta uma informação; costuma ficar antes do verbo principal ou depois de “is/are”." },
   { w: "too", pt: "também", rel: "adição", level: 2, tip: "= também, no fim da frase: I like it too. Antes de adjetivo muda de sentido: too expensive = caro demais." },
   { w: "both… and", pt: "tanto… quanto; os dois", rel: "adição", level: 2, tip: "Soma dois elementos e destaca que vale para os dois: both cheap and fast." },
-  { w: "either… or", pt: "ou… ou", rel: "adição", level: 3, tip: "Duas alternativas e só uma delas: either today or tomorrow. Depois de “either”, espere um “or”." },
+  { w: "either… or", pt: "ou… ou", rel: "alternativa", level: 3, tip: "Duas alternativas e só uma delas: either today or tomorrow. Depois de “either”, espere um “or”." },
   { w: "so that", pt: "para que", rel: "finalidade", level: 3, tip: "Introduz o objetivo, com sujeito e verbo (muitas vezes com can/could). Diferente de “so” (por isso)." },
   { w: "in order to", pt: "para, a fim de", rel: "finalidade", level: 3, tip: "Introduz o objetivo, seguido de verbo no infinitivo: in order to save money." },
   { w: "since", pt: "já que, como; desde", rel: "causa", level: 3, tip: "No início da frase e sem data, costuma ser causa (= já que). Com data ou período (since 2020) é “desde”." },
@@ -68,7 +68,7 @@ LINK_ITEMS.push(
 
   // then
   { id: "then-1", w: "then", level: 2, kind: "lacuna", s: "Turn off the computer. ___, unplug it and wait ten seconds.", opts: ["As a result", "For example", "Then", "However"], a: 2, why: "São instruções em ordem (desligue → tire da tomada): sequência → Then." },
-  { id: "then-2", w: "then", level: 2, kind: "relacao", s: "The driver changed his tyres, then he set the fastest lap of the race.", opts: ["sequência", "contraste", "condição", "exemplo"], a: 0, why: "“then” coloca os fatos em ordem: primeiro trocou os pneus, depois fez a volta mais rápida." },
+  { id: "then-2", w: "then", level: 2, kind: "relacao", s: "The driver changed his tyres, and then he set the fastest lap of the race.", opts: ["sequência", "contraste", "condição", "exemplo"], a: 0, why: "“then” coloca os fatos em ordem: primeiro trocou os pneus, depois fez a volta mais rápida." },
 
   // after that
   { id: "after-that-1", w: "after that", level: 2, kind: "sentido", s: "The company cut its prices in March. After that, sales doubled.", q: "Quando as vendas dobraram?", opts: ["Antes do corte de preços", "Depois do corte de preços", "Ao mesmo tempo que o corte", "Em vez do corte de preços"], a: 1, why: "“After that” = depois disso: primeiro o corte em março, depois as vendas dobraram." },
@@ -120,7 +120,7 @@ LINK_ITEMS.push(
 
   // however
   { id: "however-1", w: "however", level: 2, kind: "lacuna", s: "The new app is fast. ___, it uses a lot of battery.", opts: ["However", "Because", "For example", "So"], a: 0, why: "A segunda frase traz um ponto negativo depois de um positivo: contraste → However (porém)." },
-  { id: "however-2", w: "however", level: 2, kind: "sentido", s: "Sales went up in May. However, profits fell.", q: "Pela frase, o que aconteceu com os lucros?", opts: ["caíram por causa da alta nas vendas", "subiram junto com as vendas", "não mudaram", "caíram, apesar da alta nas vendas"], a: 3, why: "“However” marca contraste: as vendas subiram, mas os lucros caíram. A frase não diz que uma coisa causou a outra." },
+  { id: "however-2", w: "however", level: 2, kind: "sentido", s: "Sales went up in May. However, profits fell.", q: "Pela frase, o que aconteceu com os lucros?", opts: ["Caíram por causa da alta nas vendas", "Subiram junto com as vendas", "Não mudaram", "Caíram, apesar da alta nas vendas"], a: 3, why: "“However” marca contraste: as vendas subiram, mas os lucros caíram. A frase não diz que uma coisa causou a outra." },
 
   // instead
   { id: "instead-1", w: "instead", level: 3, kind: "lacuna", s: "Don't take the bus to the stadium. ___, take the metro; it's much faster.", opts: ["Also", "As a result", "For example", "Instead"], a: 3, why: "“Don't take the bus” + outra opção no lugar: o metrô substitui o ônibus → Instead (em vez disso)." },
@@ -176,7 +176,7 @@ LINK_ITEMS.push(
 
   // still
   { id: "still-1", w: "still", level: 3, kind: "sentido", s: "The phone is very expensive. Still, millions of people buy it every year.", q: "Qual é a ideia da frase?", opts: ["As pessoas compram o celular porque ele é caro", "As pessoas ainda não compraram o celular", "As pessoas compram o celular, mesmo ele sendo caro", "O celular ficou mais barato"], a: 2, why: "No início, com vírgula, “Still” = ainda assim: o preço alto não impede as compras." },
-  { id: "still-2", w: "still", level: 3, kind: "lacuna", s: "It's 10 p.m., and my boss is ___ working on the report.", opts: ["also", "instead", "still", "almost"], a: 2, why: "“10 p.m.” é tarde: a ação continua, não parou → still (ainda)." },
+  { id: "still-2", w: "still", level: 3, kind: "lacuna", s: "It's 10 p.m., and my boss is ___ working on the report.", opts: ["yet", "instead", "still", "almost"], a: 2, why: "“10 p.m.” é tarde: a ação continua, não parou → still (ainda)." },
 
   // yet
   { id: "yet-1", w: "yet", level: 3, kind: "lacuna", s: "The new office isn't ready ___, so we're working from home this month.", opts: ["too", "instead", "yet", "for example"], a: 2, why: "Frase negativa (isn't) + algo que deve acontecer depois: no fim, “ainda não” → yet." },

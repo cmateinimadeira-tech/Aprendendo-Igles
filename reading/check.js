@@ -8,9 +8,12 @@ const files = ["ngsl.js", "words.js", "lessons/links-a.js", "lessons/links-b.js"
   ...fs.readdirSync(__dirname).filter((f) => /^r-.*\.js$/.test(f)).sort().map((f) => "reading/" + f)];
 for (const f of files) vm.runInContext(fs.readFileSync(path.join(root, f), "utf8").replace(/^const /gm, "var "), ctx, { filename: f });
 const { NGSL_RANK, READINGS, LINK_WORDS } = ctx;
+const NUM_WORDS = new Set("zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty thirty forty fifty sixty seventy eighty ninety hundred thousand million billion first second third fourth fifth half".split(" "));
 const BAND = { 1: 600, 2: 1000, 3: 1600, 4: 2200, 5: 2809 };
 const lemma = (w) => {
   if (NGSL_RANK[w]) return w;
+  if (NUM_WORDS.has(w)) return "one";
+  const c = w.replace(/n't$|'ll$|'re$|'ve$|'d$|'m$/, ""); if (c !== w) return NGSL_RANK[c] ? c : c === "ca" || c === "wo" || c === "sha" ? "will" : (NGSL_RANK[c.replace(/'s$/, "")] ? c.replace(/'s$/, "") : c);
   const tries = [w.replace(/'s$/, ""), w.replace(/s$/, ""), w.replace(/es$/, ""), w.replace(/ies$/, "y"), w.replace(/ed$/, ""), w.replace(/d$/, ""),
     w.replace(/ing$/, ""), w.replace(/ing$/, "e"), w.replace(/ly$/, ""), w.replace(/er$/, ""), w.replace(/est$/, ""), w.replace(/ied$/, "y")];
   return tries.find((t) => NGSL_RANK[t]) || w;

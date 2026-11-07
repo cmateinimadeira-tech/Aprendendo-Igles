@@ -5,11 +5,14 @@
 // Releitura espaçada (leitura repetida melhora a fluência): o texto volta em
 // alguns dias e o app compara a velocidade.
 
+const NUM_WORDS = new Set("zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty thirty forty fifty sixty seventy eighty ninety hundred thousand million billion first second third fourth fifth half".split(" "));
 const READ_BAND = { 1: 600, 2: 1000, 3: 1600, 4: 2200, 5: 2809 };
 const EXT_ACTS = { f1: "🏎️ F1 / rádio", serie: "🎬 Série ou filme", podcast: "🎧 Podcast ou vídeo", noticia: "📰 Notícia ou artigo", conversa: "💬 Conversa", outro: "✍️ Outro" };
 
 function rLemma(w) {
   if (NGSL_RANK[w]) return w;
+  if (NUM_WORDS.has(w)) return "one";
+  const c = w.replace(/n't$|'ll$|'re$|'ve$|'d$|'m$/, ""); if (c !== w) return NGSL_RANK[c] ? c : c === "ca" || c === "wo" || c === "sha" ? "will" : (NGSL_RANK[c.replace(/'s$/, "")] ? c.replace(/'s$/, "") : c);
   const t = [w.replace(/'s$/, ""), w.replace(/s$/, ""), w.replace(/es$/, ""), w.replace(/ies$/, "y"), w.replace(/ed$/, ""), w.replace(/d$/, ""),
     w.replace(/ing$/, ""), w.replace(/ing$/, "e"), w.replace(/ly$/, ""), w.replace(/er$/, ""), w.replace(/est$/, ""), w.replace(/ied$/, "y")];
   return t.find((x) => NGSL_RANK[x]) || w;
@@ -92,6 +95,7 @@ function readText(id) {
   const r = READINGS.find((x) => x.id === id);
   if (!r) { location.hash = "#leitura"; return; }
   const info = coverageOf(r), prev = readsOf(id), reread = prev.length > 0;
+  const chk = r.check ? shuffled(r.check) : null; // alternativas embaralhadas a cada leitura
   view().innerHTML = `
     <p class="muted">${esc(r.topic)} · nível ${r.level} · ${info.words} palavras · você conhece ~${Math.round(info.cov * 100)}%</p>
     <h2>${esc(r.title)}</h2>
@@ -116,14 +120,14 @@ function readText(id) {
     $("#after").innerHTML = `
       <section class="card">
         <p><b>⏱ ${fmtTime(active)}</b> · ${wpm} palavras/min${reread ? ` (antes: ${prev[prev.length - 1].wpm})` : ""}</p>
-        ${r.check ? `<fieldset class="q" id="rc"><legend>${esc(r.check.q)}</legend>${r.check.opts.map((o, j) => `<label><input type="radio" name="rc" value="${j}"> ${esc(o)}</label>`).join("")}<p class="why hidden"></p></fieldset>` : ""}
+        ${chk ? `<fieldset class="q" id="rc"><legend>${esc(chk.q)}</legend>${chk.opts.map((o, j) => `<label><input type="radio" name="rc" value="${j}"> ${esc(o)}</label>`).join("")}<p class="why hidden"></p></fieldset>` : ""}
         <p class="muted">Como foi a leitura?</p>
         <div class="chips">${[["facil", "Fácil"], ["bom", "Bom, entendi quase tudo"], ["dificil", "Difícil"]].map(([k, t]) => `<button class="chip" data-rate="${k}">${t}</button>`).join("")}</div>
       </section>`;
     $("#after").scrollIntoView({ behavior: "smooth", block: "start" });
     view().querySelectorAll("[data-rate]").forEach((b) => b.onclick = () => {
       const sel = document.querySelector('input[name="rc"]:checked');
-      const ok = r.check ? (sel ? +sel.value === r.check.a : null) : null;
+      const ok = chk ? (sel ? +sel.value === chk.a : null) : null;
       const rate = b.dataset.rate;
       const days = rate === "dificil" ? 2 : rate === "bom" ? 4 : (reread ? 0 : 10);
       S.reads = S.reads || {};
@@ -135,7 +139,7 @@ function readText(id) {
       save(); afterEvent();
       $("#after").innerHTML = `<section class="card center">
         <p class="xpgain">+${gain} XP</p>
-        ${ok === false ? `<p class="bad">A ideia principal era: ${esc(r.check.opts[r.check.a])}</p>` : ok ? `<p class="ok">Ideia principal certa.</p>` : ""}
+        ${ok === false ? `<p class="bad">A ideia principal era: ${esc(chk.opts[chk.a])}</p>` : ok ? `<p class="ok">Ideia principal certa.</p>` : ""}
         ${reread && wpm > prev[prev.length - 1].wpm ? `<p class="ok">Leitura ${Math.round((wpm / prev[prev.length - 1].wpm - 1) * 100)}% mais rápida que antes.</p>` : ""}
         <p class="muted">${days ? `Este texto volta para releitura em ${days} dias.` : "Texto concluído."}</p>
         <a class="btn primary block" href="#leitura">Outros textos</a></section>`;

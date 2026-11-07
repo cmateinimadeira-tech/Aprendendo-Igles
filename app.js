@@ -215,7 +215,10 @@ function home() {
         <p>Este curso é focado em <b>ler e entender</b> inglês: mensagens de rádio da Fórmula 1 e textos curtos do dia a dia. A gramática aparece só quando ajuda a entender o texto.</p>
         <p>Primeiro, um teste rápido de leitura (4 textos curtos, cerca de 5 minutos) para descobrir de onde partir.</p>
         <a class="btn primary" href="#teste">Fazer o teste de leitura</a>
-      </section>`;
+      </section>
+      ${installHTML()}
+      ${backupHTML()}`;
+    bindHomeExtras();
     return;
   }
   const doneCount = LESSONS.filter((l) => passed(l.id)).length;
@@ -239,7 +242,10 @@ function home() {
     ${adjustHTML()}
     ${fluencyPanelHTML()}
     ${skillsHTML()}
+    ${installHTML()}
+    ${backupHTML()}
     <p><button class="link" id="redo">Refazer o teste de nivelamento</button></p>`;
+  bindHomeExtras();
   const down = $("#lvDown"), keep = $("#lvKeep");
   if (down) down.onclick = () => { S.placement.level = startLevel() - 1; S.placement.adjusted = true; save(); home(); };
   if (keep) keep.onclick = () => { S.adjustKept = S.adjustKept || {}; S.adjustKept[startLevel()] = true; save(); home(); };
@@ -613,6 +619,75 @@ function openTextSheet(l) {
   $("#textSheetBody").querySelectorAll(".w").forEach((el) => el.onclick = () => showSheet(`<b>${esc(el.dataset.en)}</b> = ${esc(el.dataset.pt)}`));
   ts.hidden = false;
   $("#textSheetClose").focus();
+}
+
+
+// ---------- App instalável (PWA) ----------
+// Só vale fora do claude.ai (lá a página roda num quadro sem service worker).
+const PWA_URL = "https://cmateinimadeira-tech.github.io/Aprendendo-Igles/";
+const inFrame = (() => { try { return window.top !== window; } catch (e) { return true; } })();
+const isStandalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+let installEvent = null;
+if (!inFrame && "serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) {
+  addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+  if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+}
+addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); installEvent = e; if (!location.hash || location.hash === "#inicio") home(); });
+addEventListener("appinstalled", () => { installEvent = null; showSheet("App instalado. Abra pelo ícone “Inglês” na tela inicial."); });
+
+function installHTML() {
+  if (isStandalone) return "";
+  if (inFrame) {
+    return `<section class="card"><p class="eyebrow">Instalar no celular</p>
+      <p>Para usar em tela cheia, como um app, abra o endereço abaixo no navegador do celular (Chrome no Android, Safari no iPhone) e instale. Antes, copie seu progresso em “Transferir progresso”, no fim desta tela.</p>
+      <p><a href="${PWA_URL}" target="_blank" rel="noopener">${PWA_URL}</a></p></section>`;
+  }
+  if (installEvent) {
+    return `<section class="card"><p class="eyebrow">Instalar no celular</p><p>Instale para abrir em tela cheia, pelo ícone na tela inicial, e usar mesmo sem internet.</p>
+      <button class="btn primary block" id="installBtn">Instalar app</button></section>`;
+  }
+  return `<section class="card"><p class="eyebrow">Instalar no celular</p>
+    ${isIOS ? `<ol class="install-steps"><li>No Safari, toque em <b>Compartilhar</b> (quadrado com seta para cima).</li><li>Escolha <b>Adicionar à Tela de Início</b>.</li><li>Toque em <b>Adicionar</b>. O app abre em tela cheia pelo ícone “Inglês”.</li></ol>`
+            : `<ol class="install-steps"><li>No Chrome, toque no menu <b>⋮</b>.</li><li>Escolha <b>Instalar app</b> ou <b>Adicionar à tela inicial</b>.</li><li>Abra pelo ícone “Inglês”.</li></ol>`}
+  </section>`;
+}
+
+// ---------- Transferir progresso ----------
+// O progresso fica em cada navegador ou app separadamente; este código leva o
+// progresso de um lugar para outro (por exemplo, do claude.ai para o app instalado).
+function exportCode() { return btoa(unescape(encodeURIComponent(JSON.stringify(S)))); }
+function backupHTML() {
+  return `<details class="card backup"><summary><b>Transferir progresso</b></summary>
+    <p class="muted">Copie o código aqui e cole no outro lugar onde você usa o app (por exemplo, no app instalado).</p>
+    <textarea id="bkOut" rows="3" readonly>${exportCode()}</textarea>
+    <button class="btn block" id="bkCopy">Copiar código</button>
+    <p class="muted" style="margin-top:16px">Recebeu um código? Cole abaixo. Isso substitui o progresso deste aparelho.</p>
+    <textarea id="bkIn" rows="3" placeholder="Cole o código aqui"></textarea>
+    <button class="btn block" id="bkImport">Importar progresso</button>
+    <p id="bkMsg" class="muted"></p>
+  </details>`;
+}
+function bindHomeExtras() {
+  const ib = $("#installBtn");
+  if (ib) ib.onclick = async () => { installEvent.prompt(); await installEvent.userChoice.catch(() => {}); installEvent = null; home(); };
+  const copy = $("#bkCopy");
+  if (copy) copy.onclick = () => {
+    const ta = $("#bkOut");
+    const done = () => ($("#bkMsg").textContent = "Código copiado.");
+    const fallback = () => { ta.focus(); ta.select(); $("#bkMsg").textContent = "Código selecionado: use Copiar do celular."; };
+    try { navigator.clipboard.writeText(ta.value).then(done, fallback); } catch (e) { fallback(); }
+  };
+  const imp = $("#bkImport");
+  if (imp) imp.onclick = (e) => {
+    let data;
+    try { data = JSON.parse(decodeURIComponent(escape(atob($("#bkIn").value.trim())))); } catch (err) { $("#bkMsg").textContent = "Código inválido. Copie o código inteiro e tente de novo."; return; }
+    if (!data || typeof data !== "object" || !("done" in data)) { $("#bkMsg").textContent = "Código inválido."; return; }
+    if (!e.target.dataset.armed) { e.target.dataset.armed = 1; e.target.textContent = "Toque de novo para substituir o progresso"; return; }
+    S = Object.assign({ placement: null, done: {}, srs: {}, notes: {} }, data);
+    save(); updateBadge(); home();
+    showSheet("Progresso importado.");
+  };
 }
 
 // ---------- Navegação ----------

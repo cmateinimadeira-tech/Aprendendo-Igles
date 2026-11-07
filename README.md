@@ -64,3 +64,14 @@ Na primeira tentativa de cada lição o app mede o tempo ativo (pausas longas e 
 as palavras por minuto até a primeira resposta e quantas vezes o aluno volta ao texto depois de começar a responder.
 Metas internas do curso: 40, 60, 80, 100 e 120 palavras/min nos níveis 1 a 5. Lição com 80% e leitura fluente
 recebe ★ (dominada). O botão "Ver texto" abre o texto numa folha sobreposta, sem rolar a página.
+
+## App instalável (PWA)
+O curso também funciona como app instalado no celular, em tela cheia e offline (`manifest.webmanifest`, `sw.js`, `icons/`).
+Endereço, depois de ativar o GitHub Pages: https://cmateinimadeira-tech.github.io/Aprendendo-Igles/
+
+Para ativar (uma vez): no GitHub, **Settings → Pages → Build and deployment → Source: Deploy from a branch**,
+escolha a branch `ccr-3a3cdf2f-i5jonk` e a pasta `/ (root)`, e salve. Em 1 a 2 minutos o endereço fica no ar.
+
+Instalação: Android (Chrome) → menu ⋮ → **Instalar app**; iPhone (Safari) → **Compartilhar → Adicionar à Tela de Início**.
+O progresso do app instalado é separado do claude.ai: use **Início → Transferir progresso** para levar de um para o outro.
+Ao mudar arquivos do app, aumente a versão em `CACHE` no `sw.js`.

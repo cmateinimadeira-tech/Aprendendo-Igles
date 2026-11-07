@@ -42,7 +42,7 @@ READINGS.push(
       "Many owners also mix their own money with the company's money, so they never know if the business really makes a profit. Others borrow too much at high interest rates. In Brazil, taxes and rules can be hard to understand, and this takes time and energy from the owner.",
       "However, closing is not always a failure. Some owners learn a lot and do better the second time. Experts suggest a few simple steps: write a plan, keep business and family money apart, and save some money for bad months. Unless the owner understands the numbers, even a great idea can fail. Organizations such as Sebrae offer free courses that can help."
     ],
-    gloss: [["suppliers", "fornecedores"], ["borrow", "pegar emprestado"], ["failure", "fracasso"]],
+    gloss: [["suppliers", "fornecedores"], ["borrow", "pegar emprestado"]],
     check: { q: "Qual é a ideia principal do texto?", opts: ["Muitas pequenas empresas fecham por falta de planejamento e de controle do dinheiro, mas há formas de evitar isso.", "As pequenas empresas fecham porque os donos não trabalham o suficiente.", "No Brasil, quase nenhuma pequena empresa fecha nos primeiros anos."], a: 0 }
   },
   {
@@ -57,7 +57,7 @@ READINGS.push(
       "However, NPM soon received strong criticism. Although some services became cheaper, critics said that citizens are not just customers: they also have rights, and the state must treat everyone in the same way. Targets also created strange effects. When people are judged by a number, they may work to improve the number instead of the real service. In addition, when many agencies and private contractors share the work, it becomes hard to know who is responsible when something goes wrong.",
       "As a result, many countries later changed direction. Today, most experts agree that NPM brought some useful tools, such as measuring results. Even so, they believe that good public management also needs cooperation between organizations and a strong sense of public service, not only market rules."
     ],
-    gloss: [["compete", "competir"], ["criticism", "crítica"], ["contractors", "empresas contratadas"], ["targets", "metas"]],
+    gloss: [["compete", "competir"], ["criticism", "crítica"], ["contractors", "empresas contratadas"]],
     check: { q: "Qual é a ideia principal do texto?", opts: ["A Nova Gestão Pública tentou fazer o governo funcionar como uma empresa, mas recebeu críticas importantes.", "A Nova Gestão Pública foi criada no Brasil e nunca foi usada em outros países.", "A Nova Gestão Pública defendia mais regras e menos foco em resultados."], a: 0 }
   },
   {
@@ -72,7 +72,7 @@ READINGS.push(
       "Trust is a key part of the model. Citizens can see which public workers have looked at their personal data, and an official who looks at it without a good reason can be punished. However, the system also has risks. In 2007, Estonia suffered a large cyberattack, and since then it has spent a lot on digital security.",
       "Many countries have visited Estonia to learn from it, and Finland now uses the same kind of data exchange system. Although large countries cannot simply copy a small one, experts point to some clear lessons: build a secure digital identity first, connect the systems that already exist instead of putting all the data in one place, and be open with citizens about how their data is used. Unless people trust the system, they will not use it."
     ],
-    gloss: [["online", "on-line, pela internet"], ["signature", "assinatura"], ["records", "registros"], ["punished", "punido"], ["cyberattack", "ataque cibernético"]],
+    gloss: [["online", "on-line, pela internet"], ["signature", "assinatura"], ["punished", "punido"], ["cyberattack", "ataque cibernético"]],
     check: { q: "Qual é a ideia principal do texto?", opts: ["A Estônia oferece quase todos os serviços públicos online, e sua experiência mostra a importância da confiança e da segurança.", "A Estônia é um país grande que criou um único banco de dados com tudo sobre os cidadãos.", "Na Estônia, os cidadãos não podem saber quem viu os seus dados."], a: 0 }
   },
   {
@@ -85,9 +85,9 @@ READINGS.push(
       "Every company has its own way of doing things. In some, people wear suits, wait for the top manager to decide and write long reports. In others, people wear jeans, question their managers and make quick decisions. This is organizational culture: the shared values and beliefs that shape how people work. The expert Edgar Schein argued that the most important part of culture is the deepest one, the basic beliefs that people follow without even noticing them.",
       "When two companies join, managers usually spend months studying the numbers: costs, profits and markets. However, they often spend much less time on culture, even though it decides how people will work together after the deal. If one company values speed and the other values strict control, conflict can begin on the first day.",
       "A well-known example is the merger between the German car company Daimler-Benz and the American company Chrysler in 1998. Although it was presented as a merger of equals, the two companies had very different ways of making decisions, paying managers and working together. Less than ten years later, they separated, and many experts pointed to the culture clash as one of the main reasons.",
-      "Therefore, instead of hoping that culture will take care of itself, they can study it before the deal, talk openly about differences and decide early which practices to keep. While numbers explain why a merger looks good on paper, culture often explains whether it works in real life."
+      "Therefore, instead of hoping that culture will take care of itself, managers can study it before the deal, talk openly about differences and decide early which practices to keep. While numbers explain why a merger looks good on paper, culture often explains whether it works in real life."
     ],
-    gloss: [["merger", "fusão"], ["jeans", "calça jeans"], ["clash", "choque"], ["strict", "rígido"], ["deal", "negócio, acordo"]],
+    gloss: [["merger", "fusão"], ["jeans", "calça jeans"], ["clash", "choque"], ["strict", "rígido"]],
     check: { q: "Qual é a ideia principal do texto?", opts: ["A cultura organizacional influencia muito o sucesso das fusões, e diferenças de cultura podem fazê-las fracassar.", "As fusões fracassam apenas por causa de problemas financeiros.", "Todas as empresas têm a mesma cultura organizacional."], a: 0 }
   },
 );

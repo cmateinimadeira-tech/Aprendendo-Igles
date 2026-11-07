@@ -47,21 +47,55 @@ function markVocab(str, vocab) {
     return `<span class="w" data-pt="${esc(v[1])}" data-en="${esc(v[0])}">${m}</span>`;
   });
 }
+// Quebra os parágrafos em linhas fixas (como na prova) para poder citar "line N".
+const WRAP = 72;
+function examLines(item) {
+  if (item._lines) return item._lines;
+  const lines = [];
+  item.paras.forEach((para) => {
+    let cur = "", first = true;
+    para.split(" ").forEach((w) => {
+      if (cur && (cur + " " + w).length > WRAP) { lines.push({ text: cur, ind: first }); cur = w; first = false; }
+      else cur = cur ? cur + " " + w : w;
+    });
+    if (cur) lines.push({ text: cur, ind: first });
+  });
+  return (item._lines = lines);
+}
+// Encontra a linha onde aparece um trecho (mesmo que quebre entre duas linhas).
+function lineOf(item, phrase) {
+  const lines = examLines(item);
+  let joined = "", starts = [];
+  lines.forEach((l) => { starts.push(joined.length); joined += l.text + " "; });
+  const pos = joined.toLowerCase().indexOf(phrase.toLowerCase());
+  if (pos < 0) return "?";
+  let n = 0; while (n + 1 < starts.length && starts[n + 1] <= pos) n++;
+  return n + 1;
+}
+function resolveLines(str, item, word) {
+  return item && item.paras ? str.replace(/\{\{(.+?)\}\}/g, (m, ph) => `${word} ${lineOf(item, ph)}`) : str;
+}
+
 function renderReading(item, vocab = []) {
+  if (item.paras) {
+    return `<div class="lined">${examLines(item).map((l, i) =>
+      `<div class="ln ${l.ind ? "ind" : ""}"><i class="${(i + 1) % 5 === 0 ? "five" : ""}">${i + 1}</i><span>${markVocab(l.text, vocab)}</span></div>`).join("")}
+      ${item.source ? `<p class="src">${esc(item.source)}</p>` : ""}</div>`;
+  }
   if (item.radio) {
     return `<div class="radio">${item.radio.map(([who, line]) =>
       `<p class="${who === "Driver" ? "drv" : "eng"}"><b>${who === "Driver" ? "Piloto" : "Engenheiro"}</b>${markVocab(line, vocab)}</p>`).join("")}</div>`;
   }
   return `<p class="prose">${markVocab(item.text, vocab)}</p>`;
 }
-function readingLines(item) { return item.radio ? item.radio.map((r) => r[1]) : [item.text]; }
+function readingLines(item) { return item.radio ? item.radio.map((r) => r[1]) : item.paras ? item.paras : [item.text]; }
 
-function questionsHTML(qs, prefix) {
+function questionsHTML(qs, prefix, item) {
   return qs.map((q, i) => `
     <fieldset class="q" id="${prefix}${i}">
-      <legend>${i + 1}. ${esc(q.q)}</legend>
+      <legend>${i + 1}. ${esc(resolveLines(q.q, item, "line"))}${q.qpt ? `<span class="qpt">${esc(resolveLines(q.qpt, item, "linha"))}</span>` : ""}</legend>
       ${q.t ? `<span class="qt" title="${esc(QTYPES[q.t].tip)}">${QTYPES[q.t].name}</span>` : ""}
-      ${q.opts.map((o, j) => `<label><input type="radio" name="${prefix}${i}" value="${j}"> ${esc(o)}</label>`).join("")}
+      ${q.opts.map((o, j) => `<label><input type="radio" name="${prefix}${i}" value="${j}"> ${q.opts.length === 5 ? "ABCDE"[j] + ") " : ""}${esc(o)}</label>`).join("")}
       <p class="why hidden"></p>
     </fieldset>`).join("");
 }
@@ -171,7 +205,7 @@ function lessonList() {
   const chips = ["Todos", ...THEMES].map((t) =>
     `<button class="chip ${t === f ? "on" : ""}" data-t="${t}">${t === "Todos" ? "Todos" : THEME_LABEL[t]}</button>`).join("");
   let html = `<h2>Lições</h2><div class="chips">${chips}</div>`;
-  [1, 2, 3, 4].forEach((lv) => {
+  Object.keys(LEVELS).map(Number).forEach((lv) => {
     const items = LESSONS.map((l, i) => [l, i]).filter(([l]) => l.level === lv && (f === "Todos" || l.theme === f));
     if (!items.length) return;
     const open = levelOpen(lv);
@@ -215,7 +249,8 @@ function lesson(id) {
     <section class="card">
       <h3>3. Entendeu?</h3>
       <p class="muted">Cuidado: a alternativa que repete palavras do texto nem sempre é a certa. Confira o sentido.</p>
-      ${questionsHTML(l.questions, "q")}
+      ${l.exam ? `<p class="muted">Formato ANPAD: perguntas em inglês. Tente primeiro sem tradução.</p><label class="muted"><input type="checkbox" id="pt"> Mostrar perguntas em português</label>` : ""}
+      ${questionsHTML(l.questions, "q", l)}
       <button class="btn primary" id="check">Corrigir</button>
       <div id="res"></div>
     </section>
@@ -247,6 +282,8 @@ function lesson(id) {
     $("#gloss").innerHTML = `<b>${esc(el.dataset.en)}</b> = ${esc(el.dataset.pt)}`;
   });
   $("#listen").onclick = () => speak(readingLines(l));
+  document.body.classList.remove("show-pt");
+  const pt = $("#pt"); if (pt) pt.onchange = () => document.body.classList.toggle("show-pt", pt.checked);
   $("#note").oninput = (e) => { S.notes[l.id] = e.target.value; save(); };
   $("#check").onclick = () => {
     const { ok, blank, byType } = grade(l.questions, "q");
@@ -321,6 +358,12 @@ function guide() {
 
     <section class="card"><h3>Tipos de pergunta</h3>
       <table>${Object.values(QTYPES).map((x) => `<tr><td><b>${x.name}</b></td><td>${esc(x.tip)}</td></tr>`).join("")}</table>
+    </section>
+
+    <section class="card"><h3>Prova de Inglês da ANPAD (nível 5)</h3>
+      <p>${esc(ANPAD_PROFILE.texts)}</p><p>${esc(ANPAD_PROFILE.format)}</p>
+      <table>${ANPAD_PROFILE.types.map(([a, b]) => `<tr><td><b>${esc(a)}</b></td><td>${esc(b)}</td></tr>`).join("")}</table>
+      <p><b>Dicas</b></p><ul>${ANPAD_PROFILE.tips.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>
     </section>
 
     <section class="card"><h3>Falsos cognatos</h3>

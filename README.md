@@ -25,7 +25,8 @@ Cada nível (1 a 4) é liberado ao concluir 2 lições do nível anterior. O alu
 ## Arquivos
 - `index.html`: página e estilos
 - `app.js`: lógica (teste, lições, revisão, progresso)
-- `data.js`: conteúdo (teste de nivelamento, lições, glossário da F1). Para criar lições novas, basta editar este arquivo.
+- `data.js`: conteúdo (teste de nivelamento, lições dos níveis 1 a 4, glossário da F1, guia)
+- `anpad.js`: nível 5, com lições no formato da prova de Inglês da ANPAD
 
 ## Como usar
 Abra `index.html` no navegador. O progresso fica salvo no próprio navegador.
@@ -35,3 +36,10 @@ Abra `index.html` no navegador. O progresso fica salvo no próprio navegador.
 - **Estratégias de leitura** (predição, skimming, scanning, cognatos, falsos cognatos, palavras repetidas, inferência, referência, conectivos, afixos), tiradas de ementas de Inglês Instrumental do IFPB, do IFCE, da UFC e da UNIVASF. A abordagem vem do Projeto Nacional de Inglês Instrumental (PUC-SP, coordenado por M. A. Celani).
 - **Tipos de pergunta** (ideia geral, informação específica, detalhe, inferência, referência, vocabulário no contexto, opinião/atitude) e alternativas que repetem palavras do texto sem estarem certas, conforme o guia de leitura do Cambridge B1 Preliminary.
 - **Cobertura de vocabulário:** segundo a pesquisa de Nation e outros, a leitura independente fica viável com 95 a 98% das palavras conhecidas. O app mostra quanto do texto o aluno entendeu sem consultar.
+
+## Nível 5: formato ANPAD
+Criado a partir da análise de provas de Inglês da ANPAD de 2010 (fevereiro, junho e setembro).
+- Textos do mesmo gênero da prova: introdução de artigo acadêmico de Administração, coluna de revista e notícia de negócios. Os textos são **originais**; pessoas, empresas e estudos citados são fictícios.
+- Linhas numeradas, perguntas em inglês com 5 alternativas (A–E) e tradução opcional das perguntas.
+- Tipos de pergunta da prova: propósito, detalhe, função de exemplos, próxima seção, vocabulário e expressões, conectivos, referência e EXCEPT FOR.
+- As provas originais não fazem parte do repositório.

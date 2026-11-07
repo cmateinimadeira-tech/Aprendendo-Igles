@@ -553,8 +553,8 @@ const LESSONS = [
 
 // Ordena por nível, mantendo a ordem dos temas dentro de cada nível.
 LESSONS.sort((a, b) => a.level - b.level);
-const THEMES = ["F1", "Tecnologia", "Economia", "Cotidiano"];
-const THEME_LABEL = { F1: "🏎️ Rádio F1", Tecnologia: "💻 Tecnologia", Economia: "📈 Economia", Cotidiano: "☕ Cotidiano" };
+const THEMES = ["F1", "Tecnologia", "Economia", "Cotidiano", "ANPAD"];
+const THEME_LABEL = { F1: "🏎️ Rádio F1", Tecnologia: "💻 Tecnologia", Economia: "📈 Economia", Cotidiano: "☕ Cotidiano", ANPAD: "🎓 ANPAD / acadêmico" };
 
 // ---------- Glossário do rádio da F1 ----------
 const GLOSSARY = [
@@ -598,6 +598,7 @@ const LEVELS = {
   2: { cefr: "A2", can: "Lê textos curtos e simples. Encontra informações previsíveis em anúncios, cardápios e horários. Entende mensagens pessoais curtas.", size: "50 a 90 palavras", skills: "+ referência (it, they, this) e inferências simples." },
   3: { cefr: "B1", can: "Entende textos com linguagem frequente do dia a dia ou do trabalho, e descrições de fatos, sentimentos e desejos.", size: "70 a 120 palavras", skills: "+ vocabulário pelo contexto e a atitude de quem escreve." },
   4: { cefr: "B2", can: "Lê artigos e reportagens sobre questões atuais em que o autor assume uma posição ou ponto de vista.", size: "90 a 150 palavras", skills: "+ argumentos, opiniões contrárias e o que fica nas entrelinhas." },
+  5: { cefr: "B2+/C1", can: "Lê introduções de artigos acadêmicos e textos de revistas de negócios, identificando propósito, argumentos, função dos exemplos, referências e sentido de palavras pelo contexto, como na prova de Inglês da ANPAD.", size: "150 a 400 palavras, com linhas numeradas", skills: "+ propósito e organização do texto, perguntas EXCEPT, expressões idiomáticas e perguntas em inglês com 5 alternativas." },
 };
 
 // Tipos de pergunta (baseados nos programas de Inglês Instrumental e nos guias Cambridge).
@@ -608,6 +609,8 @@ const QTYPES = {
   I: { name: "Inferência", tip: "A resposta não está escrita: deduza a partir do que o texto diz." },
   R: { name: "Referência", tip: "Pronomes (it, they, he, this, which) retomam algo dito antes. Volte uma ou duas frases." },
   V: { name: "Vocabulário no contexto", tip: "Use as palavras ao redor para adivinhar o sentido antes de consultar." },
+  P: { name: "Propósito e organização", tip: "Pergunte: para que o autor escreveu isso? Por que citou esse exemplo? O que vem na próxima seção?" },
+  C: { name: "Conectivos", tip: "Identifique a relação: contraste (however, yet, nevertheless), adição (moreover), causa (because, since), conclusão (therefore)." },
   O: { name: "Opinião / atitude", tip: "Observe conectivos (however, although) e verbos como argue e warn: eles revelam posições." },
 };
 
@@ -622,6 +625,8 @@ const STRATEGIES = {
   inferencia: { name: "Inferência", how: "Deduza o sentido de expressões e intenções pelo contexto, sem traduzir palavra por palavra." },
   referencia: { name: "Referência", how: "Ao ver he, it, they, this ou which, pergunte: a quem ou a que isso se refere?" },
   conectivos: { name: "Conectivos", how: "Palavras como however, while, therefore e since mostram a lógica: contraste, causa, consequência." },
+  estrutura: { name: "Organização do texto", how: "Em artigos acadêmicos, a introdução segue contexto → o que se sabe → lacuna → objetivo → estrutura. Localize cada parte antes de responder." },
+  eliminacao: { name: "Eliminação de alternativas", how: "Descarte as alternativas que o texto não sustenta: exageros (always, never, total), relações trocadas e palavras do texto usadas em outro contexto." },
   afixos: { name: "Prefixos e sufixos", how: "Partes de palavras ajudam a adivinhar: -ing (ação), -er (quem faz), un- (negação), -ly (modo)." },
 };
 
@@ -644,3 +649,31 @@ const FALSE_FRIENDS = [
   ["retire", "aposentar-se; na F1: abandonar a corrida", "não é “retirar” (= remove)"],
   ["push", "empurrar; no rádio da F1: acelerar", "não é “puxar” (= pull)"],
 ];
+
+// Perfil da prova de Inglês da ANPAD, a partir da análise de provas de 2010
+// (fevereiro, junho e setembro) enviadas pelo aluno.
+const ANPAD_PROFILE = {
+  texts: "Dois textos por prova: TEXT 1, em geral a introdução de um artigo acadêmico de Administração (~350–450 palavras, com citações de autores), e TEXT 2, um texto de revista (Newsweek, Time, BusinessWeek; ~150–350 palavras). Linhas numeradas.",
+  format: "Perguntas e alternativas em inglês, 5 alternativas (A–E), na ordem em que as informações aparecem no texto.",
+  types: [
+    ["Propósito do texto", "“The authors state that their paper…”, “The main purpose of the text is…”"],
+    ["Informação e detalhe", "“According to the text…”, “The authors argue that…”"],
+    ["Função de exemplos", "“X is mentioned in the text as an example of…”, “…to illustrate…”"],
+    ["Organização", "“The following section will most likely present…”"],
+    ["Título e expressões", "“The title conveys the idea that…”, “When activists say ‘It's about time’, they mean…”"],
+    ["Vocabulário", "Sentido de palavra ou expressão pelo contexto e pela formação de palavras (PUNDIT, SLASH, QUITE A STIR)."],
+    ["Conectivos", "Substituir um conectivo por outro de mesmo sentido (NEVERTHELESS → But)."],
+    ["Referência", "A que se refere THIS PATTERN, ONE, THEY, ITS, THIS EFFORT na linha indicada."],
+    ["EXCEPT FOR", "Todas as alternativas são confirmadas pelo texto, menos uma."],
+    ["Relação entre textos", "Conectar ideias do TEXT 1 e do TEXT 2."],
+  ],
+  tips: [
+    "Leia primeiro o título, a fonte e a primeira e a última frase de cada parágrafo.",
+    "Em introduções de artigo, procure o objetivo em “The purpose of this paper is…”, “This study aims…”, “We propose…”.",
+    "As perguntas seguem a ordem do texto: use isso para localizar o trecho.",
+    "Desconfie de alternativas que copiam palavras do texto, mas mudam a relação entre elas.",
+    "Desconfie de exageros: always, never, all, only, total.",
+    "Em perguntas de referência, coloque a alternativa no lugar da palavra e leia a frase.",
+    "Em EXCEPT, marque mentalmente V para cada alternativa confirmada no texto; sobra a resposta.",
+  ],
+};

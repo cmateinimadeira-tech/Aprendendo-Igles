@@ -4,6 +4,7 @@ const KEY = "ingles-leitura-v1";
 const PASS = 0.8; // 80% para avançar
 const INTERVALS = [0, 1, 3, 7, 14, 30]; // dias entre revisões, por caixa
 const DAY = 86400000;
+LESSONS.sort((a, b) => a.level - b.level); // inclui as lições de lessons/level-*.js
 
 let S = { placement: null, done: {}, srs: {}, notes: {}, updatedAt: 0 };
 try { Object.assign(S, JSON.parse(localStorage.getItem(KEY)) || {}); } catch (e) {}
@@ -236,6 +237,7 @@ function home() {
     </section>
     ${!S.placement.results ? `<section class="card"><p class="eyebrow">Teste atualizado</p><p>O teste de nivelamento ficou mais preciso: mais perguntas, 4 alternativas, opção “Não sei” e perguntas em inglês nos textos mais difíceis. Refaça para confirmar seu nível. Suas lições continuam salvas.</p><a class="btn primary block" href="#teste">Refazer o teste</a></section>` : ""}
     ${adjustHTML()}
+    ${fluencyPanelHTML()}
     ${skillsHTML()}
     <p><button class="link" id="redo">Refazer o teste de nivelamento</button></p>`;
   const down = $("#lvDown"), keep = $("#lvKeep");
@@ -348,7 +350,7 @@ function lessonList() {
       const sc = S.done[l.id];
       return `<a class="card row ${open ? "" : "locked"}" ${open ? `href="#l-${l.id}"` : ""}>
         <span><b>${esc(l.title)}</b><br><span class="muted">${THEME_LABEL[l.theme]}</span></span>
-        <span class="tag">${passed(l.id) ? "✔ " + Math.round(sc * 100) + "%" : open ? (sc != null ? Math.round(sc * 100) + "%" : "Abrir") : "🔒"}</span>
+        <span class="tag">${passed(l.id) ? (mastered(l.id) ? "★ " : "✔ ") + Math.round(sc * 100) + "%" : open ? (sc != null ? Math.round(sc * 100) + "%" : "Abrir") : "🔒"}</span>
       </a>`;
     }).join("");
   });
@@ -360,6 +362,8 @@ function lessonList() {
 function lesson(id) {
   const l = LESSONS.find((x) => x.id === id);
   if (!l) { location.hash = "#licoes"; return; }
+  // Alternativas embaralhadas a cada abertura (exceto ANPAD, cujas explicações citam letras).
+  const qs = l.exam ? l.questions : l.questions.map(shuffled);
   view().innerHTML = `
     <p class="muted">${THEME_LABEL[l.theme]} · nível ${l.level}</p>
     <h2>${esc(l.title)}</h2>
@@ -372,18 +376,18 @@ function lesson(id) {
       <details><summary>Ver cognatos (palavras parecidas com o português)</summary><p>${l.cognates.map(esc).join(" · ")}</p></details>
     </section>
 
-    <section class="card">
+    <section class="card" id="readCard">
       <h3>2. Leia</h3>
-      <p class="muted">Primeiro leia tudo uma vez, sem parar. Depois, toque nas palavras sublinhadas para ver o significado, mas só depois de tentar adivinhar pelo contexto.</p>
+      <p class="muted">Primeiro leia tudo uma vez, sem parar. Depois, toque nas palavras sublinhadas para ver o significado, mas só depois de tentar adivinhar pelo contexto. O tempo de leitura é medido (só enquanto o app está aberto).</p>
       ${renderReading(l, l.vocab)}
       <button class="btn" id="listen">🔊 Ouvir (opcional)</button>
     </section>
 
-    <section class="card">
+    <section class="card" id="qCard">
       <h3>3. Entendeu?</h3>
       <p class="muted">Cuidado: a alternativa que repete palavras do texto nem sempre é a certa. Confira o sentido.</p>
       ${l.exam ? `<p class="muted">Formato ANPAD: perguntas em inglês. Tente primeiro sem tradução.</p><label class="muted"><input type="checkbox" id="pt"> Mostrar perguntas em português</label>` : ""}
-      ${questionsHTML(l.questions, "q", l)}
+      ${questionsHTML(qs, "q", l)}
       <button class="btn primary block" id="check">Corrigir</button>
       <div id="res"></div>
     </section>
@@ -416,14 +420,21 @@ function lesson(id) {
     showSheet(`<b>${esc(el.dataset.en)}</b> = ${esc(el.dataset.pt)}`);
   });
   $("#listen").onclick = () => speak(readingLines(l));
+  const track = startTracking(l);
   document.body.classList.remove("show-pt");
   const pt = $("#pt"); if (pt) pt.onchange = () => document.body.classList.toggle("show-pt", pt.checked);
   $("#note").oninput = (e) => { S.notes[l.id] = e.target.value; save(); };
   $("#check").onclick = () => {
-    const { ok, blank, byType } = grade(l.questions, "q");
+    const { ok, blank, byType } = grade(qs, "q");
     if (blank) { $("#res").innerHTML = `<p class="muted">Responda todas as perguntas (faltam ${blank}).</p>`; return; }
     S.attempted = S.attempted || {};
-    if (!S.attempted[l.id]) { S.attempted[l.id] = 1; recordSkills(byType); S.first = S.first || {}; S.first[l.id] = ok / l.questions.length; }
+    let timeMsg = "";
+    if (!S.attempted[l.id]) {
+      S.attempted[l.id] = 1; recordSkills(byType); S.first = S.first || {}; S.first[l.id] = ok / l.questions.length;
+      const t = track.finish(words, l.questions.length);
+      S.timing = S.timing || {}; S.timing[l.id] = { ...t, level: l.level, ok: ok / l.questions.length >= PASS, at: Date.now() };
+      timeMsg = timingHTML(S.timing[l.id]);
+    } else track.stop();
     // Cobertura de vocabulário: a pesquisa sobre leitura (Nation) indica que
     // a leitura fica fluente quando se conhece cerca de 95–98% das palavras.
     const cov = Math.round((1 - looked.size / words) * 100);
@@ -439,7 +450,7 @@ function lesson(id) {
       msg = `<p class="bad">${ok} de ${l.questions.length}. Releia o texto prestando atenção nas explicações acima e tente de novo. Sem pressa.</p><button class="btn block" id="retry">Tentar de novo</button>`;
     }
     save(); updateBadge();
-    $("#res").innerHTML = msg + covMsg;
+    $("#res").innerHTML = msg + timeMsg + covMsg;
     $("#res").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "center" });
     const r = $("#retry"); if (r) r.onclick = () => lesson(id);
   };
@@ -513,6 +524,97 @@ function guide() {
     </section>`;
 }
 
+
+// ---------- Tempo de leitura e idas e vindas ao texto ----------
+// Conta só o tempo ativo: app visível, e pausas de mais de 90 s sem tocar na
+// tela contam como 90 s (celular esquecido na mesa não estraga a medida).
+// "Leitura" = do início da lição até a primeira resposta marcada.
+// "Voltas ao texto" = vezes que o texto volta à tela (ou é aberto pelo botão
+// "Ver texto") depois que você começou a responder.
+const FLUENCY_WPM = { 1: 40, 2: 60, 3: 80, 4: 100, 5: 120 }; // metas internas do curso
+let currentTrack = null;
+function startTracking(l) {
+  if (currentTrack) currentTrack.stop();
+  let active = 0, last = Date.now(), readMs = null, looks = 0, answering = false, textOnScreen = true, stopped = false;
+  const tick = () => { const now = Date.now(); if (!document.hidden) active += Math.min(now - last, 90000); last = now; };
+  const onVis = () => { if (document.hidden) tick(); else last = Date.now(); };
+  const evs = ["scroll", "touchstart", "click", "keydown", "change"];
+  evs.forEach((e) => addEventListener(e, tick, { passive: true, capture: true }));
+  document.addEventListener("visibilitychange", onVis);
+  const card = $("#readCard"), fab = $("#textFab");
+  const io = new IntersectionObserver((entries) => entries.forEach((en) => {
+    if (en.target === card) {
+      if (en.isIntersecting && !textOnScreen && answering) looks++;
+      textOnScreen = en.isIntersecting;
+    }
+    fab.hidden = textOnScreen || !$("#qCard");
+  }), { threshold: 0.15 });
+  io.observe(card);
+  document.querySelectorAll('#qCard input[type="radio"]').forEach((r) => r.addEventListener("change", () => {
+    if (!answering) { tick(); readMs = active; answering = true; }
+  }));
+  fab.onclick = () => { if (answering) looks++; openTextSheet(l); };
+  const t = (currentTrack = {
+    stop() {
+      if (stopped) return; stopped = true;
+      evs.forEach((e) => removeEventListener(e, tick, { capture: true }));
+      document.removeEventListener("visibilitychange", onVis);
+      io.disconnect(); fab.hidden = true;
+    },
+    finish(words, nq) {
+      tick(); t.stop();
+      const r = readMs != null ? readMs : active;
+      return { ms: active, readMs: r, wpm: Math.round(words / Math.max(r / 60000, 0.25)), looks, nq };
+    },
+  });
+  return t;
+}
+function fmtTime(ms) { const s = Math.round(ms / 1000); return s < 60 ? `${s} s` : `${Math.floor(s / 60)} min ${String(s % 60).padStart(2, "0")} s`; }
+function fluency(t) {
+  const goal = FLUENCY_WPM[t.level] || 80;
+  if (t.wpm >= goal && t.looks <= t.nq) return { key: "fluente", label: "Leitura fluente", goal };
+  if (t.wpm >= goal * 0.6 && t.looks <= t.nq * 2) return { key: "dev", label: "Fluência em desenvolvimento", goal };
+  return { key: "lenta", label: "Leitura ainda lenta", goal };
+}
+function timingHTML(t) {
+  const f = fluency(t);
+  return `<div class="timing">
+    <p><b>⏱ ${fmtTime(t.ms)}</b> no total · leitura ≈ <b>${t.wpm}</b> palavras/min (meta do nível: ${f.goal}) · voltou ao texto <b>${t.looks}</b> ${t.looks === 1 ? "vez" : "vezes"} em ${t.nq} perguntas</p>
+    <p class="flu ${f.key}">${f.label}${t.ok && f.key === "fluente" ? " · ★ lição dominada" : ""}</p>
+    <p class="muted">${f.key === "fluente" ? "Você entendeu e leu no ritmo esperado para o nível." : "Voltar ao texto para conferir é uma boa estratégia (scanning). Com a prática e a revisão do vocabulário, o número de voltas e o tempo diminuem."}</p>
+  </div>`;
+}
+function mastered(id) { const t = (S.timing || {})[id]; return !!(t && t.ok && fluency(t).key === "fluente"); }
+function fluencyPanelHTML() {
+  const list = Object.values(S.timing || {}).sort((a, b) => a.at - b.at);
+  if (!list.length) return "";
+  const last = list.slice(-5);
+  const avg = (arr, f) => Math.round(arr.reduce((s, x) => s + f(x), 0) / arr.length);
+  const wpm = avg(last, (t) => t.wpm), lpq = (last.reduce((s, t) => s + t.looks, 0) / last.reduce((s, t) => s + t.nq, 0)).toFixed(1).replace(".", ",");
+  const goal = FLUENCY_WPM[startLevel()];
+  let trend = "";
+  if (list.length >= 4) {
+    const h = Math.floor(list.length / 2), a = avg(list.slice(0, h), (t) => t.wpm), b = avg(list.slice(h), (t) => t.wpm);
+    trend = b > a ? `subindo (de ${a} para ${b} palavras/min)` : b < a ? `caindo (de ${a} para ${b}); normal ao mudar de nível` : "estável";
+  }
+  const dom = LESSONS.filter((l) => mastered(l.id)).length;
+  return `<section class="card">
+    <p class="eyebrow">Fluência de leitura</p>
+    <p>${last.length === 1 ? "Última lição" : `Últimas ${last.length} lições`}: <b>${wpm}</b> palavras/min (meta do nível ${startLevel()}: ${goal}) · <b>${lpq}</b> voltas ao texto por pergunta.</p>
+    <div class="bar"><div style="width:${Math.min(100, (wpm / goal) * 100)}%"></div></div>
+    ${trend ? `<p class="muted">Tendência: ${trend}.</p>` : ""}
+    <p class="muted">${dom} ${dom === 1 ? "lição dominada" : "lições dominadas"} (★ = 80% de acertos com leitura fluente na primeira tentativa).</p>
+  </section>`;
+}
+// Texto numa folha sobreposta, para conferir sem rolar a página inteira.
+function openTextSheet(l) {
+  const ts = $("#textSheet");
+  $("#textSheetBody").innerHTML = renderReading(l, l.vocab);
+  $("#textSheetBody").querySelectorAll(".w").forEach((el) => el.onclick = () => showSheet(`<b>${esc(el.dataset.en)}</b> = ${esc(el.dataset.pt)}`));
+  ts.hidden = false;
+  $("#textSheetClose").focus();
+}
+
 // ---------- Navegação ----------
 function updateBadge() {
   const due = dueCards().length, b = $("#dueBadge");
@@ -522,6 +624,8 @@ function updateBadge() {
 // dentro do claude.ai, que só repassa #nome.
 function route() {
   if ("speechSynthesis" in window) speechSynthesis.cancel();
+  if (currentTrack) currentTrack.stop();
+  $("#textSheet").hidden = true;
   const h = location.hash.slice(1);
   const isLesson = h.startsWith("l-");
   const page = isLesson ? "licoes" : ({ teste: "inicio" }[h] || h || "inicio");
@@ -535,6 +639,7 @@ function route() {
 addEventListener("hashchange", route);
 // Toque no tipo de pergunta mostra a dica (no celular não existe "passar o mouse").
 document.addEventListener("click", (e) => {
+  if (e.target.closest("#textSheetClose")) $("#textSheet").hidden = true;
   const t = e.target.closest(".qt");
   if (t) showSheet(`<b>${esc(t.textContent.replace(" ⓘ", ""))}:</b> ${esc(t.dataset.tip)}`);
   if (e.target.closest("#sheet")) $("#sheet").hidden = true;

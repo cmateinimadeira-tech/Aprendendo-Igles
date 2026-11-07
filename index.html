@@ -141,6 +141,18 @@
   .sure { margin-top: 8px; padding: 10px 12px; border-radius: 12px; background: var(--soft); }
   .sure .duo { margin-top: 6px; }
   fieldset.q .sure label { margin: 0; font-size: .92rem; }
+  .timing { margin-top: 12px; padding: 12px 14px; border-radius: 12px; background: var(--soft); }
+  .timing p { margin: .3em 0; }
+  .flu { font-weight: 700; }
+  .flu.fluente { color: var(--ok); } .flu.dev { color: var(--ink); } .flu.lenta { color: var(--bad); }
+  .fab { position: fixed; z-index: 6; right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(var(--tabbar) + 14px + env(safe-area-inset-bottom, 0px));
+         margin: 0; border-radius: 99px; background: var(--ink); color: var(--bg); border-color: var(--ink); font-weight: 700; box-shadow: 0 6px 20px rgba(0,0,0,.25); }
+  .textsheet { position: fixed; inset: 0; z-index: 8; background: rgba(0,0,0,.45); display: flex; align-items: flex-end; }
+  .ts-in { width: 100%; max-width: 680px; margin: 0 auto; max-height: 82%; display: flex; flex-direction: column; background: var(--surface);
+           border-radius: 18px 18px 0 0; padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .ts-head { display: flex; justify-content: space-between; align-items: center; padding: 8px max(16px, env(safe-area-inset-right, 0px)) 8px max(16px, env(safe-area-inset-left, 0px)); border-bottom: 1px solid var(--line); }
+  .ts-head button { margin: 0; }
+  .ts-body { overflow-y: auto; padding: 12px max(16px, env(safe-area-inset-right, 0px)) 24px max(16px, env(safe-area-inset-left, 0px)); -webkit-overflow-scrolling: touch; }
   .hidden { display: none; }
 </style>
 <!-- ARTIFACT-HEAD-END -->
@@ -152,6 +164,13 @@
 </div></header>
 <main id="view"></main>
 <div class="sheet" id="sheet" hidden><div id="sheetText" role="status"></div></div>
+<button class="fab" id="textFab" type="button" hidden>📄 Ver texto</button>
+<div class="textsheet" id="textSheet" hidden role="dialog" aria-label="Texto da lição">
+  <div class="ts-in">
+    <div class="ts-head"><b>Texto</b><button type="button" id="textSheetClose">Fechar</button></div>
+    <div class="ts-body" id="textSheetBody"></div>
+  </div>
+</div>
 <nav class="tabs" aria-label="Navegação"><div class="in">
   <a href="#inicio" data-tab="inicio"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>Início</a>
   <a href="#licoes" data-tab="licoes"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5M8 7h7M8 11h7"/></svg>Lições</a>
@@ -161,6 +180,11 @@
 </div></nav>
 <script src="data.js"></script>
 <script src="anpad.js"></script>
+<script src="lessons/level-1.js"></script>
+<script src="lessons/level-2.js"></script>
+<script src="lessons/level-3.js"></script>
+<script src="lessons/level-4.js"></script>
+<script src="lessons/level-5.js"></script>
 <script src="app.js"></script>
 <!-- ARTIFACT-END -->
 </body>

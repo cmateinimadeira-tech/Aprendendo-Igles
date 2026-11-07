@@ -23,12 +23,14 @@ let bad = 0;
 for (const r of READINGS) {
   const text = r.paras.join(" ");
   const gl = new Set((r.gloss || []).map((g) => g[0].toLowerCase()));
-  const tokens = text.match(/[A-Za-z][A-Za-z'’-]*/g) || [];
+  const toks = [...text.matchAll(/[A-Za-z][A-Za-z'’-]*/g)];
+  const tokens = toks.map((m) => m[0]);
+  const startsSentence = (i) => { const before = text.slice(0, toks[i].index).replace(/[\s"“‘(]+$/, ""); return !before || /[.!?:]$/.test(before); };
   let known = 0; const out = new Map();
   tokens.forEach((t, i) => {
     const w = t.toLowerCase().replace(/’/g, "'");
     const parts = w.split("-");
-    const ok = parts.every((p) => (NGSL_RANK[lemma(p)] || 9999) <= BAND[r.level]) || gl.has(w) || cognate(w) || (/^[A-Z]/.test(t) && i > 0 && !/[.!?]$/.test(tokens[i - 1]));
+    const ok = parts.every((p) => (NGSL_RANK[lemma(p)] || 9999) <= BAND[r.level]) || gl.has(w) || cognate(w) || (/^[A-Z]/.test(t) && !startsSentence(i));
     if (ok) known++; else out.set(w, (out.get(w) || 0) + 1);
   });
   const cov = known / tokens.length;

@@ -31,12 +31,16 @@ function readLevel() { return Math.max(2, startLevel()); }
 function coverageOf(r, learned = learnedWords()) {
   const band = READ_BAND[Math.max(readLevel(), 1)];
   const gl = new Set((r.gloss || []).map((g) => g[0].toLowerCase()));
-  const tokens = r.paras.join(" ").match(/[A-Za-z][A-Za-z'’-]*/g) || [];
+  const full = r.paras.join(" ");
+  const toks = [...full.matchAll(/[A-Za-z][A-Za-z'’-]*/g)];
+  const tokens = toks.map((m) => m[0]);
+  // começo de frase: antes da palavra só há espaço/aspas e, antes disso, . ! ? : ou o início do texto
+  const startsSentence = (i) => { const before = full.slice(0, toks[i].index).replace(/[\s"“‘(]+$/, ""); return !before || /[.!?:]$/.test(before); };
   let known = 0; const unknown = new Set();
   tokens.forEach((t, i) => {
     const w = t.toLowerCase().replace(/’/g, "'");
     const ok = w.split("-").every((p) => (NGSL_RANK[rLemma(p)] || 9999) <= band || learned.has(p) || learned.has(rLemma(p)))
-      || rCognate(w) || (/^[A-Z]/.test(t) && i > 0 && !/[.!?]$/.test(tokens[i - 1]));
+      || rCognate(w) || (/^[A-Z]/.test(t) && !startsSentence(i));
     if (ok) known++; else unknown.add(w);
   });
   return { cov: tokens.length ? known / tokens.length : 1, unknown, words: tokens.length, gl };

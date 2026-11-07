@@ -217,7 +217,8 @@ function home() {
         <a class="btn primary" href="#teste">Fazer o teste de leitura</a>
       </section>
       ${installHTML()}
-      ${backupHTML()}`;
+      ${backupHTML()}
+      ${versionHTML()}`;
     bindHomeExtras();
     return;
   }
@@ -244,7 +245,8 @@ function home() {
     ${skillsHTML()}
     ${installHTML()}
     ${backupHTML()}
-    <p><button class="link" id="redo">Refazer o teste de nivelamento</button></p>`;
+    <p><button class="link" id="redo">Refazer o teste de nivelamento</button></p>
+    ${versionHTML()}`;
   bindHomeExtras();
   const down = $("#lvDown"), keep = $("#lvKeep");
   if (down) down.onclick = () => { S.placement.level = startLevel() - 1; S.placement.adjusted = true; save(); home(); };
@@ -638,12 +640,20 @@ function openTextSheet(l) {
 // ---------- App instalável (PWA) ----------
 // Só vale fora do claude.ai (lá a página roda num quadro sem service worker).
 const PWA_URL = "https://cmateinimadeira-tech.github.io/Aprendendo-Igles/";
+const APP_VERSION = "7"; // mostrado no app para conferir se a atualização chegou
 const inFrame = (() => { try { return window.top !== window; } catch (e) { return true; } })();
 const isStandalone = matchMedia("(display-mode: standalone)").matches || matchMedia("(display-mode: fullscreen)").matches || navigator.standalone === true;
 const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
 let installEvent = null;
 if (!inFrame && "serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) {
-  addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+  addEventListener("load", () => navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).then((r) => r.update()).catch(() => {}));
+  // Quando uma versão nova assume, recarrega se você estiver na tela inicial; senão, avisa.
+  let reloaded = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (reloaded) return;
+    if (!location.hash || location.hash === "#inicio") { reloaded = true; location.reload(); }
+    else showSheet("Versão nova do app disponível. Volte ao Início para atualizar.");
+  });
   if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
 }
 addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); installEvent = e; if (!location.hash || location.hash === "#inicio") home(); });
@@ -666,6 +676,18 @@ function installHTML() {
   </section>`;
 }
 
+async function forceUpdate() {
+  try {
+    const regs = navigator.serviceWorker ? await navigator.serviceWorker.getRegistrations() : [];
+    await Promise.all(regs.map((r) => r.unregister()));
+    if (window.caches) { const keys = await caches.keys(); await Promise.all(keys.map((k) => caches.delete(k))); }
+  } catch (e) {}
+  location.reload();
+}
+function versionHTML() {
+  return `<p class="muted center">Versão ${APP_VERSION}${!inFrame ? ` · <button class="link" id="updBtn">Atualizar app</button>` : ""}</p>`;
+}
+
 // ---------- Transferir progresso ----------
 // O progresso fica em cada navegador ou app separadamente; este código leva o
 // progresso de um lugar para outro (por exemplo, do claude.ai para o app instalado).
@@ -682,6 +704,8 @@ function backupHTML() {
   </details>`;
 }
 function bindHomeExtras() {
+  const ub = $("#updBtn");
+  if (ub) ub.onclick = () => { ub.textContent = "Atualizando…"; forceUpdate(); };
   const ib = $("#installBtn");
   if (ib) ib.onclick = async () => { installEvent.prompt(); await installEvent.userChoice.catch(() => {}); installEvent = null; home(); };
   const copy = $("#bkCopy");

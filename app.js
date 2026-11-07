@@ -525,6 +525,7 @@ function guide() {
       <p><b>1. Teste de nivelamento (uma vez, ou quando quiser conferir).</b> Quatro textos, cinco perguntas cada. Mede de onde começar. Acerto por dedução vale meio ponto.</p>
       <p><b>2. Lições (o dia a dia).</b> Cada lição ensina e avalia ao mesmo tempo: estratégia de leitura, texto, perguntas com explicação, um ponto-chave e vocabulário. A primeira tentativa de cada lição é a medida real do seu nível.</p>
       <p><b>3. Revisão espaçada.</b> As palavras das lições concluídas voltam após 1, 3, 7, 14 e 30 dias.</p>
+      <p><b>Palavras com pesos diferentes.</b> Para quem fala português, substantivos de origem latina costumam ser cognatos fáceis; o que mais trava a leitura são palavras de ligação (however, although, unless), palavras de função (hardly, still, yet) e phrasal verbs. Por isso a revisão deixa de fora as palavras fáceis, espaça os cognatos e traz primeiro as fundamentais (★), e há um treino só de palavras de ligação.</p>
       <p><b>4. Ajuste contínuo.</b> 80% libera a lição; 2 lições concluídas liberam o nível seguinte. Se as duas primeiras lições do seu nível ficarem abaixo de 80% na primeira tentativa, o app sugere descer um nível. O painel de habilidades aponta o tipo de pergunta mais difícil para você.</p>
     </section>
 

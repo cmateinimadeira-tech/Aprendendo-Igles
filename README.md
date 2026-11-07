@@ -88,3 +88,13 @@ XP: +10 por acerto na 1ª tentativa, +2 ao refazer, +20 por lição dominada (�
 Meta diária: leve (1 lição + 10 revisões), regular (2 + 15) ou intensa (4 + 20); cumprir mantém a sequência de dias.
 Meta de aprendizagem: nível-alvo e data opcional; o caminho exige 75% das lições de cada nível, e o app prevê a data de
 chegada pelo ritmo das últimas 2 semanas.
+
+## Palavras com pesos diferentes
+Para quem fala português, ~70–75% da Academic Word List são cognatos de origem latina (fáceis); conectivos, palavras de função
+e phrasal verbs são o gargalo. Por isso:
+- `lessons/vocab-tags.js` classifica cada palavra (ligação, função, phrasal, verbo, adjetivo/advérbio, substantivo, expressão;
+  fácil, cognato, falso cognato; prioridade 1–3). Palavras fáceis ficam fora da revisão, cognatos voltam espaçados e as
+  fundamentais vêm primeiro.
+- `words.js` + `lessons/links-a.js` e `links-b.js`: treino de palavras de ligação (80 palavras, 160 questões dos tipos lacuna,
+  relação, sentido e equivalente no estilo ANPAD), com revisão espaçada por questão. Revisão às cegas: 80/80 e 80/80.
+- Nos textos das lições, as palavras de ligação ficam com sublinhado próprio e são listadas antes da leitura.

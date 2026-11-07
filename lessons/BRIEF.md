@@ -18,7 +18,7 @@ Não use `import`/`export`. O arquivo é carregado como `<script>` depois de `da
 Copie a estrutura das lições existentes em `data.js` (`LESSONS`). Campos:
 - `id`: único, kebab-case em inglês (confira que não existe em `data.js`, `anpad.js` nem nos outros arquivos de `lessons/`).
 - `strategy`: uma chave de `STRATEGIES` em `data.js` (prediction, skimming, scanning, cognatos, falsos, repetidas, inferencia, referencia, conectivos, afixos, estrutura, eliminacao).
-- `level`, `theme` (`"F1"`, `"Tecnologia"`, `"Economia"`, `"Cotidiano"`), `title` (em inglês, curto).
+- `level`, `theme` (`"F1"`, `"Tecnologia"`, `"Economia"`, `"Negócios"`, `"Cotidiano"`), `title` (em inglês, curto).
 - `context`, `predict` (em português): situação e pergunta de pré-leitura.
 - `cognates`: 3 a 6 palavras do texto parecidas com o português.
 - O texto: `text` (string) para textos corridos, **ou** `radio` (array de `["Engineer"|"Driver", "fala"]`) para rádio de F1.

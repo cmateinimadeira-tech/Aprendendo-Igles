@@ -570,8 +570,8 @@ const LESSONS = [
 
 // Ordena por nível, mantendo a ordem dos temas dentro de cada nível.
 LESSONS.sort((a, b) => a.level - b.level);
-const THEMES = ["F1", "Tecnologia", "Economia", "Cotidiano", "ANPAD"];
-const THEME_LABEL = { F1: "🏎️ Rádio F1", Tecnologia: "💻 Tecnologia", Economia: "📈 Economia", Cotidiano: "☕ Cotidiano", ANPAD: "🎓 ANPAD / acadêmico" };
+const THEMES = ["F1", "Tecnologia", "Economia", "Negócios", "Cotidiano", "ANPAD"];
+const THEME_LABEL = { F1: "🏎️ Rádio F1", Tecnologia: "💻 Tecnologia", Economia: "📈 Economia", Negócios: "💼 Negócios", Cotidiano: "☕ Cotidiano", ANPAD: "🎓 ANPAD / acadêmico" };
 
 // ---------- Glossário do rádio da F1 ----------
 const GLOSSARY = [

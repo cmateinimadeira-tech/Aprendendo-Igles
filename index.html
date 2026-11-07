@@ -172,6 +172,14 @@
   html.fs body::before { display: none; }
   html.fs .top { top: 0; }
   html.fs .sync { display: none; }
+  html.fs .top .in { min-height: 38px; }
+  html.fs .brand { font-size: .95rem; }
+  html.fs .fsbtn { min-height: 32px; min-width: 32px; font-size: .95rem; }
+  .top { transition: transform .2s ease; }
+  html.fs .top.away { transform: translateY(-100%); }
+  @media (prefers-reduced-motion: reduce) { .top { transition: none; } }
+  .probe { position: fixed; top: 0; left: 0; width: 0; height: 0; padding-top: env(safe-area-inset-top, 0px); visibility: hidden; pointer-events: none; }
+  .diag { font-size: .72rem; }
   .hidden { display: none; }
 </style>
 <!-- ARTIFACT-HEAD-END -->
@@ -181,6 +189,7 @@
   <span class="brand">Aprendendo <span>Inglês</span></span>
   <span class="topr"><span class="sync" id="sync"></span><button type="button" class="fsbtn" id="fsBtn" hidden aria-label="Tela cheia">⛶</button></span>
 </div></header>
+<div class="probe" id="probe"></div>
 <main id="view"></main>
 <div class="sheet" id="sheet" hidden><div id="sheetText" role="status"></div></div>
 <button class="fab" id="textFab" type="button" hidden>📄 Ver texto</button>

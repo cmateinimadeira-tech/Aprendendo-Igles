@@ -640,7 +640,7 @@ function openTextSheet(l) {
 // ---------- App instalável (PWA) ----------
 // Só vale fora do claude.ai (lá a página roda num quadro sem service worker).
 const PWA_URL = "https://cmateinimadeira-tech.github.io/Aprendendo-Igles/";
-const APP_VERSION = "7"; // mostrado no app para conferir se a atualização chegou
+const APP_VERSION = "8"; // mostrado no app para conferir se a atualização chegou
 const inFrame = (() => { try { return window.top !== window; } catch (e) { return true; } })();
 const isStandalone = matchMedia("(display-mode: standalone)").matches || matchMedia("(display-mode: fullscreen)").matches || navigator.standalone === true;
 const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
@@ -685,7 +685,10 @@ async function forceUpdate() {
   location.reload();
 }
 function versionHTML() {
-  return `<p class="muted center">Versão ${APP_VERSION}${!inFrame ? ` · <button class="link" id="updBtn">Atualizar app</button>` : ""}</p>`;
+  const mode = ["fullscreen", "standalone", "minimal-ui", "browser"].find((m) => matchMedia(`(display-mode: ${m})`).matches) || "?";
+  const probe = $("#probe"), inset = probe ? Math.round(parseFloat(getComputedStyle(probe).paddingTop) || 0) : 0;
+  return `<p class="muted center">Versão ${APP_VERSION}${!inFrame ? ` · <button class="link" id="updBtn">Atualizar app</button>` : ""}</p>
+    <p class="muted center diag">Tela ${screen.width}×${screen.height} · app ${innerWidth}×${innerHeight} · área da câmera ${inset} px · modo ${mode}${document.fullscreenElement ? " (API)" : ""}</p>`;
 }
 
 // ---------- Transferir progresso ----------
@@ -740,8 +743,18 @@ const canFS = !inFrame && !!(document.fullscreenEnabled && document.documentElem
 function enterFS() { if (canFS && !document.fullscreenElement) document.documentElement.requestFullscreen({ navigationUI: "hide" }).catch(() => {}); }
 function updateFsBtn() {
   document.documentElement.classList.toggle("fs", !!document.fullscreenElement || matchMedia("(display-mode: fullscreen)").matches);
-  const b = $("#fsBtn"); if (!b) return; b.hidden = !canFS; b.textContent = document.fullscreenElement ? "✕" : "⛶"; b.setAttribute("aria-label", document.fullscreenElement ? "Sair da tela cheia" : "Tela cheia"); }
-document.addEventListener("click", (e) => { if (fsPref() && !e.target.closest("#fsBtn")) enterFS(); }, true);
+  const b = $("#fsBtn"); if (!b) return; b.hidden = !canFS || (matchMedia("(display-mode: fullscreen)").matches && !document.fullscreenElement); b.textContent = document.fullscreenElement ? "✕" : "⛶"; b.setAttribute("aria-label", document.fullscreenElement ? "Sair da tela cheia" : "Tela cheia"); }
+document.addEventListener("click", (e) => { if (fsPref() && !matchMedia("(display-mode: fullscreen)").matches && !e.target.closest("#fsBtn")) enterFS(); }, true);
+// Em tela cheia, o cabeçalho some ao rolar para baixo e volta ao rolar para cima.
+let lastY = 0;
+addEventListener("scroll", () => {
+  const y = scrollY, top = $(".top");
+  if (!top) return;
+  if (!document.documentElement.classList.contains("fs") || y < 60) top.classList.remove("away");
+  else if (y > lastY + 6) top.classList.add("away");
+  else if (y < lastY - 6) top.classList.remove("away");
+  lastY = y;
+}, { passive: true });
 document.addEventListener("fullscreenchange", updateFsBtn);
 addEventListener("load", () => {
   updateFsBtn();

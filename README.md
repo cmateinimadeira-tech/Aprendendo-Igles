@@ -98,3 +98,12 @@ e phrasal verbs são o gargalo. Por isso:
 - `words.js` + `lessons/links-a.js` e `links-b.js`: treino de palavras de ligação (80 palavras, 160 questões dos tipos lacuna,
   relação, sentido e equivalente no estilo ANPAD), com revisão espaçada por questão. Revisão às cegas: 80/80 e 80/80.
 - Nos textos das lições, as palavras de ligação ficam com sublinhado próprio e são listadas antes da leitura.
+
+## Leitura extensiva, minutos fora do app e missões
+- `reading/r-level*.js`: 22 textos (níveis 2–4) de 3–4 parágrafos sobre tecnologia, aprender inglês, economia e curiosidades,
+  escritos com o vocabulário da NGSL do nível (cobertura ≥ 95%) e palavras de ligação; revisados quanto a fatos e inglês.
+- `ngsl.js`: New General Service List 1.2 (Browne, Culligan & Phillips, CC BY-SA 4.0), usada para estimar quanto do texto o
+  aluno conhece (NGSL da faixa + palavras já aprendidas + cognatos). O app recomenda o texto mais perto de 96%.
+- Releitura espaçada (2, 4 ou 10 dias, conforme a dificuldade) com comparação de velocidade.
+- Registro de minutos de inglês fora do app e três missões diárias (ler um texto é fixa).
+- Produção de novos textos: `reading/BRIEF.md` + `node reading/check.js -v`.

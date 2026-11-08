@@ -1,5 +1,5 @@
 // ---------- Reforço de palavras difíceis ("sanguessugas") ----------
-// Depois de 4 vezes "Não lembrei", a palavra sai da revisão normal e vai para o
+// Depois de esquecer a palavra em 4 dias diferentes (ou se o aluno tocar em "Difícil"), ela sai da revisão normal e vai para o
 // reforço: 4 exercícios montados na hora com frases reais do acervo do app
 // (lições, textos e treino de ligação) em que a palavra — ou outra forma dela — aparece.
 // Acertando 3 de 4, ela volta à revisão normal. Palavras com poucas frases ficam
@@ -36,7 +36,11 @@ function sentencesFor(term) {
 }
 
 function leeches() { return Object.entries(S.srs || {}).filter(([, c]) => c.leech && !c.skip); }
+// Conta no máximo uma falha por dia: "4 vezes" = esquecer a palavra em 4 dias diferentes.
 function markLapse(en, c) {
+  const k = dayKey();
+  if (c.lapseDay === k) return false;
+  c.lapseDay = k;
   c.lapses = (c.lapses || 0) + 1;
   if (c.lapses >= LEECH_AT && !c.leech) {
     c.leech = true;
@@ -135,5 +139,13 @@ function reinforce() {
 
 function leechCardHTML() {
   const n = leeches().length;
-  return n ? `<a class="card row leech" href="#reforco"><span><b>🧩 Reforço de palavras difíceis</b><br><span class="muted">${n} ${n === 1 ? "palavra que você errou" : "palavras que você errou"} 4 vezes ou mais · exercícios com frases</span></span><span class="tag">Treinar</span></a>` : "";
+  return n ? `<a class="card row leech" href="#reforco"><span><b>🧩 Reforço de palavras difíceis</b><br><span class="muted">${n} ${n === 1 ? "palavra difícil" : "palavras difíceis"} · exercícios com frases</span></span><span class="tag">Treinar</span></a>` : "";
+}
+
+// Envio manual para o reforço (botão "Difícil" na revisão).
+function sendToReinforce(en) {
+  const c = S.srs[en]; if (!c) return;
+  c.leech = true; c.lapses = Math.max(c.lapses || 0, LEECH_AT); c.manualLeech = true;
+  if (sentencesFor(en).list.length < 2) { S.needSent = S.needSent || {}; S.needSent[en] = 1; }
+  save(); updateBadge();
 }

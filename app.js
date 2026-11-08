@@ -565,7 +565,8 @@ function review() {
       ${c.ex ? `<p class="muted">“${esc(c.ex)}”</p>` : ""}
       ${pronButtonsHTML(en, c.ex)}
       <div id="back" class="hidden"><p class="big2">${esc(c.pt)}</p>
-        <div class="duo"><button class="btn bad-b" id="no">Não lembrei</button><button class="btn primary" id="yes">Lembrei</button></div></div>
+        <div class="duo"><button class="btn bad-b" id="no">Não lembrei</button><button class="btn primary" id="yes">Lembrei</button></div>
+        <button type="button" class="link" id="hard">🧩 Difícil: mandar para o reforço</button></div>
       <button class="btn primary block" id="show">Mostrar significado</button>
     </section>`;
   $("#show").onclick = () => { $("#back").classList.remove("hidden"); $("#show").classList.add("hidden"); };
@@ -578,6 +579,7 @@ function review() {
     save(); updateBadge(); afterEvent(); review();
   };
   $("#yes").onclick = () => answer(true);
+  $("#hard").onclick = () => { if (typeof sendToReinforce === "function") { sendToReinforce(en); showSheet(`🧩 “${esc(en)}” foi para o reforço.`); review(); } };
   $("#no").onclick = () => answer(false);
 }
 
@@ -733,7 +735,7 @@ function openTextSheet(l) {
 // ---------- App instalável (PWA) ----------
 // Só vale fora do claude.ai (lá a página roda num quadro sem service worker).
 const PWA_URL = "https://cmateinimadeira-tech.github.io/Aprendendo-Igles/";
-const APP_VERSION = "14"; // mostrado no app para conferir se a atualização chegou
+const APP_VERSION = "15"; // mostrado no app para conferir se a atualização chegou
 const inFrame = (() => { try { return window.top !== window; } catch (e) { return true; } })();
 const isStandalone = matchMedia("(display-mode: standalone)").matches || matchMedia("(display-mode: fullscreen)").matches || navigator.standalone === true;
 const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);

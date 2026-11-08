@@ -1,7 +1,7 @@
 // Service worker: deixa o app funcionando offline.
 // Arquivos do app: tenta a rede primeiro (para receber atualizações) e usa o
 // cache quando estiver sem internet. Fontes do Google: cache primeiro.
-const CACHE = "aprendendo-ingles-v14";
+const CACHE = "aprendendo-ingles-v15";
 const APP = [
   "./",
   "./index.html",

@@ -78,6 +78,77 @@ function dueCards() {
 }
 
 // ---------- Áudio opcional (voz do navegador) ----------
+// ---------- Pronúncia: ouvir e falar ----------
+// Ouvir: voz de inglês do aparelho (speechSynthesis). Falar: reconhecimento de voz do
+// navegador (Chrome no Android); o app confere se o reconhecedor entendeu a palavra.
+// Não é uma nota fonética: mostra se a pronúncia está compreensível.
+function enVoice() {
+  const vs = ("speechSynthesis" in window) ? speechSynthesis.getVoices() : [];
+  return vs.find((v) => /en[-_]GB/i.test(v.lang)) || vs.find((v) => /en[-_]US/i.test(v.lang)) || vs.find((v) => /^en/i.test(v.lang)) || null;
+}
+function say(text, rate = 0.85) {
+  if (!("speechSynthesis" in window)) { showSheet("Este navegador não tem leitura em voz alta."); return; }
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  const v = enVoice(); if (v) u.voice = v;
+  u.lang = v ? v.lang : "en-GB"; u.rate = rate;
+  speechSynthesis.speak(u);
+}
+const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+function canRecognize() { return !!SpeechRec && !(typeof inFrame !== "undefined" && inFrame); }
+const normSpeech = (t) => String(t).toLowerCase().replace(/[’']/g, "'").replace(/[^a-z' ]+/g, " ").replace(/\s+/g, " ").trim();
+function lev(a, b) {
+  const d = Array.from({ length: a.length + 1 }, (_, i) => [i]);
+  for (let j = 1; j <= b.length; j++) d[0][j] = j;
+  for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++)
+    d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+  return d[a.length][b.length];
+}
+function checkPronunciation(target, out, onDone) {
+  if (!canRecognize()) { out.innerHTML = `<span class="muted">Este navegador não reconhece voz. No Android, abra o app pelo Chrome para usar esta função.</span>`; return; }
+  const want = normSpeech(target), rec = new SpeechRec();
+  rec.lang = "en-US"; rec.maxAlternatives = 5; rec.interimResults = false; rec.continuous = false;
+  out.innerHTML = `<span class="listening">🎤 Ouvindo… diga “${esc(target)}”</span>`;
+  let got = false;
+  rec.onresult = (e) => {
+    got = true;
+    const alts = [...e.results[0]].map((a) => normSpeech(a.transcript));
+    const hit = alts.some((a) => a === want || (" " + a + " ").includes(" " + want + " "));
+    const best = alts[0] || "";
+    const close = !hit && best && lev(best, want) <= Math.max(1, Math.round(want.length * 0.25));
+    out.innerHTML = hit ? `<span class="ok">✔ Entendi “${esc(target)}”. Pronúncia compreensível!</span>`
+      : close ? `<span class="flu dev">Quase: entendi “${esc(best)}”. Ouça de novo e repita devagar.</span>`
+      : `<span class="bad">Entendi “${esc(best || "…")}”. Ouça a pronúncia e tente de novo.</span>`;
+    S.pron = S.pron || {}; const st = (S.pron[target] = S.pron[target] || { ok: 0, tries: 0 });
+    st.tries++; if (hit) st.ok++;
+    save(); if (onDone) onDone(hit);
+  };
+  rec.onerror = (e) => {
+    out.innerHTML = e.error === "not-allowed" || e.error === "service-not-allowed"
+      ? `<span class="bad">O microfone não foi liberado. Permita o uso do microfone para este site nas configurações do navegador.</span>`
+      : e.error === "no-speech" ? `<span class="muted">Não ouvi nada. Toque em 🎤 e fale logo em seguida.</span>`
+      : `<span class="muted">Não consegui ouvir agora (${esc(e.error)}). Tente de novo.</span>`;
+  };
+  rec.onend = () => { if (!got && /Ouvindo/.test(out.textContent)) out.innerHTML = `<span class="muted">Não ouvi nada. Toque em 🎤 e fale logo em seguida.</span>`; };
+  try { rec.start(); } catch (e) { out.innerHTML = `<span class="muted">Não foi possível usar o microfone agora.</span>`; }
+}
+function pronButtonsHTML(word, example) {
+  return `<div class="pron">
+    <button type="button" class="btn" data-say="${esc(word)}">🔊 Ouvir</button>
+    <button type="button" class="btn" data-say="${esc(word)}" data-rate="0.55">🐢 Devagar</button>
+    ${canRecognize() ? `<button type="button" class="btn" data-speak="${esc(word)}">🎤 Falar</button>` : ""}
+  </div>
+  ${example ? `<p class="muted exl"><button type="button" class="link" data-say="${esc(example)}">🔊 ouvir a frase</button></p>` : ""}
+  <p id="pronRes" class="pronres"></p>`;
+}
+document.addEventListener("click", (e) => {
+  const b = e.target.closest("[data-say]");
+  if (b) { say(b.dataset.say, b.dataset.rate ? +b.dataset.rate : 0.85); return; }
+  const m = e.target.closest("[data-speak]");
+  if (m) { const out = $("#pronRes") || m.parentElement; checkPronunciation(m.dataset.speak, out, (ok) => { if (ok) { today().xp += 1; save(); } }); }
+});
+if ("speechSynthesis" in window) speechSynthesis.onvoiceschanged = () => {};
+
 function speak(lines) {
   if (!("speechSynthesis" in window)) { showSheet("Este navegador não tem leitura em voz alta."); return; }
   speechSynthesis.cancel();
@@ -417,7 +488,7 @@ function lesson(id) {
 
     <section class="card" id="vocabCard" ${S.attempted && S.attempted[l.id] ? "" : "hidden"}>
       <h3>5. Palavras da lição</h3>
-      <table>${l.vocab.map((v) => `<tr class="${tagOf(v[0]).tipo === "facil" ? "easy" : ""}"><td><b>${esc(v[0])}</b><br>${catChip(v[0])}</td><td>${esc(v[1])}</td></tr>`).join("")}</table>
+      <table>${l.vocab.map((v) => `<tr class="${tagOf(v[0]).tipo === "facil" ? "easy" : ""}"><td><b>${esc(v[0])}</b> <button type="button" class="link sayb" data-say="${esc(v[0])}" aria-label="Ouvir ${esc(v[0])}">🔊</button><br>${catChip(v[0])}</td><td>${esc(v[1])}</td></tr>`).join("")}</table>
       <p class="muted">Ao concluir a lição, estas palavras entram na revisão. ★ = fundamental (vem primeiro). Palavras fáceis ficam fora; cognatos voltam com menos frequência.</p>
     </section>
 
@@ -491,6 +562,7 @@ function review() {
       <p class="big">${esc(en)}</p>
       <p>${catChip(en)}</p>
       ${c.ex ? `<p class="muted">“${esc(c.ex)}”</p>` : ""}
+      ${pronButtonsHTML(en, c.ex)}
       <div id="back" class="hidden"><p class="big2">${esc(c.pt)}</p>
         <div class="duo"><button class="btn bad-b" id="no">Não lembrei</button><button class="btn primary" id="yes">Lembrei</button></div></div>
       <button class="btn primary block" id="show">Mostrar significado</button>
@@ -658,7 +730,7 @@ function openTextSheet(l) {
 // ---------- App instalável (PWA) ----------
 // Só vale fora do claude.ai (lá a página roda num quadro sem service worker).
 const PWA_URL = "https://cmateinimadeira-tech.github.io/Aprendendo-Igles/";
-const APP_VERSION = "12"; // mostrado no app para conferir se a atualização chegou
+const APP_VERSION = "13"; // mostrado no app para conferir se a atualização chegou
 const inFrame = (() => { try { return window.top !== window; } catch (e) { return true; } })();
 const isStandalone = matchMedia("(display-mode: standalone)").matches || matchMedia("(display-mode: fullscreen)").matches || navigator.standalone === true;
 const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);

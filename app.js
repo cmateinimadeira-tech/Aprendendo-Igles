@@ -73,7 +73,7 @@ function nextLesson() {
 }
 function dueCards() {
   const now = Date.now();
-  return Object.entries(S.srs).filter(([, c]) => !c.skip && c.due <= now)
+  return Object.entries(S.srs).filter(([, c]) => !c.skip && !c.leech && c.due <= now)
     .sort((a, b) => tagOf(a[0]).pri - tagOf(b[0]).pri || a[1].due - b[1].due); // fundamentais primeiro
 }
 
@@ -552,11 +552,12 @@ function review() {
   const due = dueCards();
   if (!due.length) {
     const total = Object.keys(S.srs).length;
-    view().innerHTML = `<section class="card"><h2>Revisão</h2><p>${total ? "Palavras revisadas por hoje. Volte amanhã!" : "Conclua uma lição para começar a revisar palavras."}</p></section>${linksCardHTML()}`;
+    view().innerHTML = `<section class="card"><h2>Revisão</h2><p>${total ? "Palavras revisadas por hoje. Volte amanhã!" : "Conclua uma lição para começar a revisar palavras."}</p></section>${typeof leechCardHTML === "function" ? leechCardHTML() : ""}${linksCardHTML()}`;
     return;
   }
   const [en, c] = due[0];
   view().innerHTML = `
+    ${typeof leechCardHTML === "function" ? leechCardHTML() : ""}
     <section class="card center">
       <p class="muted">${due.length} para revisar</p>
       <p class="big">${esc(en)}</p>
@@ -571,6 +572,8 @@ function review() {
   const answer = (ok) => {
     c.box = ok ? Math.min(c.box + 1, INTERVALS.length - 1) : 0;
     c.due = ok ? Date.now() + INTERVALS[c.box] * DAY : Date.now() + 60000;
+    const becameLeech = !ok && typeof markLapse === "function" && markLapse(en, c);
+    if (becameLeech) showSheet(`🧩 “${esc(en)}” foi para o reforço: exercícios com frases para fixar a palavra.`);
     awardReview(ok); today().wordRev = (today().wordRev || 0) + 1;
     save(); updateBadge(); afterEvent(); review();
   };
@@ -730,7 +733,7 @@ function openTextSheet(l) {
 // ---------- App instalável (PWA) ----------
 // Só vale fora do claude.ai (lá a página roda num quadro sem service worker).
 const PWA_URL = "https://cmateinimadeira-tech.github.io/Aprendendo-Igles/";
-const APP_VERSION = "13"; // mostrado no app para conferir se a atualização chegou
+const APP_VERSION = "14"; // mostrado no app para conferir se a atualização chegou
 const inFrame = (() => { try { return window.top !== window; } catch (e) { return true; } })();
 const isStandalone = matchMedia("(display-mode: standalone)").matches || matchMedia("(display-mode: fullscreen)").matches || navigator.standalone === true;
 const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
@@ -868,13 +871,13 @@ function route() {
   $("#textSheet").hidden = true;
   const h = location.hash.slice(1);
   const isLesson = h.startsWith("l-");
-  const page = isLesson ? "licoes" : h.startsWith("ler-") ? "leitura" : ({ teste: "inicio", glossario: "metas", guia: "metas", treino: "revisao" }[h] || h || "inicio");
+  const page = isLesson ? "licoes" : h.startsWith("ler-") ? "leitura" : ({ teste: "inicio", glossario: "metas", guia: "metas", treino: "revisao", reforco: "revisao" }[h] || h || "inicio");
   document.querySelectorAll(".tabs a").forEach((a) => a.classList.toggle("on", a.dataset.tab === page));
   updateBadge();
   $("#sheet").hidden = true;
   if (h.startsWith("ler-")) readText(h.slice(4));
   else if (isLesson) lesson(h.slice(2));
-  else ({ teste: test, licoes: lessonList, revisao: review, glossario: glossary, guia: guide, metas: goals, treino: linksTraining, leitura: readingList }[h] || home)();
+  else ({ teste: test, licoes: lessonList, revisao: review, glossario: glossary, guia: guide, metas: goals, treino: linksTraining, leitura: readingList, reforco: reinforce }[h] || home)();
   scrollTo(0, 0);
 }
 addEventListener("hashchange", route);

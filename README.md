@@ -107,3 +107,12 @@ e phrasal verbs são o gargalo. Por isso:
 - Releitura espaçada (2, 4 ou 10 dias, conforme a dificuldade) com comparação de velocidade.
 - Registro de minutos de inglês fora do app e três missões diárias (ler um texto é fixa).
 - Produção de novos textos: `reading/BRIEF.md` + `node reading/check.js -v`.
+
+## Plano do dia e subníveis (novembro)
+- Subníveis 1 → 2.1 → 2.2 → 3.1 → 3.2. O nível 3 abre com 75% do nível 2; até lá aparece só no dia de nível 3 do plano.
+- `plan.js`: plano de ~20 min por dia (3 lições + 1 texto + revisão de palavras), ciclo de 5 dias com um dia de nível 3.
+  Quando um subnível acaba, entram as lições abaixo de 80% (reforço). A aba Metas mostra quantos dias de conteúdo restam.
+- Conteúdo: 105 lições (19 no nível 1, 25 no 2.1, 28 no 2.2, 11 no 3.1…), 36 textos, tema Negócios (incluindo administração
+  pública). Todos os lotes de novembro passaram por revisão às cegas (54/54, 42/42, 56/56, 98/98, 98/98).
+- `dict/pt-a.js` e `pt-b.js`: dicionário inglês→português (2.517 entradas, revisado). Nos textos, só ficam sublinhadas as
+  palavras que o aluno provavelmente não conhece; as demais com tradução continuam tocáveis.

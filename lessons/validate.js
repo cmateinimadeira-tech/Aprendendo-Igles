@@ -4,7 +4,7 @@
 // trechos {{...}} presentes no texto.
 const fs = require("fs"), path = require("path"), vm = require("vm");
 const root = path.join(__dirname, "..");
-const files = ["ngsl.js", "data.js", "anpad.js", ...fs.readdirSync(__dirname).filter((f) => /^level-\d+[a-z]?\.js$/.test(f)).sort().map((f) => "lessons/" + f)];
+const files = ["ngsl.js", "data.js", "anpad.js", ...fs.readdirSync(__dirname).filter((f) => /^(level-\d+[a-z]?|biz-[a-z]+)\.js$/.test(f)).sort().map((f) => "lessons/" + f)];
 const ctx = {};
 vm.createContext(ctx);
 for (const f of files) vm.runInContext(fs.readFileSync(path.join(root, f), "utf8"), ctx, { filename: f });
@@ -13,14 +13,16 @@ const NGSL_RANK = vm.runInContext("NGSL_RANK", ctx);
 // Faixa NGSL por subnível: palavras além dela precisam estar em vocab ou gloss (ou ser cognato transparente/nome próprio).
 const SUB_BAND = { "1": 600, "2.1": 1000, "2.2": 1300, "3.1": 1600, "3.2": 1600, "4": 2200, "5": 2809 };
 const NUMS = new Set("zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty thirty forty fifty sixty seventy eighty ninety hundred thousand million billion first second third half".split(" "));
-const lem = (w) => { if (NGSL_RANK[w] || NUMS.has(w)) return NUMS.has(w) ? "one" : w; const c = w.replace(/n't$|'ll$|'re$|'ve$|'d$|'m$|'s$/, ""); if (NGSL_RANK[c]) return c;
+const lem = (w) => { if (NGSL_RANK[w] || NUMS.has(w)) return NUMS.has(w) ? "one" : w; if (/^(can't|won't|shan't)$/.test(w)) return w === "can't" ? "can" : "will"; const c = w.replace(/n't$|'ll$|'re$|'ve$|'d$|'m$|'s$|s'$/, ""); if (NGSL_RANK[c]) return c;
   return [w.replace(/s$/, ""), w.replace(/es$/, ""), w.replace(/ies$/, "y"), w.replace(/ed$/, ""), w.replace(/d$/, ""), w.replace(/ing$/, ""), w.replace(/ing$/, "e"), w.replace(/ly$/, ""), w.replace(/er$/, ""), w.replace(/est$/, ""), w.replace(/ied$/, "y")].find((t) => NGSL_RANK[t]) || w; };
 const cog = (w) => /(tion|sion|ity|ment|ence|ance|ical|ic|ive|ous|al|ism|ist|ize|ise|ary|ory)s?$/.test(w) && w.length > 5;
 function offBand(l, txt) {
-  const band = SUB_BAND[l.sub] || 9999, known = new Set([...(l.vocab || []), ...(l.gloss || [])].flatMap(([t]) => t.toLowerCase().split(/\s+/)));
-  const toks = [...txt.matchAll(/[A-Za-z][A-Za-z'’-]*/g)], out = new Set();
+  const band = SUB_BAND[l.sub] || 9999, known = new Set([...(l.vocab || []), ...(l.gloss || [])].flatMap(([t]) => t.toLowerCase().split(/[^\p{L}'’-]+/u).filter(Boolean)));
+  const toks = [...txt.matchAll(/\p{L}[\p{L}'’-]*/gu)], out = new Set();
+  // nome próprio: aparece sempre com maiúscula no texto e não é palavra comum da NGSL
+  const lowerSeen = new Set(toks.filter((m) => /^\p{Ll}/u.test(m[0])).map((m) => m[0].toLowerCase()));
   toks.forEach((m) => { const t = m[0], w = t.toLowerCase().replace(/’/g, "'"); const before = txt.slice(0, m.index).replace(/[\s"“‘(]+$/, "");
-    const proper = /^[A-Z]/.test(t) && before && !/[.!?:]$/.test(before);
+    const proper = /^\p{Lu}/u.test(t) && ((before && !/[.!?:]$/.test(before)) || (!lowerSeen.has(w) && !NGSL_RANK[lem(w)]));
     if (proper || cog(w) || known.has(w) || w.split("-").every((p) => (NGSL_RANK[lem(p)] || 9999) <= band || known.has(p))) return; out.add(w); });
   return [...out];
 }

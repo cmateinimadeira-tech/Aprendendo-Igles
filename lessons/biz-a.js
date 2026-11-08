@@ -35,7 +35,7 @@ LESSONS.push(
       ["let me know", "me avise", "If you can't come, let me know."],
       ["by", "até (prazo)", "let me know by Wednesday"],
     ],
-    gloss: [["Office Manager", "gerente administrativa"], ["subject", "assunto"]],
+    gloss: [["Hi", "Oi"], ["everyone", "todos, pessoal"], ["email", "e-mail"], ["Office Manager", "gerente administrativa"], ["subject", "assunto"]],
     write: "Responda à Paula em uma frase: você pode ir à reunião?",
   },
   {
@@ -73,7 +73,7 @@ LESSONS.push(
       ["proof of address", "comprovante de residência", "bring an ID card and proof of address"],
       ["without", "sem", "copies without the original documents"],
     ],
-    gloss: [["City Hall", "prefeitura"], ["ID card", "documento de identidade"], ["older", "mais velhas, idosas"]],
+    gloss: [["p.m.", "da tarde / da noite"], ["weekends", "fins de semana"], ["copies", "cópias"], ["City Hall", "prefeitura"], ["ID card", "documento de identidade"], ["older", "mais velhas, idosas"]],
     write: "Em uma frase, diga o que você precisa levar para ser atendido nessa central.",
   },
   {
@@ -112,7 +112,7 @@ LESSONS.push(
       ["notice", "edital, aviso", "Read the full notice on the city website."],
       ["apply", "candidatar-se, inscrever-se", "before you apply"],
     ],
-    gloss: [["civil service exam", "concurso público"], ["City Hall", "prefeitura"], ["monthly", "mensal"], ["salary", "salário"], ["high school", "ensino médio"], ["registration", "inscrição"], ["written", "escrita"], ["law", "direito, leis"], ["maths", "matemática"]],
+    gloss: [["assistants", "assistentes, auxiliares"], ["diploma", "diploma"], ["online", "on-line, pela internet"], ["website", "site"], ["civil service exam", "concurso público"], ["City Hall", "prefeitura"], ["monthly", "mensal"], ["salary", "salário"], ["high school", "ensino médio"], ["registration", "inscrição"], ["written", "escrita"], ["law", "direito, leis"], ["maths", "matemática"]],
     write: "Você faria esse concurso? Diga em uma frase por quê.",
   },
   {
@@ -190,7 +190,7 @@ LESSONS.push(
       ["however", "porém, no entanto", "However, she is worried."],
       ["worried", "preocupada", "she is worried that some customers may go"],
     ],
-    gloss: [["bakery", "padaria"], ["flour", "farinha"], ["cakes", "bolos"], ["across the street", "do outro lado da rua"]],
+    gloss: [["bread", "pão"], ["coffee", "café"], ["milk", "leite"], ["bakery", "padaria"], ["flour", "farinha"], ["cakes", "bolos"], ["across the street", "do outro lado da rua"]],
     write: "Em uma frase, explique a diferença entre receita e lucro com os números da Lia.",
   },
   {
@@ -229,7 +229,7 @@ LESSONS.push(
       ["unless", "a menos que, se não", "Unless offices keep offering help in person"],
       ["behind", "para trás", "leave the poorest citizens behind"],
     ],
-    gloss: [["single", "único(a)"], ["requesting", "pedir, solicitar"], ["benefits", "benefícios"], ["taxes", "impostos"], ["records", "registros, prontuários"], ["supporters", "defensores"], ["hackers", "invasores de sistemas"], ["skills", "habilidades"], ["poorest", "mais pobres"], ["in person", "pessoalmente"]],
+    gloss: [["online", "on-line"], ["gov.br", "portal de serviços do governo federal"], ["platform", "plataforma"], ["citizens", "cidadãos"], ["millions", "milhões"], ["internet", "internet"], ["single", "único(a)"], ["requesting", "pedir, solicitar"], ["benefits", "benefícios"], ["taxes", "impostos"], ["records", "registros, prontuários"], ["supporters", "defensores"], ["hackers", "invasores de sistemas"], ["skills", "habilidades"], ["poorest", "mais pobres"], ["in person", "pessoalmente"]],
     write: "Você prefere resolver um serviço público pelo celular ou pessoalmente? Por quê?",
   },
   {
@@ -268,7 +268,7 @@ LESSONS.push(
       ["rude", "grosseiro, mal-educado", "they can sound rude"],
       ["instead of", "em vez de", "instead of waiting until the last day"],
     ],
-    gloss: [["summary", "resumo"], ["review", "avaliação"], ["improve", "melhorar"], ["carefully", "com cuidado"], ["early", "cedo"], ["regards", "atenciosamente"]],
+    gloss: [["Hi", "Oi"], ["clients", "clientes"], ["summary", "resumo"], ["review", "avaliação"], ["improve", "melhorar"], ["carefully", "com cuidado"], ["early", "cedo"], ["regards", "atenciosamente"]],
     write: "Se você fosse o Rafael, o que responderia a Helena? Escreva uma frase.",
   },
 );

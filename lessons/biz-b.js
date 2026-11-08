@@ -36,7 +36,7 @@ LESSONS.push(
       ["in short", "em resumo", "In short, openness makes it harder to hide bad deals."],
       ["deals", "negócios, acordos", "harder to hide bad deals"],
     ],
-    gloss: [["openness", "transparência, abertura"], ["fair", "justo"], ["hide", "esconder"]],
+    gloss: [["publishes", "publica"], ["taxpayers'", "dos contribuintes"], ["citizens", "cidadãos"], ["openness", "transparência, abertura"], ["fair", "justo"], ["hide", "esconder"]],
     write: "Em uma frase, diga por que você acha importante que os resultados de uma licitação sejam públicos.",
   },
   {
@@ -75,7 +75,7 @@ LESSONS.push(
       ["from now on", "a partir de agora", "from now on each team must report its results"],
       ["report", "relatar, prestar contas de", "each team must report its results every month"],
     ],
-    gloss: [["pandemic", "pandemia"], ["remote", "remoto, a distância"], ["agency", "órgão, agência"], ["critics", "críticos"], ["hybrid", "híbrido"]],
+    gloss: [["online", "on-line"], ["citizens", "cidadãos"], ["pandemic", "pandemia"], ["remote", "remoto, a distância"], ["agency", "órgão, agência"], ["critics", "críticos"], ["hybrid", "híbrido"]],
     write: "Você preferiria trabalhar em um órgão público com modelo híbrido ou totalmente presencial? Por quê?",
   },
   {
@@ -114,7 +114,7 @@ LESSONS.push(
       ["whether", "se (dúvida entre duas opções)", "whether it can survive a bad year"],
       ["yet", "ainda (em negativas: ainda não)", "it isn't profitable yet"],
     ],
-    gloss: [["farmers", "agricultores"], ["trade", "negociar, comerciar"], ["survive", "sobreviver"], ["profitable", "lucrativa"]],
+    gloss: [["startup", "startup (empresa iniciante de tecnologia)"], ["app", "aplicativo"], ["investors", "investidores"], ["mentor", "mentor, orientador"], ["farmers", "agricultores"], ["trade", "negociar, comerciar"], ["survive", "sobreviver"], ["profitable", "lucrativa"]],
     write: "Em uma frase, diga qual dos critérios do mentor você acha mais importante e por quê.",
   },
   {
@@ -152,7 +152,7 @@ LESSONS.push(
       ["fee", "taxa, tarifa", "your delivery fee"],
       ["rather", "preferir (would rather … than)", "We'd rather solve this personally than keep you waiting again."],
     ],
-    gloss: [["sofa", "sofá"], ["terrible", "péssimo"], ["delivery", "entrega"]],
+    gloss: [["chat", "chat, conversa por mensagem"], ["Hi", "Oi"], ["personally", "pessoalmente"], ["sofa", "sofá"], ["terrible", "péssimo"], ["delivery", "entrega"]],
     write: "Se você fosse a gerente Renata, o que diria a Lucas no telefonema? Escreva uma frase.",
   },
   {
@@ -191,7 +191,7 @@ LESSONS.push(
       ["share", "parte, fatia", "only a small share of the budget is open to a vote"],
       ["tend to", "tendem a, costumam", "people with more free time tend to dominate the meetings"],
     ],
-    gloss: [["council", "câmara (municipal)"], ["neighborhood", "bairro"], ["paving", "asfaltar, pavimentar"], ["clinics", "postos de saúde"], ["supporters", "defensores"], ["critics", "críticos"], ["dominate", "dominar"]],
+    gloss: [["mayor's", "do prefeito"], ["southern", "do sul"], ["assemblies", "assembleias"], ["council", "câmara (municipal)"], ["neighborhood", "bairro"], ["paving", "asfaltar, pavimentar"], ["clinics", "postos de saúde"], ["supporters", "defensores"], ["critics", "críticos"], ["dominate", "dominar"]],
     write: "Você participaria de uma assembleia de orçamento participativo no seu bairro? Que obra você defenderia?",
   },
   {
@@ -230,7 +230,7 @@ LESSONS.push(
       ["reliable", "confiável", "ESG scores are not always reliable"],
       ["greenwashing", "maquiagem verde (fingir ser sustentável)", "This is known as greenwashing."],
     ],
-    gloss: [["governance", "governança"], ["pollute", "poluir"], ["wages", "salários"], ["fines", "multas"], ["lawsuits", "processos judiciais"], ["scores", "notas, pontuações"], ["rating", "classificação de risco"], ["grades", "notas"], ["firms", "empresas"], ["operate", "operar, funcionar"], ["CEO", "diretor-presidente"]],
+    gloss: [["planet", "planeta"], ["governance", "governança"], ["pollute", "poluir"], ["wages", "salários"], ["fines", "multas"], ["lawsuits", "processos judiciais"], ["scores", "notas, pontuações"], ["rating", "classificação de risco"], ["grades", "notas"], ["firms", "empresas"], ["operate", "operar, funcionar"], ["CEO", "diretor-presidente"]],
     write: "Em uma frase, diga se você confiaria apenas na nota ESG para escolher onde investir e por quê.",
   },
   {
